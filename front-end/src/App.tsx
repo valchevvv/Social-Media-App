@@ -13,9 +13,9 @@ const RouterSetup = () => {
   console.log("user", user);
 
   useEffect(() => {
-    if (!user && location.pathname !== '/auth') {
+    if (!user && !location.pathname.startsWith('/auth')) {
       navigate('/auth');
-    } else if (user && location.pathname === '/auth') {
+    } else if (user && location.pathname.startsWith('/auth')) {
       navigate('/');
     }
   }, [user, navigate, location.pathname]);
@@ -29,7 +29,7 @@ const App = () => {
       <div className="App">
         <RouterSetup />
         <Routes>
-          <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/:type" element={<Auth />} />
           <Route path="/" element={<Home />} />
         </Routes>
       </div>
