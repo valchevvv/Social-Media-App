@@ -4,12 +4,18 @@ dotenv.config();
 import express from 'express';
 import connectDB from './db';
 import loadRoutes from './routeLoader';
+import cors from 'cors';
 
 const app = express();
 
 connectDB();
 
 app.use(express.json());
+
+app.use(cors());
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 loadRoutes(app);
 
