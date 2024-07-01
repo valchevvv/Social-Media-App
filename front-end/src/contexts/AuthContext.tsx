@@ -12,7 +12,15 @@ interface AuthContextType {
     logout: () => void;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType>({
+    user: null,
+    login: (token: string) => {
+        localStorage.setItem('userToken', token);
+    },
+    logout: () => {
+        localStorage.removeItem('userToken');
+    },
+});
 
 interface AuthProviderProps {
     children: ReactNode;
