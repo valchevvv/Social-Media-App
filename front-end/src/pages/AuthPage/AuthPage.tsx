@@ -1,10 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../../contexts/AuthContext'; // Adjust the import path as needed
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import axios from 'axios'; // Import Axios
+import { get, post } from '../../helper/axiosHelper'
 
 const AuthPage = () => {
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login } = useContext(AuthContext); // Assuming login function is provided by AuthContext
   const location = useLocation();
@@ -21,17 +22,27 @@ const AuthPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.get(`http://localhost:5000/api/users/login?username=${username}&password=${password}`, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      if (!response.data || !response.data.token) {
+      let response;
+
+      if (isLogin) {
+        response = await get('users/login', {
+          username,
+          password
+        });
+      } else {
+        response = await post('users/register', {
+          username,
+          email,
+          password
+        });
+      }
+
+      if (!response || !response.token) {
         console.error('Login failed:', response.data.error);
         return;
       }
 
-      login(response.data.token);
+      login(response.token);
     } catch (error) {
       console.error('Login failed:', error);
     }
@@ -55,6 +66,13 @@ const AuthPage = () => {
                   <input autoComplete="off" required id="username" name="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="bg-gray-100 sm:bg-white peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600" placeholder="Username" />
                   <label htmlFor="username" className="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-5 sm:peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm">Username</label>
                 </div>
+                {
+                  !isLogin &&
+                  <div className="relative">
+                    <input autoComplete="off" required id="email" name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-gray-100 sm:bg-white peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600" placeholder="E-mail" />
+                    <label htmlFor="email" className="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-5 sm:peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm">E-mail</label>
+                  </div>
+                }
                 <div className="relative">
                   <input autoComplete="off" required id="password" name="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="bg-gray-100 sm:bg-white mt-2 sm:mt-0 peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600" placeholder="Password" />
                   <label htmlFor="password" className="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-4 sm:peer-placeholder-shown:top-2 transition-all peer-focus:-top-3 sm:peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm">Password</label>

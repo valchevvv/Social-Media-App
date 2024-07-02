@@ -5,6 +5,7 @@ import Home from './pages/HomePage';
 import Auth from './pages/AuthPage';
 import Sidebar from './components/Sidebar';
 import { SidebarProvider } from './contexts/SidebarContext';
+import Navigation from './components/Navigation';
 
 const RouterSetup = () => {
   const navigate = useNavigate();
@@ -29,14 +30,17 @@ const App = () => {
   return (
     <SidebarProvider>
       <Router>
-        <div className="App sm:flex sm:flex-row">
+        <RouterSetup />
+        <Routes>
+          <Route path="/auth/:type" element={<Auth />} />
+        </Routes>
+        <div className={`App ${(user ? "sm:flex" : "hidden")} sm:flex-row`}>
           <div className="sidebar">
             {user && <Sidebar />}
           </div>
-          <div className='content p-0 sm:p-5'>
-            <RouterSetup />
+          {user && <Navigation />}
+          <div className='content p-0 pb-[50px] sm:p-5'>
             <Routes>
-              <Route path="/auth/:type" element={<Auth />} />
               <Route path="/" element={<Home />} />
               <Route path="/home" element={<Home />} />
             </Routes>
