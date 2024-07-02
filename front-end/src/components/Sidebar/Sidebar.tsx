@@ -7,8 +7,7 @@ import { FaSearchPlus } from "react-icons/fa";
 import { useSidebarContext } from "../../contexts/SidebarContext";
 
 const Sidebar = () => {
-    const { toggleSidebar, isCollapsed } = useSidebarContext()
-    console.log(isCollapsed)
+    const { isCollapsed } = useSidebarContext();
     return (
         <>
             <aside
