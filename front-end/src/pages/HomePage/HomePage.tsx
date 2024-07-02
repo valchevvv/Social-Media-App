@@ -17,13 +17,13 @@ const HomePage = () => {
   }, [])
 
   return (
-    <>
+    <div className='justify-center'>
       {
         posts && posts.map((post, index) => (
           <PostCard key={index} postData={post} />
         ))
       }
-    </>
+    </div>
   );
 };
 

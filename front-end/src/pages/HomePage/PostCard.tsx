@@ -5,12 +5,9 @@ import { FaHeart } from "react-icons/fa";
 import { RiMessage3Line } from "react-icons/ri";
 import { VscSend } from "react-icons/vsc";
 
-import { FaBookmark } from "react-icons/fa";
-import { IoBookmarkOutline } from "react-icons/io5";
-
-
 import { post } from '../../helper/axiosHelper';
 import { AuthContext } from '../../contexts/AuthContext';
+import CommentComponent from './Comment';
 
 
 
@@ -31,8 +28,9 @@ const PostCard = ({ postData }: { postData: Post }) => {
 
     const { user } = useContext(AuthContext);
 
+    const [commenting, setCommenting] = useState(false);
+
     const [liked, setLiked] = useState(postData.likes.includes(user!._id) || false);
-    const [boomMarked, setBooMarked] = useState(false);
 
     const likePost = () => {
         post('post/like', { postId: postData._id, liked: !liked }).then(response => {
@@ -59,7 +57,7 @@ const PostCard = ({ postData }: { postData: Post }) => {
                 <div className="px-4 py-3">
                     <div className="font-semibold text-sm">{postData.content}</div>
                 </div>
-                <div className="flex items-center align-center justify-between mx-4 mt-3 mb-2">
+                <div className="flex items-center align-center justify-start mx-4 mt-3 mb-2">
                     <div className="flex gap-5">
                         <button onClick={likePost}>
                         {
@@ -73,15 +71,21 @@ const PostCard = ({ postData }: { postData: Post }) => {
                         <VscSend size={24} />
                         </button>
                     </div>
-                    <div className="flex">
-                        <button onClick={() => setBooMarked(boomMarked => !boomMarked)}>
-                        {
-                            boomMarked ? <FaBookmark size={24} /> : <IoBookmarkOutline size={24} />
-                        }
-                        </button>
-                    </div>
                 </div>
-                <div className="font-semibold text-sm mx-4 mt-2 mb-4">{postData.likesCount} likes</div>
+                <div className='flex flex-row align-center gap-5 mx-4 mt-2 mb-4'>
+
+                <div className="font-semibold text-sm">{postData.likesCount} likes</div>
+                {/* comments */}
+                <button className='font-semibold text-sm underline underline-offset-4 hover:text-gray-700' onClick={() => {setCommenting(commenting => !commenting)}}>123 comments</button>
+                </div>
+
+                <div className={`${(commenting ? "block" : "hidden")} flex flex-col px-5 py-2 pb-6 gap-4`}>
+                    <CommentComponent />
+                    <CommentComponent />
+                    <CommentComponent />
+                    <CommentComponent />
+                </div>
+
             </div>
         </div>
     )

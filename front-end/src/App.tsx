@@ -9,10 +9,10 @@ import Navigation from './components/Navigation';
 const RouterSetup = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useContext(AuthContext);
+  const { user, verifyToken } = useContext(AuthContext);
 
   useEffect(() => {
-    console.log("user", user);
+    verifyToken();
     if (!user && !location.pathname.startsWith('/auth')) {
       navigate('/auth/login');
     } else if (user && location.pathname.startsWith('/auth')) {
