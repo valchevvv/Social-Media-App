@@ -4,7 +4,6 @@ import { AuthContext } from './contexts/AuthContext';
 import Home from './pages/HomePage';
 import Auth from './pages/AuthPage';
 import Sidebar from './components/Sidebar';
-import { SidebarProvider } from './contexts/SidebarContext';
 import Navigation from './components/Navigation';
 
 const RouterSetup = () => {
@@ -28,26 +27,24 @@ const App = () => {
   const { user } = useContext(AuthContext);
 
   return (
-    <SidebarProvider>
-      <Router>
-        <RouterSetup />
-        <Routes>
-          <Route path="/auth/:type" element={<Auth />} />
-        </Routes>
-        <div className={`App ${(user ? "sm:flex" : "hidden")} sm:flex-row`}>
-          <div className="sidebar">
-            {user && <Sidebar />}
-          </div>
-          {user && <Navigation />}
-          <div className='content p-0 pb-[50px] sm:p-5'>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/home" element={<Home />} />
-            </Routes>
-          </div>
+    <Router>
+      <RouterSetup />
+      <Routes>
+        <Route path="/auth/:type" element={<Auth />} />
+      </Routes>
+      <div className={`App ${(user ? "sm:flex" : "hidden")} sm:flex-row`}>
+        <div className="sidebar">
+          {user && <Sidebar />}
         </div>
-      </Router>
-    </SidebarProvider>
+        {user && <Navigation />}
+        <div className="content p-0 pb-[50px] sm:p-5">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Home />} />
+          </Routes>
+        </div>
+      </div>
+    </Router>
   );
 }
 

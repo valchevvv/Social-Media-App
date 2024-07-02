@@ -12,7 +12,7 @@ const Sidebar = () => {
         <>
             <aside
                 id="default-sidebar"
-                className={`transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'} shadow hidden sm:block relative top-0 left-0 z-40 h-screen overflow-y-auto bg-gray-50 dark:bg-gray-800`}
+                className={`transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'} shadow hidden sm:block sticky top-0 left-0 z-40 h-screen overflow-y-auto bg-gray-50 dark:bg-gray-800`}
                 aria-label="Sidebar"
             >
                 <div className="h-full flex flex-col justify-between px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
@@ -21,13 +21,13 @@ const Sidebar = () => {
                             <span className={`text-white font-bold text-${(isCollapsed ? "xl" : "4xl")}`}>{(isCollapsed ? "DM" : "DMedia")}</span>
                         </div>
                         <ul className="space-y-2 font-medium">
-                            <SidebarItem iconOnly={isCollapsed} icon={MdOutlineRssFeed} label="News Feed" />
-                            <SidebarItem iconOnly={isCollapsed} icon={BiMessageSquareDots} label="Messages" />
-                            <SidebarItem iconOnly={isCollapsed} icon={MdOutlineExplore} label="Explore" />
+                            <SidebarItem to="/" iconOnly={isCollapsed} icon={MdOutlineRssFeed} label="News Feed" />
+                            <SidebarItem to="/messages" iconOnly={isCollapsed} icon={BiMessageSquareDots} label="Messages" />
+                            <SidebarItem to="/explore" iconOnly={isCollapsed} icon={MdOutlineExplore} label="Explore" />
                         </ul>
                     </div>
                     <ul className="space-y-2 font-medium">
-                        <SidebarItem iconOnly={isCollapsed} icon={CgProfile} label="Profile" />
+                        <SidebarItem to="/profile" iconOnly={isCollapsed} icon={CgProfile} label="Profile" />
                     </ul>
                 </div>
             </aside>

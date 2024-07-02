@@ -2,7 +2,7 @@ import React, { createContext, useEffect, useState, ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode';
 
 interface User {
-    id: string;
+    _id: string;
     username: string;
 }
 

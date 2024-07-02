@@ -1,5 +1,5 @@
 import { Post, IPost } from '../models/Post';
-import { ObjectId } from 'mongoose';
+import { ObjectId } from 'mongodb';
 
 // Assuming IPost is defined somewhere with all necessary fields
 interface IPostWithLikesCount extends Omit<IPost, 'likes'> {
@@ -12,6 +12,17 @@ export class PostService {
         const post = new Post(postData);
         await post.save();
         return post;
+    }
+
+    static async likePost(postId: string, userId: ObjectId, liked: boolean): Promise<IPost | null> {
+        if (!liked) {
+            return Post.findByIdAndUpdate(postId, {
+                $pull: { likes: userId }
+            }, { new: true }).exec();
+        }
+        return Post.findByIdAndUpdate(postId, {
+            $addToSet: { likes: userId }
+        }, { new: true }).exec();
     }
 
     static async getPostById(postId: string): Promise<IPost | null> {

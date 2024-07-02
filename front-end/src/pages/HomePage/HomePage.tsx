@@ -1,13 +1,9 @@
-import { useContext, useEffect, useState } from 'react';
-import { AuthContext } from '../../contexts/AuthContext';
-import { useSidebarContext } from "../../contexts/SidebarContext";
+import { useEffect, useState } from 'react';
 
 import { get } from '../../helper/axiosHelper'
 import PostCard from './PostCard';
 
 const HomePage = () => {
-  const { logout } = useContext(AuthContext);
-  const { toggleSidebar } = useSidebarContext();
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
@@ -21,13 +17,13 @@ const HomePage = () => {
   }, [])
 
   return (
-    <div>
+    <>
       {
         posts && posts.map((post, index) => (
-          <PostCard key={index} post={post} />
+          <PostCard key={index} postData={post} />
         ))
       }
-    </div>
+    </>
   );
 };
 
