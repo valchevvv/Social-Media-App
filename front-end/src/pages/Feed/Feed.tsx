@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { get } from '../../helper/axiosHelper'
 import PostCard from './PostCard';
 
-const HomePage = () => {
+const Feed = () => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
@@ -27,4 +27,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default Feed;

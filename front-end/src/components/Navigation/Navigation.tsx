@@ -7,12 +7,12 @@ import NavigationMenuItem from "./NavigationMenuItem";
 
 const Navigation = () => {
     return (
-        <div className="bg-gray-800 shadow sm:hidden fixed bottom-0 left-0 w-full h-[60px] text-white flex flex-row ">
-            <NavigationMenuItem page='/' text="Feed" Icon={MdOutlineRssFeed} />
-            <NavigationMenuItem page='/messages' text="Messages" Icon={BiMessageSquareDots} />
-            <NavigationMenuItem page='/post' big={true} text="" Icon={BsPlusCircleDotted} />
-            <NavigationMenuItem page='/explore' text="Explore" Icon={MdOutlineExplore} />
-            <NavigationMenuItem page='/profile' text="Profile" Icon={CgProfile} />
+        <div className="bg-gray-800 shadow sm:hidden fixed bottom-2 left-[50%] p-2 translate-x-[-50%] w-[90%] h-[60px] text-white flex flex-row justify-center rounded-2xl backdrop-blur bg-opacity-60">
+            <NavigationMenuItem page='/' Icon={MdOutlineRssFeed} />
+            <NavigationMenuItem page='/messages' Icon={BiMessageSquareDots} />
+            <NavigationMenuItem page='/post' big={true} Icon={BsPlusCircleDotted} />
+            <NavigationMenuItem page='/explore' Icon={MdOutlineExplore} />
+            <NavigationMenuItem page='/profile' Icon={CgProfile} />
         </div>
     )
 }

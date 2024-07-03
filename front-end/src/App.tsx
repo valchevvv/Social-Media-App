@@ -1,10 +1,11 @@
 import { useContext, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from './contexts/AuthContext';
-import Home from './pages/HomePage';
+import Feed from './pages/Feed';
 import Auth from './pages/AuthPage';
 import Sidebar from './components/Sidebar';
 import Navigation from './components/Navigation';
+import PostPage from './pages/PostPage';
 
 const RouterSetup = () => {
   const navigate = useNavigate();
@@ -39,8 +40,8 @@ const App = () => {
         {user && <Navigation />}
         <div className="content p-0 pb-[50px] sm:p-5">
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/home" element={<Home />} />
+            <Route path="/" element={<Feed />} />
+            <Route path="/post" element={<PostPage />} />
           </Routes>
         </div>
       </div>

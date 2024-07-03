@@ -1,9 +1,12 @@
+import { Comment } from '../models';
 import { Post, IPost } from '../models/Post';
 import { ObjectId } from 'mongodb';
+import { CommentService } from '../services/commentService'
 
 // Assuming IPost is defined somewhere with all necessary fields
 interface IPostWithLikesCount extends Omit<IPost, 'likes'> {
     likesCount: number;
+    commentsCount: number;
     // If there are other fields that you modify or add, declare them here as well
 }
 
@@ -43,7 +46,7 @@ export class PostService {
                 path: 'author',
                 select: 'username profilePicture _id' // Selecting username and profilePicture, excluding _id
             })
-            .select('content image likes')
+            .select('content image likes comments')
             .lean() // Lean to get plain JavaScript objects
             .exec();
 
@@ -51,9 +54,10 @@ export class PostService {
         const postsWithLikesCount: IPostWithLikesCount[] = posts.map(post => ({
             ...post,
             likesCount: post.likes.length, // Counting the likes array
+            commentsCount: post.comments.length
             // Do not include likes in the output
         }));
-
+        
         return postsWithLikesCount;
     }
 }

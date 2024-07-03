@@ -7,6 +7,14 @@ export interface IComment extends Document {
     createdAt: Date;
 }
 
+export interface ICommentDetailed extends Document {
+    author: {
+        _id: string;
+        username: string;
+        profilePicture: string;
+    };
+}
+
 const CommentSchema: Schema = new Schema({
     author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     post: { type: Schema.Types.ObjectId, ref: 'Post', required: true },
