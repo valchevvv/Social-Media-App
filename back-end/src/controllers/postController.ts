@@ -2,16 +2,47 @@ import { Request, Response } from 'express';
 import { PostService } from '../services/postService';
 import { Post, IPost } from '../models/Post';
 import { ObjectId } from 'mongodb';
+import { v2 as cloudinary } from 'cloudinary';
+
+cloudinary.config({
+    cloud_name: "djrpo8a5y",
+    api_key: "226867473259655",
+    api_secret: "XsdlYaMnKDS5A5pAyShdDPW9Sw4",
+});
 
 export class PostController {
-    static async createPost(req: Request, res: Response) {
+    static async createPost2(req: Request, res: Response) {
         try {
-            if (!req.body.content) throw new Error('Content is required');
+            console.log(req.body)
+            res.status(201).json({ message: 'Post created successfully' });
+            /*if (!req.body.content) throw new Error('Content is required');
             const post = await PostService.createPost(new Post({
                 author: req.user?._id,
                 content: req.body.content,
                 image: req.body.image || undefined,
             }));
+            res.status(201).json(post);*/
+        } catch (error) {
+            res.status(400).json({ error: error instanceof Error ? error.message : error });
+        }
+    }
+
+    static async createPost(req: Request, res: Response) {
+        try {
+            if (!req.body.content) throw new Error('Content is required');
+
+            let imageUrl;
+            if (req.body.image) {
+                const uploadResponse = await cloudinary.uploader.upload(`data:image/jpeg;base64,${req.body.image}`);
+                imageUrl = uploadResponse.secure_url;
+            }
+
+            const post = await PostService.createPost(new Post({
+                author: req.user?._id,
+                content: req.body.content,
+                image: imageUrl || undefined,
+            }));
+
             res.status(201).json(post);
         } catch (error) {
             res.status(400).json({ error: error instanceof Error ? error.message : error });

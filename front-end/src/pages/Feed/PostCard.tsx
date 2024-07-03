@@ -8,6 +8,7 @@ import { VscSend } from "react-icons/vsc";
 import { get, post } from '../../helper/axiosHelper';
 import { AuthContext } from '../../contexts/AuthContext';
 import CommentComponent from './Comment';
+import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
 
 
 
@@ -45,22 +46,25 @@ const PostCard = ({ postData }: { postData: Post }) => {
     const [commenting, setCommenting] = useState(false);
 
     const [newComment, setNewComment] = useState('' as string);
+    const { startLoading, stopLoading } = useLoadingSpinner();
 
     const commentPost = () => {
+        startLoading();
         post('comment/', { postId: postData._id, content: newComment }).then(response => {
             loadData();
             setNewComment('');
         }).catch(error => {
             console.error('Failed to comment post:', error);
-        });
+        }).finally(() => stopLoading());
     }
 
     const [liked, setLiked] = useState(postData.likes.includes(user!._id) || false);
 
     const likePost = () => {
+        startLoading();
         post('post/like', { postId: postData._id, liked: !liked }).catch(error => {
             console.error('Failed to like post:', error);
-        });
+        }).finally(() => stopLoading());
         postData.likesCount += liked ? -1 : 1;
         setLiked(liked => !liked);
     }
@@ -68,9 +72,11 @@ const PostCard = ({ postData }: { postData: Post }) => {
     const [comments, setComments] = useState([] as Comment[]);
 
     const loadData = async () => {
+        startLoading();
         const response = await get(`comment/post/${postData._id}`);
         setComments(response);
         postData.commentsCount = response.length;
+        stopLoading();
         return response;
     }
 
@@ -88,7 +94,7 @@ const PostCard = ({ postData }: { postData: Post }) => {
                     </div>
                 </div>
                 {
-                    postData.image && <img className="w-full" src={postData.image} />
+                    postData.image && <img className="aspect-video object-cover fill w-full" src={postData.image} />
                 }
                 <div className="px-4 py-3">
                     <div className="font-semibold text-sm">{postData.content}</div>

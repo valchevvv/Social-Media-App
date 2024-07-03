@@ -47,6 +47,7 @@ export class PostService {
                 select: 'username profilePicture _id' // Selecting username and profilePicture, excluding _id
             })
             .select('content image likes comments')
+            .sort({ createdAt: -1 }) // Sort by createdAt in descending order
             .lean() // Lean to get plain JavaScript objects
             .exec();
 
