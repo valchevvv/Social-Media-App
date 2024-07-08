@@ -37,6 +37,7 @@ const UserInfo = (userData: UserInfoProps) => {
               onClick={() => {
                 showModal({
                   title: 'Edit Profile',
+                  size: 'large',
                   content: <EditProfile username={userInfo.name} email={userInfo.email} bio={userInfo.bio} name={userInfo.name} profilePicture={userInfo.profilePicture} />,
                   isRequired: false
                 })
