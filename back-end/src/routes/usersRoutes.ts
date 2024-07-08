@@ -5,6 +5,7 @@ import verifyToken from '../middleware/verifyToken';
 const router = Router();
 
 router.post('/register', UserController.createUser);
+router.post('/update', verifyToken, UserController.updateUser);
 router.get('/login', UserController.loginUser);
 router.get('/:username', verifyToken, UserController.getUser);
 

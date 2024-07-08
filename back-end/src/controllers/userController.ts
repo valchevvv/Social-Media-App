@@ -19,6 +19,15 @@ export class UserController {
         }
     }
 
+    static async updateUser(req: Request, res: Response) {
+        try {
+            if(!req.user) throw new Error('Unauthorized');
+            
+        } catch (error) {
+            res.status(400).json({ error: error instanceof Error ? error.message : error });
+        }
+    }
+
     static async loginUser(req: Request, res: Response) {
         try {
             const { username, password } = req.query;

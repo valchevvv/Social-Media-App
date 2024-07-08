@@ -1,5 +1,8 @@
-import React, { useRef, useState } from 'react';
-import AvatarEditor from 'react-avatar-editor';
+import { useContext, useState } from 'react';
+import ImageUpload from '../../../components/ImageUpload/ImageUpload';
+import profile_picture from '../../../assets/profile_picture.png';
+import { get } from '../../../helper/axiosHelper';
+import { AuthContext } from '../../../contexts/AuthContext';
 
 interface EditProfileProps {
   username: string;
@@ -10,75 +13,44 @@ interface EditProfileProps {
 }
 
 const EditProfile = (userData: EditProfileProps) => {
-  const imageUpload = useRef<HTMLInputElement>(null);
-  const editor = useRef<AvatarEditor>(null);
 
-  const [image, setImage] = useState<string | null>(userData.profilePicture);
-  const [scale, setScale] = useState(1);
   const [userInfo, setUserInfo] = useState<EditProfileProps>(userData);
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
-
-  const fileSelectHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      const allowedFileTypes = ['image/jpeg', 'image/png'];
-      if (allowedFileTypes.includes(selectedFile.type)) {
-        setImage(URL.createObjectURL(selectedFile));
-      } else {
-        e.target.value = '';
+  const [image, setImage] = useState<string>(userInfo.profilePicture || profile_picture);
+  const { user: storedUser } = useContext(AuthContext);
+  
+  const handleUpdate = () => {
+    const base64String = image.split(',')[1];
+    get('users/login', {
+      username: storedUser?.username,
+      password: password
+    }).then((response) => {
+      if (!response || !response.token) {
+        console.error('Login failed:', response.data.error);
+        return;
       }
-    }
-  };
-
-  const handleSave = () => {
-    if (editor.current) {
-      const canvas = editor.current.getImageScaledToCanvas().toDataURL();
-      setImage(canvas);
-    }
-  };
+      get('users/update', {
+        username: storedUser?.username,
+        name: userInfo.name,
+        email: userInfo.email,
+        bio: userInfo.bio,
+        profilePicture: base64String,
+        newPassword: newPassword
+      }).then((response) => {
+        if (!response || !response.token) {
+          console.error('Update failed:', response.data.error);
+          return;
+        }
+        console.log('Update successful:', response);
+      });
+    });
+  }
 
   return (
     <>
       <div className="flex flex-col items-center gap-6">
-        <div className="w-full flex flex-col items-center">
-          {image && (
-            <AvatarEditor
-              ref={editor}
-              image={image}
-              border={50}
-              borderRadius={125}
-              color={[255, 255, 255, 0.6]}
-              scale={scale}
-              rotate={0}
-              className="avatar-editor"
-            />
-          )}
-          <input
-            type="file"
-            ref={imageUpload}
-            onChange={fileSelectHandler}
-            className="hidden"
-            accept="image/*"
-          />
-          <div className="flex mt-2 gap-2">
-            <button onClick={() => imageUpload.current?.click()} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-all">
-              Upload Image
-            </button>
-            <button onClick={handleSave} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-all">
-              Save
-            </button>
-          </div>
-          <input
-            type="range"
-            min="1"
-            max="2"
-            step="0.01"
-            value={scale}
-            onChange={(e) => setScale(parseFloat(e.target.value))}
-            className="mt-2 w-full"
-          />
-        </div>
+        <ImageUpload defaultImage={image} onImageChange={(image) => setImage(image)} />
         <div className="py-2 w-full flex flex-col gap-5">
           <div className="relative">
             <input
@@ -145,7 +117,7 @@ const EditProfile = (userData: EditProfileProps) => {
           </div>
         </div>
       </div>
-      <button className="mt-5 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2.5 px-5 rounded-lg transition-all">
+      <button onClick={() => handleUpdate()} className="mt-5 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2.5 px-5 rounded-lg transition-all">
         Submit
       </button>
     </>
