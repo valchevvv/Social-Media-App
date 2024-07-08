@@ -4,6 +4,7 @@ export interface IUser extends Document {
     username: string;
     email: string;
     password: string;
+    name: string; // Added name field
     bio?: string;
     profilePicture?: string;
     followers: mongoose.Types.ObjectId[];
@@ -15,6 +16,7 @@ const UserSchema: Schema = new Schema({
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    name: { type: String, required: true }, // Added name field with required true
     bio: { type: String },
     profilePicture: { type: String },
     followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],

@@ -12,7 +12,7 @@ const Navigation = () => {
             <NavigationMenuItem page='/messages' Icon={BiMessageSquareDots} />
             <NavigationMenuItem page='/post' big={true} Icon={BsPlusCircleDotted} />
             <NavigationMenuItem page='/explore' Icon={MdOutlineExplore} />
-            <NavigationMenuItem page='/profile' Icon={CgProfile} />
+            <NavigationMenuItem page='/profile/me' Icon={CgProfile} />
         </div>
     )
 }

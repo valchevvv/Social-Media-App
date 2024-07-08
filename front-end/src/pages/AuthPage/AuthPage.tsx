@@ -6,6 +6,7 @@ import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
 
 const AuthPage = () => {
   const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login } = useContext(AuthContext); // Assuming login function is provided by AuthContext
@@ -36,7 +37,8 @@ const AuthPage = () => {
         response = await post('users/register', {
           username,
           email,
-          password
+          password,
+          name
         });
       }
       stopLoading();
@@ -47,6 +49,7 @@ const AuthPage = () => {
 
       login(response.token);
     } catch (error) {
+      stopLoading();
       console.error('Login failed:', error);
     }
   };
@@ -71,10 +74,16 @@ const AuthPage = () => {
                 </div>
                 {
                   !isLogin &&
-                  <div className="relative">
-                    <input autoComplete="off" required id="email" name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-gray-100 laptop:bg-white peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600" placeholder="E-mail" />
-                    <label htmlFor="email" className="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-5 laptop:peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm">E-mail</label>
-                  </div>
+                  <>
+                    <div className="relative">
+                      <input autoComplete="off" required id="name" name="name" type="text" value={name} onChange={(e) => setName(e.target.value)} className="bg-gray-100 laptop:bg-white peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600" placeholder="Name" />
+                      <label htmlFor="name" className="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-5 laptop:peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm">Name</label>
+                    </div>
+                    <div className="relative">
+                      <input autoComplete="off" required id="email" name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-gray-100 laptop:bg-white peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600" placeholder="E-mail" />
+                      <label htmlFor="email" className="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-5 laptop:peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm">E-mail</label>
+                    </div>
+                  </>
                 }
                 <div className="relative">
                   <input autoComplete="off" required id="password" name="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="bg-gray-100 laptop:bg-white mt-2 laptop:mt-0 peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600" placeholder="Password" />

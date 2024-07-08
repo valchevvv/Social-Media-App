@@ -5,7 +5,7 @@ import { generateToken } from '../jwtHelper'; // Import generateToken
 export class UserController {
     static async createUser(req: Request, res: Response) {
         try {
-            if(!req.body.username || !req.body.email || !req.body.password) throw new Error('Missing required fields');
+            if(!req.body.username || !req.body.email || !req.body.password || !req.body.name) throw new Error('Missing required fields');
 
             const user = await UserService.createUser(req.body);
             const { password, ...userWithoutPassword } = user.toObject();
@@ -39,7 +39,13 @@ export class UserController {
 
     static async getUser(req: Request, res: Response) {
         try {
-            const user = await UserService.getUserById(req.params.id);
+            if(!req.params.username) throw new Error('Missing required fields');
+            if(req.params.username == 'me') {
+                if(!req.user) throw new Error('Unauthorized');
+                req.params.username = req.user.username;
+            }
+            console.log(req.params.username)
+            const user = await UserService.getUserByUsername(req.params.username);
             if (!user) {
                 return res.status(404).json({ error: 'User not found' });
             }

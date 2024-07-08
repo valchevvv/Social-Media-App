@@ -29,7 +29,7 @@ const Sidebar = () => {
                         </ul>
                     </div>
                     <ul className="space-y-2 font-medium">
-                        <SidebarItem to="/profile" iconOnly={isCollapsed} icon={CgProfile} label="Profile" />
+                        <SidebarItem to="/profile/me" iconOnly={isCollapsed} icon={CgProfile} label="Profile" />
                     </ul>
                 </div>
             </aside>

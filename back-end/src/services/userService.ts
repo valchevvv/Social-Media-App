@@ -1,3 +1,4 @@
+import { Post } from '../models';
 import { User, IUser } from '../models/User';
 import bcrypt from 'bcrypt';
 
@@ -28,7 +29,20 @@ export class UserService {
         return null;
     }
 
-    static async getUserById(userId: string): Promise<IUser | null> {
-        return User.findById(userId).exec();
+    static async getUserByUsername(username: string) {
+        const user = await User.findOne({ username: username }).exec();
+
+        if (!user) {
+            return null;
+        }
+
+        const posts = await Post.find({ author: user.id }).exec();
+
+        const userWithPosts = {
+            ...user.toObject(),
+            posts: posts,
+        };
+
+        return userWithPosts;
     }
 }
