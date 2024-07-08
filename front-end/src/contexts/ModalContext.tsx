@@ -80,7 +80,7 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300 ease-in-out modal-overlay`}
           onClick={modal.isImagePreview ? closeModalOnClickOutside : undefined}
         >
-          <div className={`bg-black ${modal.isImagePreview ? 'border-none p-0' : 'p-6'} rounded-xl shadow-lg transform transition-transform duration-300 ease-in-out scale-95 ${modal.fullscreen ? 'w-full h-full' : modal.isImagePreview ? '' : getModalSizeClass(modal.size)}`}>
+          <div className={`bg-white ${modal.isImagePreview ? 'border-none p-0' : 'p-6'} rounded-xl shadow-lg transform transition-transform duration-300 ease-in-out scale-95 ${modal.fullscreen ? 'w-full h-full' : modal.isImagePreview ? '' : getModalSizeClass(modal.size)}`}>
             {modal.isImagePreview ? (
               <div className="relative flex items-center justify-center w-full h-full rounded-xl">
                 <button

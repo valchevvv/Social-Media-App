@@ -31,7 +31,7 @@ const UserInfo = (userData: UserInfoProps) => {
           alt={`${userInfo.username}'s profile`}
         />
         <div className="flex flex-col items-center laptop:items-start mt-4 laptop:mt-0 laptop:ml-4">
-          <div className="flex flex-row items-start gap-2 text-center text-left">
+          <div className="flex laptop:flex-row mobile:flex-col-reverse items-center gap-2 text-left">
             <span className="text-xl font-semibold">{userInfo.username}</span>
             <button
               onClick={() => {
@@ -47,7 +47,7 @@ const UserInfo = (userData: UserInfoProps) => {
               Edit
             </button>
           </div>
-          <div className='flex laptop:flex-col mobile:flex-col-reverse justify-between my-4 gap-4'>
+          <div className='flex laptop:flex-col mobile:flex-col-reverse justify-between mobile:items-center my-4 gap-4'>
             <div className="flex flex-row justify-between space-x-10">
               <span><span className="font-semibold">{userInfo.stats.posts}</span> posts</span>
               <span><span className="font-semibold">{userInfo.stats.followers}</span> followers</span>
