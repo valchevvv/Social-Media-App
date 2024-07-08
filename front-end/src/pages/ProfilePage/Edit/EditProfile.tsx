@@ -55,9 +55,7 @@ const EditProfile = (userData: EditProfileProps) => {
     <>
       <div className='flex mobile:flex-col laptop:flex-row items-center gap-6'>
         <div className="w-[100%] flex flex-col items-center">
-          <div className="mb-4 w-full">
-            <img id="imagePreview" ref={imagePreview} onClick={() => { imageUpload && imageUpload.current?.click(); }} className="w-[100%] aspect-square object-contain rounded-lg cursor-pointer" src={userData.profilePicture} alt="Image Preview" />
-          </div>
+          <img id="imagePreview" ref={imagePreview} onClick={() => { imageUpload && imageUpload.current?.click(); }} className="w-[60%] aspect-square object-contain rounded-lg cursor-pointer" src={userData.profilePicture} alt="Image Preview" />
           <input type="file" ref={imageUpload} onChange={(e) => { fileSelectHandler(e) }} id="imageUpload" className="hidden" accept="image/*" />
         </div>
         <div className='py-2 w-[100%] flex flex-col gap-5'>
