@@ -62,7 +62,7 @@ const PostPreview = () => {
     }, [])
 
     return (
-        <div className='pb-20'>
+        <div className='mobile:pb-20 laptop:w-1/4 laptop:shadow laptop:bg-gray-100 laptop:p-3'>
             {post && (
                 <>
                     <div className='py-3 px-2 flex flex-row items-center gap-3'>
@@ -85,9 +85,6 @@ const PostPreview = () => {
                                 <button className='flex flex-row items-center gap-2' onClick={() => { }}>
                                     <RiMessage3Line size={24} />
                                     <span>{post.comments.length}</span>
-                                </button>
-                                <button className='flex justify-start'>
-                                    <VscSend size={24} />
                                 </button>
                             </div>
                         </div>
