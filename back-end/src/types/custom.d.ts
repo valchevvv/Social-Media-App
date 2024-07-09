@@ -6,6 +6,8 @@ type UserType = {
     _id: ObjectId;
     username: string;
     email: string;
+    name: string;
+    bio: string;
     followers: any[]; // Consider specifying a more detailed type instead of any if possible
     following: any[]; // Consider specifying a more detailed type instead of any if possible
     createdAt: Date;

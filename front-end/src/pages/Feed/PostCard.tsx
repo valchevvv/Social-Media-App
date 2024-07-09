@@ -50,7 +50,7 @@ const PostCard = ({ postData }: { postData: Post }) => {
 
     const commentPost = () => {
         startLoading();
-        post('comment/', { postId: postData._id, content: newComment }).then(response => {
+        post('comment/', { postId: postData._id, content: newComment }).then(() => {
             loadData();
             setNewComment('');
         }).catch(error => {

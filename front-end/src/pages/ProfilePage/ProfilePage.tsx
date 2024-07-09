@@ -1,5 +1,5 @@
 // src/pages/ProfilePage.tsx
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import UserInfo from './UserInfo';
 import Posts from './Posts';
 import { useLocation } from 'react-router-dom';

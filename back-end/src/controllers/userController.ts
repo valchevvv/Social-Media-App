@@ -22,7 +22,13 @@ export class UserController {
     static async updateUser(req: Request, res: Response) {
         try {
             if(!req.user) throw new Error('Unauthorized');
+            const { username, name, email, bio, profilePicture, newPassword } = req.body
             
+            const user = await UserService.updateUser(req.user._id, { username, name, email, bio, profilePicture, password: newPassword });
+
+            const { password, ...userWithoutPassword } = user.toObject();
+            const token = generateToken(userWithoutPassword); // Use generateToken here as well, if needed
+            res.status(201).json({ token: token });
         } catch (error) {
             res.status(400).json({ error: error instanceof Error ? error.message : error });
         }
