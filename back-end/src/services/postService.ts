@@ -29,7 +29,13 @@ export class PostService {
     }
 
     static async getPostById(postId: string): Promise<IPost | null> {
-        return Post.findById(postId).exec();
+        return Post.findById(postId)
+            .populate({
+                path: 'author',
+                select: 'username profilePicture nickname' // Including nickname and profilePicture
+            })
+            .select('content image likes comments createdAt') // Including createdAt
+            .exec();
     }
 
     static async updatePost(postId: string, updateData: Partial<IPost>): Promise<IPost | null> {
