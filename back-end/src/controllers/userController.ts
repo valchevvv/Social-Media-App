@@ -14,7 +14,6 @@ export class UserController {
 
             res.status(201).json({ token: token });
         } catch (error) {
-            console.log("Here")
             res.status(400).json({ error: error instanceof Error ? error.message : error });
         }
     }
@@ -59,7 +58,7 @@ export class UserController {
                 if(!req.user) throw new Error('Unauthorized');
                 req.params.username = req.user.username;
             }
-            console.log(req.params.username)
+            
             const user = await UserService.getUserByUsername(req.params.username);
             if (!user) {
                 return res.status(404).json({ error: 'User not found' });

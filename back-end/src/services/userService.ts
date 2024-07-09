@@ -44,20 +44,14 @@ export class UserService {
             const hashed = await bcrypt.hash(updatedData.password!.toString(), saltRounds);
             user.set("password", hashed);
         }
-
         if (hasContent(updatedData.profilePicture)) {
             const uploadResponse = await cloudinary.uploader.upload(`data:image/jpeg;base64,${updatedData.profilePicture}`);
             user.set("profilePicture", uploadResponse.secure_url);
         }
-
-        console.log(updatedData)
-
         if(hasContent(updatedData.name)) user.set("name", updatedData.name);
         if(hasContent(updatedData.username)) user.set("username", updatedData.username);
         if(hasContent(updatedData.email)) user.set("email", updatedData.email);
         if(hasContent(updatedData.bio)) user.set("bio", updatedData.bio);
-
-        console.log(user)
         
         await user.save();
 

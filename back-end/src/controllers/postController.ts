@@ -11,22 +11,6 @@ cloudinary.config({
 });
 
 export class PostController {
-    static async createPost2(req: Request, res: Response) {
-        try {
-            console.log(req.body)
-            res.status(201).json({ message: 'Post created successfully' });
-            /*if (!req.body.content) throw new Error('Content is required');
-            const post = await PostService.createPost(new Post({
-                author: req.user?._id,
-                content: req.body.content,
-                image: req.body.image || undefined,
-            }));
-            res.status(201).json(post);*/
-        } catch (error) {
-            res.status(400).json({ error: error instanceof Error ? error.message : error });
-        }
-    }
-
     static async createPost(req: Request, res: Response) {
         try {
             if (!req.body.content) throw new Error('Content is required');
