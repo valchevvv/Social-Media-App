@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { get } from '../../helper/axiosHelper';
 import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
 import { IoIosHeartEmpty } from 'react-icons/io';
-import { FaHeart } from 'react-icons/fa';
 import { RiMessage3Line } from 'react-icons/ri';
-import { VscSend } from 'react-icons/vsc';
 
 interface Post {
     _id: string;
@@ -72,17 +70,15 @@ const PostPreview = () => {
                             <span className='text-gray-500'>{formatDate(post.createdAt)}</span>
                         </div>
                     </div>
-                    <div className="flex flex-col items-center">
-                        <img className='w-full h-auto' src={post.image} alt={post.author.username} />
+                    <div className="flex flex-col h-full items-center">
+                        <img className='px-10 bg-black object-contain' src={post.image} alt={post.author.username} />
                         <div className="flex mx-4 mt-3 mb-4">
                             <div className="flex gap-5">
-                                <button onClick={() => { }} className='flex flex-row items-center gap-2'>
-                                    {
-                                        (post.likes.includes("123")) ? <FaHeart color="red" size={22} /> : <IoIosHeartEmpty size={24} />
-                                    }
+                                <button onClick={() => { }} className='flex flex-row items-center gap-2 border border-black px-2 py-1 rounded-full shadow-gray-200 shadow-xl'>
+                                    <IoIosHeartEmpty size={22} />
                                     <span>{post.likes.length}</span>
                                 </button>
-                                <button className='flex flex-row items-center gap-2' onClick={() => { }}>
+                                <button className='flex flex-row items-center gap-2 border border-black px-2 py-1 rounded-full shadow-gray-200 shadow-xl' onClick={() => { }}>
                                     <RiMessage3Line size={24} />
                                     <span>{post.comments.length}</span>
                                 </button>
