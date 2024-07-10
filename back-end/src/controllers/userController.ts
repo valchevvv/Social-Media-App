@@ -14,7 +14,7 @@ export class UserController {
 
             res.status(201).json({ token: token });
         } catch (error) {
-            res.status(400).json({ error: error instanceof Error ? error.message : error });
+            res.status(401).json({ error: error instanceof Error ? error.message : error });
         }
     }
 
@@ -29,7 +29,7 @@ export class UserController {
             const token = generateToken(userWithoutPassword); // Use generateToken here as well, if needed
             res.status(201).json({ token: token });
         } catch (error) {
-            res.status(400).json({ error: error instanceof Error ? error.message : error });
+            res.status(401).json({ error: error instanceof Error ? error.message : error });
         }
     }
 
@@ -47,7 +47,7 @@ export class UserController {
 
             res.status(201).json({ token: token });
         } catch (error) {
-            res.status(400).json({ error: error instanceof Error ? error.message : error });
+            res.status(401).json({ error: error instanceof Error ? error.message : error });
         }
     }
 
@@ -65,7 +65,7 @@ export class UserController {
             }
             res.status(200).json(user);
         } catch (error) {
-            res.status(400).json({ error: error instanceof Error ? error.message : error });
+            res.status(401).json({ error: error instanceof Error ? error.message : error });
         }
     }
 }

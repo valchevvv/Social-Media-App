@@ -1,14 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
-interface Post {
-  _id: string;
-  author: string;
-  content: string;
-  image: string;
-  likes: string[];
-  comments: string[];
-  createdAt: string;
-}
+
+import { Post } from '../../helper/interfaces';
 
 interface PostsProps {
   posts: Post[];

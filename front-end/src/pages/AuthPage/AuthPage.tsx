@@ -5,6 +5,13 @@ import { get, post } from '../../helper/axiosHelper'
 import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
 import TextInput from '../../components/TextInput';
 
+import { notifyError, notifySuccess } from '../../helper/notificationHelper';
+
+interface RequestError {
+  message: string;
+  status?: number;
+}
+
 const AuthPage = () => {
   const [username, setUsername] = useState('');
   const [name, setName] = useState('');
@@ -45,14 +52,15 @@ const AuthPage = () => {
       stopLoading();
       if (!response || !response.token) {
         console.error('Login failed:', response.data.error);
-        return;
+        throw new Error(response.data.error);
       }
 
+      notifySuccess(isLogin ? "Login" : "Register" + ' successful');
       login(response.token);
       navigate('/');
     } catch (error) {
       stopLoading();
-      console.error('Login failed:', error);
+      notifyError(error.message);
     }
   };
 

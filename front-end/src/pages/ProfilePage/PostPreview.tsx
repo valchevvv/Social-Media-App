@@ -7,36 +7,11 @@ import { RiMessage3Line } from 'react-icons/ri';
 import { IoIosArrowBack } from "react-icons/io";
 import { useModal } from '../../contexts/ModalContext';
 
-interface Comment {
-    _id: string;
-    author: {
-        _id: string;
-        username: string;
-        profilePicture: string;
-    },
-    content: string;
-    createdAt: string;
-}
+import { Post } from '../../helper/interfaces';
 
-interface Like {
-    _id: string;
-    username: string;
-    profilePicture: string;
-}
 
-interface Post {
-    _id: string;
-    author: {
-        _id: string;
-        username: string;
-        profilePicture: string;
-    },
-    content: string;
-    image: string;
-    likes: Like[];
-    comments: Comment[];
-    createdAt: string;
-}
+
+
 
 const PostPreview = () => {
     const location = useLocation();
@@ -46,7 +21,7 @@ const PostPreview = () => {
 
     const { startLoading, stopLoading } = useLoadingSpinner();
 
-    const {showModal} = useModal();
+    const { showModal } = useModal();
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -162,7 +137,28 @@ const PostPreview = () => {
                                 </div>
                             </div>
                             <img src={post.image} className='h-96 bg-black aspect-video object-contain' alt="" />
-                            <span className='p-4 font-semibold'>{post.content}</span>
+                            <div className='flex flex-row justify-between items-center px-4'>
+                                <span className='p-4 font-semibold'>{post.content}</span>
+                                <button className='flex flex-row items-center gap-2 border border-gray-300 outline-gray-500 px-2 py-1 rounded-full shadow-gray-200 shadow-xl' onClick={() => {
+                                    showModal({
+                                        title: 'Likes',
+                                        size: 'small',
+                                        content: <div className='flex flex-col gap-5 max-h-96 overflow-y-scroll'>
+                                            {
+                                                post.likes.map(like => (
+                                                    <div key={like._id} className='flex flex-row items-center gap-3'>
+                                                        <img src={like.profilePicture} className='w-12 rounded-full' alt="" />
+                                                        <span className='font-semibold'>{like.username}</span>
+                                                    </div>
+                                                ))
+                                            }
+                                        </div>
+                                    })
+                                }}>
+                                    <IoIosHeartEmpty size={22} />
+                                    <span>{post.likes.length}</span>
+                                </button>
+                            </div>
                         </div>
                         <div className='flex flex-col border w-full max-h-80 overflow-y-scroll p-3 gap-5'>
                             {

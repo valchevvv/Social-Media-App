@@ -10,6 +10,7 @@ import { AuthContext } from '../../contexts/AuthContext';
 import CommentComponent from './Comment';
 import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
 
+import { Comment } from '../../helper/interfaces';
 
 
 interface Post {
@@ -26,18 +27,7 @@ interface Post {
     commentsCount: number,
 }
 
-interface Comment {
-    _id: string,
-    author: {
-        _id: string,
-        username: string,
-        profilePicture: string
-    }
-    post: string,
-    content: string,
-    createdAt: string,
-    __v: number
-}
+
 
 const PostCard = ({ postData }: { postData: Post }) => {
 

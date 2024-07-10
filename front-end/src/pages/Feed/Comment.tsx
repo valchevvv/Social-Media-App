@@ -1,17 +1,5 @@
 import profile_picture from '../../assets/profile_picture.png'
-
-interface Comment {
-    _id: string,
-    author: {
-        _id: string,
-        username: string,
-        profilePicture: string
-    },
-    post: string,
-    content: string,
-    createdAt: string,
-    __v: number
-}
+import { Comment } from '../../helper/interfaces';
 
 const CommentComponent = ({ comment } : { comment: Comment }) => {
     return <div className="p-2 shadow rounded-xl">
