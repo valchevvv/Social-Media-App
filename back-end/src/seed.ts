@@ -25,7 +25,8 @@ const seedDatabase = async () => {
                 email: `user${i}@example.com`,
                 password: '$2a$10$OnLPOQpsT/5a68jFl4rwcuI8Xt3vce1kL9Kq/owWrpZBZMddV2CVC', // hashed password
                 name: `User ${i}`,
-                isAdmin: isAdmin
+                isAdmin: isAdmin,
+                isDeleted: false
             });
         }
         const users = await User.insertMany(usersData);

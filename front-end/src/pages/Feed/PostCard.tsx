@@ -11,6 +11,7 @@ import CommentComponent from './Comment';
 import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
 
 import { Comment } from '../../helper/interfaces';
+import { useNavigate } from 'react-router-dom';
 
 
 interface Post {
@@ -37,6 +38,8 @@ const PostCard = ({ postData }: { postData: Post }) => {
 
     const [newComment, setNewComment] = useState('' as string);
     const { startLoading, stopLoading } = useLoadingSpinner();
+
+    const navigate = useNavigate();
 
     const commentPost = () => {
         startLoading();
@@ -77,7 +80,7 @@ const PostCard = ({ postData }: { postData: Post }) => {
     return (
         <div className="p-4">
             <div className="bg-white border shadow-sm rounded-xl max-w-md">
-                <div className="flex items-center px-4 py-3">
+                <div className="flex items-center px-4 py-3 cursor-pointer hover:underline" onClick={() => navigate(`/profile/${postData.author.username}`)}>
                     <img className="h-8 w-8 rounded-full" src={postData.author.profilePicture || profile_picture} />
                     <div className="ml-3 ">
                         <span className="text-sm font-semibold antialiased block leading-tight">{postData.author.username}</span>

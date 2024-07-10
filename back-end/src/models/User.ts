@@ -11,6 +11,7 @@ export interface IUser extends Document {
     following: mongoose.Types.ObjectId[];
     createdAt: Date;
     isAdmin: boolean; // Added isAdmin field
+    isDeleted?: boolean;
 }
 
 const UserSchema: Schema = new Schema({
@@ -24,6 +25,7 @@ const UserSchema: Schema = new Schema({
     following: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     createdAt: { type: Date, default: Date.now },
     isAdmin: { type: Boolean, default: false }, // Added isAdmin field with default value false
+    isDeleted: { type: Boolean, default: false }
 });
 
 export const User = mongoose.model<IUser>('User', UserSchema);

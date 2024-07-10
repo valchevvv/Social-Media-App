@@ -5,6 +5,7 @@ export interface IComment extends Document {
     post: mongoose.Types.ObjectId;
     content: string;
     createdAt: Date;
+    isDeleted?: boolean;
 }
 
 export interface ICommentDetailed extends Document {
@@ -20,6 +21,7 @@ const CommentSchema: Schema = new Schema({
     post: { type: Schema.Types.ObjectId, ref: 'Post', required: true },
     content: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
+    isDeleted: { type: Boolean, default: false }
 });
 
 export const Comment = mongoose.model<IComment>('Comment', CommentSchema);

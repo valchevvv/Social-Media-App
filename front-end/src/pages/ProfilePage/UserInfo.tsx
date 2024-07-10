@@ -1,6 +1,6 @@
 // src/components/userData.tsx
 import { FaUserEdit } from "react-icons/fa";
-import { SlUserFollow } from "react-icons/sl";
+import { SlUserFollow, SlUserUnfollow } from "react-icons/sl";
 
 import profile_picture from '../../assets/profile_picture.png';
 import { useModal } from '../../contexts/ModalContext';
@@ -14,6 +14,8 @@ interface UserInfoProps {
   bio: string;
   profilePicture: string;
   self: boolean;
+  following: boolean;
+  onFollow: () => void;
 }
 
 const UserInfo = (userData: UserInfoProps) => {
@@ -48,10 +50,21 @@ const UserInfo = (userData: UserInfoProps) => {
               </button>
               : 
               <button
+                onClick={userData.onFollow}
                 className="px-4 py-1 bg-gray-800 text-white text-sm rounded-full hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-600 flex items-center gap-2"
               >
-                <SlUserFollow />
-                Follow
+                {
+                  userData.following ? 
+                  <>
+                    <SlUserUnfollow />
+                    Unfollow
+                  </>
+                  :
+                  <>
+                    <SlUserFollow />
+                    Follow
+                  </>
+                }
               </button>
             }
           </div>

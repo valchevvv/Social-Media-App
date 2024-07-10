@@ -9,6 +9,7 @@ import { get } from '../../helper/axiosHelper';
 import profile_picture from '../../assets/profile_picture.png';
 
 interface UserInfo {
+  _id: string;
   username: string;
   name: string;
   email: string;
@@ -42,6 +43,7 @@ const ProfilePage = () => {
         return;
       }
       setUserInfo({
+        _id: response._id,
         username: response.username,
         email: response.email,
         name: response.name,
@@ -57,12 +59,24 @@ const ProfilePage = () => {
     }).catch((error) => console.log(error)).finally(() => stopLoading());
   }, [profileId])
 
+
+  const [following, setFollowing] = useState<string[]>([]);
+  const [isFollowing, setIsFollowing] = useState<boolean>(false);
+
+  const handleFollowClick = () => {
+    console.log(userInfo, following)
+    if(!userInfo || !following) return;
+    const newFollowing = following.includes(userInfo._id) ? following.filter((id) => id !== userInfo._id) : [...following, userInfo._id];
+    setFollowing(newFollowing);
+    setIsFollowing(newFollowing.includes(userInfo._id));
+  }
+
   return (
     <div className="w-full mx-auto mt-8">
       {
         (userInfo && userInfo?.username) &&
         <>
-          <UserInfo self={false} username={userInfo.username} email={userInfo.email} name={userInfo.name} stats={userInfo.stats} bio={userInfo.bio} profilePicture={userInfo.profilePicture} />
+          <UserInfo self={(profileId === 'me')} following={isFollowing} onFollow={handleFollowClick} username={userInfo.username} email={userInfo.email} name={userInfo.name} stats={userInfo.stats} bio={userInfo.bio} profilePicture={userInfo.profilePicture} />
           <Posts posts={userInfo.posts} />
         </>
       }
