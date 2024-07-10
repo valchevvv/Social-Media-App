@@ -66,7 +66,7 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   };
 
   const closeModalOnClickOutside = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if ((event.target as Element).classList.contains('modal-overlay')) {
+    if ((event.target as Element).classList.contains('modal-overlay') && !modals[modals.length - 1]?.isRequired) {
       hideAllModals();
     }
   };
@@ -78,7 +78,7 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         <div
           key={index}
           className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300 ease-in-out modal-overlay`}
-          onClick={modal.isImagePreview ? closeModalOnClickOutside : undefined}
+          onClick={closeModalOnClickOutside}
         >
           <div className={`bg-white ${modal.isImagePreview ? 'border-none p-0' : 'p-6'} rounded-xl shadow-lg transform transition-transform duration-300 ease-in-out scale-95 ${modal.fullscreen ? 'w-full h-full' : modal.isImagePreview ? '' : getModalSizeClass(modal.size)}`}>
             {modal.isImagePreview ? (
