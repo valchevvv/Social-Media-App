@@ -26,6 +26,9 @@ const AuthChecker = () => {
       if (!user && !location.pathname.startsWith('/auth')) {
         navigate('/auth/login');
       }
+      else if(user && location.pathname.startsWith('/auth')) {
+        navigate('/');
+      }
     }
   }, [user, navigate, location.pathname, isAuthLoading]);
 
