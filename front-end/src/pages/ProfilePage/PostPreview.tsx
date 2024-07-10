@@ -4,6 +4,18 @@ import { get } from '../../helper/axiosHelper';
 import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
 import { IoIosHeartEmpty } from 'react-icons/io';
 import { RiMessage3Line } from 'react-icons/ri';
+import { IoIosArrowBack } from "react-icons/io";
+
+interface Comment {
+    _id: string;
+    author: {
+        _id: string;
+        username: string;
+        profilePicture: string;
+    },
+    content: string;
+    createdAt: string;
+}
 
 interface Post {
     _id: string;
@@ -15,7 +27,7 @@ interface Post {
     content: string;
     image: string;
     likes: string[];
-    comments: string[];
+    comments: Comment[];
     createdAt: string;
 }
 
@@ -60,35 +72,74 @@ const PostPreview = () => {
     }, [])
 
     return (
-        <div className='mobile:pb-20 laptop:w-1/4 laptop:shadow laptop:bg-gray-100 laptop:p-3'>
+        <>
             {post && (
                 <>
-                    <div className='py-3 px-2 flex flex-row items-center gap-3'>
-                        <img src={post.author.profilePicture} className='w-12 rounded-full' alt="" />
-                        <div className='flex flex-col'>
-                            <span className='font-semibold'>{post.author.username}</span>
-                            <span className='text-gray-500'>{formatDate(post.createdAt)}</span>
+                    <div className='pb-20 laptop:hidden'>
+                        <div className='py-3 px-2 flex flex-row items-center gap-3'>
+                            <button>
+                                <IoIosArrowBack size={24} onClick={() => window.history.back()} />
+                            </button>
+                            <img src={post.author.profilePicture} className='w-9 rounded-full' alt="" />
+                            <div className='flex flex-col'>
+                                <span className='text-sm font-semibold'>{post.author.username}</span>
+                                <span className='text-sm text-gray-500'>{formatDate(post.createdAt)}</span>
+                            </div>
+                        </div>
+                        <div className="flex flex-col h-full items-center">
+                            <img className='px-10 bg-black object-contain' src={post.image} alt={post.author.username} />
+                            <div className="flex mx-4 mt-3 mb-4">
+                                <div className="flex gap-5">
+                                    <button onClick={() => { }} className='flex flex-row items-center gap-2 border border-black px-2 py-1 rounded-full shadow-gray-200 shadow-xl'>
+                                        <IoIosHeartEmpty size={22} />
+                                        <span>{post.likes.length}</span>
+                                    </button>
+                                    <button className='flex flex-row items-center gap-2 border border-black px-2 py-1 rounded-full shadow-gray-200 shadow-xl' onClick={() => { }}>
+                                        <RiMessage3Line size={24} />
+                                        <span>{post.comments.length}</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div className="flex flex-col h-full items-center">
-                        <img className='px-10 bg-black object-contain' src={post.image} alt={post.author.username} />
-                        <div className="flex mx-4 mt-3 mb-4">
-                            <div className="flex gap-5">
-                                <button onClick={() => { }} className='flex flex-row items-center gap-2 border border-black px-2 py-1 rounded-full shadow-gray-200 shadow-xl'>
-                                    <IoIosHeartEmpty size={22} />
-                                    <span>{post.likes.length}</span>
+                    <div className='mobile:hidden tablet:hidden laptop:flex flex-row border border-gray-300 w-[80%] shadow-xl'>
+                        <div className='flex flex-col w-[70%]'>
+                            <div className='py-3 px-2 flex flex-row items-center gap-3'>
+                                <button>
+                                    <IoIosArrowBack size={24} onClick={() => window.history.back()} />
                                 </button>
-                                <button className='flex flex-row items-center gap-2 border border-black px-2 py-1 rounded-full shadow-gray-200 shadow-xl' onClick={() => { }}>
-                                    <RiMessage3Line size={24} />
-                                    <span>{post.comments.length}</span>
-                                </button>
+                                <img src={post.author.profilePicture} className='w-9 rounded-full' alt="" />
+                                <div className='flex flex-col'>
+                                    <span className='text-sm font-semibold'>{post.author.username}</span>
+                                    <span className='text-sm text-gray-500'>{formatDate(post.createdAt)}</span>
+                                </div>
+                            </div>
+                            <img src={post.image} className='h-96 bg-black aspect-video object-contain' alt="" />
+                            <span className='p-4 font-semibold'>{post.content}</span>
+                        </div>
+                        <div className='w-[30%]'>
+                            <div className='flex flex-col border w-full h-full p-3 gap-5'>
+                                {
+                                    post.comments.map(comment => (
+                                        <div key={comment._id} className='flex flex-col gap-3 bg-gray-400 p-2'>
+                                            <div className='flex flex-row items-center gap-1'>
+                                                <img src={comment.author.profilePicture} className='w-9 rounded-full' alt="" />
+                                                <div className='flex flex-col'>
+                                                    <span className='font-semibold text-sm'>{comment.author.username}</span>
+                                                    <span className='text-xs text-gray-500'>{formatDate(comment.createdAt)}</span>
+                                                </div>
+                                            </div>
+                                            <span className='text-sm px-3'>{comment.content}</span>
+                                        </div>
+                                    ))
+                                }
                             </div>
                         </div>
                     </div>
                 </>
             )}
 
-        </div>
+        </>
     )
 }
 

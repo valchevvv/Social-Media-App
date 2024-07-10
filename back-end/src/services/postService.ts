@@ -30,12 +30,20 @@ export class PostService {
 
     static async getPostById(postId: string): Promise<IPost | null> {
         return Post.findById(postId)
-            .populate({
+        .populate({
+            path: 'author',
+            select: 'username profilePicture nickname' // Including nickname and profilePicture
+        })
+        .populate({
+            path: 'comments',
+            select: 'content createdAt author', // Assuming you want the text, creation date, and author of each comment
+            populate: {
                 path: 'author',
-                select: 'username profilePicture nickname' // Including nickname and profilePicture
-            })
-            .select('content image likes comments createdAt') // Including createdAt
-            .exec();
+                select: 'username profilePicture' // Assuming you also want to include the author's username and profilePicture for each comment
+            }
+        })
+        .select('content image likes comments createdAt') // Including createdAt
+        .exec();
     }
 
     static async updatePost(postId: string, updateData: Partial<IPost>): Promise<IPost | null> {
