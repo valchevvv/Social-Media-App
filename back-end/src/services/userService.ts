@@ -61,9 +61,35 @@ export class UserService {
     static async loginUser(username: string, password: string): Promise<IUser | null> {
         const user = await User.findOne({ username: username }).exec();
         if (user && await bcrypt.compare(password, user.password)) {
+            console.log(user)
             return user;
         }
         return null;
+    }
+
+    static async followUser(userId: ObjectId, followId: ObjectId): Promise<Object> {
+        const user = await User.findById(userId).exec();
+        const follow = await User.findById(followId).exec();
+
+        if (!user || !follow) {
+            throw new Error('User not found');
+        }
+
+        if (user.following.includes(followId)) {
+            user.following = user.following.filter((id) => id != followId);
+            follow.followers = follow.followers.filter((id) => id != userId);
+        } else {
+            user.following.push(followId);
+            follow.followers.push(userId);
+        }
+
+        await user.save();
+        await follow.save();
+        
+        return {
+            follow: user.following.includes(followId),
+            followed: user.followers.includes(userId)
+        };
     }
 
     static async getUserByUsername(username: string) {

@@ -51,6 +51,18 @@ export class UserController {
         }
     }
 
+    static async followUser(req: Request, res: Response) {
+        try {
+            if(!req.user) throw new Error('Unauthorized');
+            if(!req.body._id) throw new Error('Missing required fields');
+
+            const user = await UserService.followUser(req.user._id, req.body._id);
+            res.status(201).json(user);
+        } catch (error) {
+            res.status(401).json({ error: error instanceof Error ? error.message : error });
+        }
+    }
+
     static async getUser(req: Request, res: Response) {
         try {
             if(!req.params.username) throw new Error('Missing required fields');

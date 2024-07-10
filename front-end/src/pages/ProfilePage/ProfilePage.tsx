@@ -1,13 +1,13 @@
 // src/pages/ProfilePage.tsx
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import UserInfo from './UserInfo';
 import Posts from './Posts';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
-import { get } from '../../helper/axiosHelper';
+import { get, post } from '../../helper/axiosHelper';
 
 import profile_picture from '../../assets/profile_picture.png';
-import { IoIosArrowBack } from 'react-icons/io';
+import { AuthContext } from '../../contexts/AuthContext';
 
 interface UserInfo {
   _id: string;
@@ -31,10 +31,17 @@ interface UserInfo {
 const ProfilePage = () => {
   const location = useLocation();
   const profileId = location.pathname.split('/')[2];
+  const navigate = useNavigate();
 
   const { startLoading, stopLoading } = useLoadingSpinner();
 
   const [userInfo, setUserInfo] = useState<UserInfo>();
+
+  const { user } = useContext(AuthContext);
+
+  useEffect(() => {
+    if(location.pathname.split('/')[2] == user?.username) navigate('/profile/me')
+  }, [])
 
   useEffect(() => {
     startLoading();
@@ -61,15 +68,27 @@ const ProfilePage = () => {
   }, [profileId])
 
 
-  const [following, setFollowing] = useState<string[]>([]);
-  const [isFollowing, setIsFollowing] = useState<boolean>(false);
+  const [following, setFollowing] = useState<boolean>(false);
+  const [follow, setFollowed] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!user || !userInfo || location.pathname == '/profile/me') return;
+    get(`users/${user?.username}`).then((response) => {
+      console.log("response: ", response)
+      setFollowing(response.following.includes(userInfo._id));
+      setFollowed(response.followers.includes(userInfo._id));
+    }).catch((error) => console.log(error));
+  }, [userInfo, user])
 
   const handleFollowClick = () => {
-    console.log(userInfo, following)
-    if(!userInfo || !following) return;
-    const newFollowing = following.includes(userInfo._id) ? following.filter((id) => id !== userInfo._id) : [...following, userInfo._id];
-    setFollowing(newFollowing);
-    setIsFollowing(newFollowing.includes(userInfo._id));
+    if (!user || !userInfo || location.pathname == '/profile/me') return;
+    post('users/follow', { _id: userInfo._id }).then(() => {
+      get(`users/${user?.username}`).then((response) => {
+        console.log("response: ", response)
+        setFollowing(response.following.includes(userInfo._id));
+        setFollowed(response.followers.includes(userInfo._id));
+      }).catch((error) => console.log(error));
+    }).catch((error) => console.log(error));
   }
 
   return (
@@ -77,7 +96,7 @@ const ProfilePage = () => {
       {
         (userInfo && userInfo?.username) &&
         <>
-          <UserInfo self={(profileId === 'me')} following={isFollowing} onFollow={handleFollowClick} username={userInfo.username} email={userInfo.email} name={userInfo.name} stats={userInfo.stats} bio={userInfo.bio} profilePicture={userInfo.profilePicture} />
+          <UserInfo self={(profileId === 'me')} following={following} followed={follow} onFollow={handleFollowClick} username={userInfo.username} email={userInfo.email} name={userInfo.name} stats={userInfo.stats} bio={userInfo.bio} profilePicture={userInfo.profilePicture} />
           <Posts posts={userInfo.posts} />
         </>
       }

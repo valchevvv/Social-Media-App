@@ -15,6 +15,7 @@ interface UserInfoProps {
   profilePicture: string;
   self: boolean;
   following: boolean;
+  followed: boolean;
   onFollow: () => void;
 }
 
@@ -58,6 +59,12 @@ const UserInfo = (userData: UserInfoProps) => {
                   <>
                     <SlUserUnfollow />
                     Unfollow
+                  </>
+                  : 
+                  userData.followed ?
+                  <>
+                    <SlUserFollow />
+                    Follow back
                   </>
                   :
                   <>
