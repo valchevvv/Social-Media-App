@@ -62,7 +62,7 @@ const ProfilePage = () => {
       {
         (userInfo && userInfo?.username) &&
         <>
-          <UserInfo username={userInfo.username} email={userInfo.email} name={userInfo.name} stats={userInfo.stats} bio={userInfo.bio} profilePicture={userInfo.profilePicture} />
+          <UserInfo self={false} username={userInfo.username} email={userInfo.email} name={userInfo.name} stats={userInfo.stats} bio={userInfo.bio} profilePicture={userInfo.profilePicture} />
           <Posts posts={userInfo.posts} />
         </>
       }

@@ -9,6 +9,8 @@ import { useModal } from '../../contexts/ModalContext';
 
 import { Post } from '../../helper/interfaces';
 
+import profile_picture from '../../assets/profile_picture.png';
+
 
 
 
@@ -64,7 +66,7 @@ const PostPreview = () => {
                             <button>
                                 <IoIosArrowBack size={24} onClick={() => window.history.back()} />
                             </button>
-                            <img src={post.author.profilePicture} className='w-9 rounded-full' alt="" />
+                            <img src={post.author.profilePicture || profile_picture} className='w-9 rounded-full' alt="" />
                             <div className='flex flex-col'>
                                 <span className='text-sm font-semibold'>{post.author.username}</span>
                                 <span className='text-sm text-gray-500'>{formatDate(post.createdAt)}</span>
@@ -83,7 +85,7 @@ const PostPreview = () => {
                                                 {
                                                     post.likes.map(like => (
                                                         <div key={like._id} className='flex flex-row items-center gap-3'>
-                                                            <img src={like.profilePicture} className='w-12 rounded-full' alt="" />
+                                                            <img src={like.profilePicture || profile_picture} className='w-12 rounded-full' alt="" />
                                                             <span className='font-semibold'>{like.username}</span>
                                                         </div>
                                                     ))
@@ -104,7 +106,7 @@ const PostPreview = () => {
                                                     post.comments.map(comment => (
                                                         <div key={comment._id} className='flex flex-col over gap-3 shadow border rounded-xl p-2'>
                                                             <div className='flex flex-row items-center gap-2'>
-                                                                <img src={comment.author.profilePicture} className='w-9 rounded-full' alt="" />
+                                                                <img src={comment.author.profilePicture || profile_picture} className='w-9 rounded-full' alt="" />
                                                                 <div className='flex flex-col'>
                                                                     <span className='font-semibold text-sm'>{comment.author.username}</span>
                                                                     <span className='text-xs text-gray-500'>{formatDate(comment.createdAt)}</span>
@@ -130,7 +132,7 @@ const PostPreview = () => {
                                 <button>
                                     <IoIosArrowBack size={24} onClick={() => window.history.back()} />
                                 </button>
-                                <img src={post.author.profilePicture} className='w-9 rounded-full' alt="" />
+                                <img src={post.author.profilePicture || profile_picture} className='w-9 rounded-full' alt="" />
                                 <div className='flex flex-col'>
                                     <span className='text-sm font-semibold'>{post.author.username}</span>
                                     <span className='text-sm text-gray-500'>{formatDate(post.createdAt)}</span>
@@ -147,7 +149,7 @@ const PostPreview = () => {
                                             {
                                                 post.likes.map(like => (
                                                     <div key={like._id} className='flex flex-row items-center gap-3'>
-                                                        <img src={like.profilePicture} className='w-12 rounded-full' alt="" />
+                                                        <img src={like.profilePicture || profile_picture} className='w-12 rounded-full' alt="" />
                                                         <span className='font-semibold'>{like.username}</span>
                                                     </div>
                                                 ))
@@ -165,7 +167,7 @@ const PostPreview = () => {
                                 post.comments.map(comment => (
                                     <div key={comment._id} className='flex flex-col gap-3 shadow border rounded-xl p-2'>
                                         <div className='flex flex-row items-center gap-1'>
-                                            <img src={comment.author.profilePicture} className='w-9 rounded-full' alt="" />
+                                            <img src={comment.author.profilePicture || profile_picture} className='w-9 rounded-full' alt="" />
                                             <div className='flex flex-col'>
                                                 <span className='font-semibold text-sm'>{comment.author.username}</span>
                                                 <span className='text-xs text-gray-500'>{formatDate(comment.createdAt)}</span>
