@@ -1,5 +1,5 @@
 import { useContext, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { AuthContext } from './contexts/AuthContext';
 import { useLoadingSpinner } from './contexts/LoadingSpinnerContext';
 import Feed from './pages/Feed';
@@ -11,6 +11,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 import ProfilePage from './pages/ProfilePage';
 import NotFoundPage from './pages/NotFound';
 import PostPreview from './pages/ProfilePage/PostPreview';
+import { IoIosArrowBack } from 'react-icons/io';
 
 const AuthChecker = () => {
   const navigate = useNavigate();
@@ -42,11 +43,12 @@ const AppContent = () => {
     <div className={`App ${(user ? "laptop:flex" : "hidden")}`}>
       {user && <Sidebar />}
       {user && <Navigation />}
-      <div className="content flex justify-center items-center p-0 laptop:p-5 w-full h-full">
+      <div className="content flex flex-col justify-center items-center p-0 laptop:p-5 w-full h-full">
         <Routes>
           <Route path="/" element={<Feed />} />
           <Route path="/post" element={<PostPage />} />
           <Route path="/profile/:id" element={<ProfilePage />} />
+          <Route path="/profile" element={<Navigate to={'/profile/me'} />} />
           <Route path="/post/:id" element={<PostPreview />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

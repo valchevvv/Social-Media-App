@@ -7,6 +7,7 @@ import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
 import { get } from '../../helper/axiosHelper';
 
 import profile_picture from '../../assets/profile_picture.png';
+import { IoIosArrowBack } from 'react-icons/io';
 
 interface UserInfo {
   _id: string;
