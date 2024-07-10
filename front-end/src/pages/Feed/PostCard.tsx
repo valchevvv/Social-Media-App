@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useContext, useEffect, useState } from 'react';
 import profile_picture from '../../assets/profile_picture.png'
 import { IoIosHeartEmpty } from "react-icons/io";

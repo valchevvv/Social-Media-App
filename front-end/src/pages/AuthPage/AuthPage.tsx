@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../../contexts/AuthContext'; // Adjust the import path as needed
 import { useLocation, useNavigate, Link } from 'react-router-dom';
@@ -6,11 +7,6 @@ import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
 import TextInput from '../../components/TextInput';
 
 import { notifyError, notifySuccess } from '../../helper/notificationHelper';
-
-interface RequestError {
-  message: string;
-  status?: number;
-}
 
 const AuthPage = () => {
   const [username, setUsername] = useState('');

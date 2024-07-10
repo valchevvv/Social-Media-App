@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useContext, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { AuthContext } from './contexts/AuthContext';
@@ -11,7 +12,6 @@ import LoadingSpinner from './components/LoadingSpinner';
 import ProfilePage from './pages/ProfilePage';
 import NotFoundPage from './pages/NotFound';
 import PostPreview from './pages/ProfilePage/PostPreview';
-import { IoIosArrowBack } from 'react-icons/io';
 
 const AuthChecker = () => {
   const navigate = useNavigate();

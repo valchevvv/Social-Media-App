@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // src/pages/ProfilePage.tsx
 import { useContext, useEffect, useState } from 'react';
 import UserInfo from './UserInfo';
@@ -9,6 +10,8 @@ import { get, post } from '../../helper/axiosHelper';
 import profile_picture from '../../assets/profile_picture.png';
 import { AuthContext } from '../../contexts/AuthContext';
 
+import { Post } from '../../helper/interfaces';
+
 interface UserInfo {
   _id: string;
   username: string;
@@ -17,15 +20,7 @@ interface UserInfo {
   stats: { posts: number; followers: number; following: number };
   bio: string;
   profilePicture: string;
-  posts: {
-    _id: string;
-    author: string;
-    content: string;
-    image: string;
-    likes: string[];
-    comments: string[];
-    createdAt: string;
-  }[]
+  posts: Post[]
 }
 
 const ProfilePage = () => {

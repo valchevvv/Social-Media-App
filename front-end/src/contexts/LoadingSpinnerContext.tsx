@@ -8,7 +8,7 @@ interface LoadingSpinnerContextType {
 
 const LoadingSpinnerContext = createContext<LoadingSpinnerContextType | undefined>(undefined);
 
-const LoadingSpinnerProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const LoadingSpinnerProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [isLoading, setIsLoading] = useState(false);
 
     const startLoading = () => setIsLoading(true);
@@ -21,12 +21,10 @@ const LoadingSpinnerProvider: React.FC<{ children: ReactNode }> = ({ children })
     );
 };
 
-const useLoadingSpinner = (): LoadingSpinnerContextType => {
+export const useLoadingSpinner = (): LoadingSpinnerContextType => {
     const context = useContext(LoadingSpinnerContext);
     if (!context) {
         throw new Error('useLoadingSpinner must be used within a LoadingSpinnerProvider');
     }
     return context;
 };
-
-export { LoadingSpinnerProvider, useLoadingSpinner };
