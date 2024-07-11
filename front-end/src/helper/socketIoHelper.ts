@@ -83,13 +83,7 @@ export class SocketIoHelper {
 
     public follow(followId: string): void {
         if (this.userId) {
-            this.socket.emit('follow', { userId: this.userId, followId });
-        }
-    }
-
-    public unfollow(followId: string): void {
-        if (this.userId) {
-            this.socket.emit('unfollow', { userId: this.userId, followId });
+            this.socket.emit('follow_b', { userId: this.userId, followId });
         }
     }
 

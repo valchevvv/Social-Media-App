@@ -58,7 +58,7 @@ export class SocketIoWorker {
             });
 
             // Handle follow event
-            socket.on('follow', async (data: { userId: string; followId: string }) => {
+            socket.on('follow_b', async (data: { userId: string; followId: string }) => {
                 console.log('User attempting to follow/unfollow:', data.userId, '->', data.followId);
                 try {
                     const userId = new ObjectId(data.userId);
@@ -69,8 +69,8 @@ export class SocketIoWorker {
                     } = await UserService.followUser(userId, followId);
                     const action = result.follow ? 'followed' : 'unfollowed';
                     console.log(`User ${data.userId} ${action} user ${data.followId}`);
-                    this.emitToUser(io, followId.toString(), 'followed', { followerId: userId.toString(), followStatus: action });
-                    this.emitToUser(io, userId.toString(), 'followed', { followerId: followId.toString(), followStatus: action });
+                    this.emitToUser(io, followId.toString(), 'followed_f', { sender: userId.toString(), reciever: followId.toString(), followStatus: action });
+                    this.emitToUser(io, userId.toString(), 'followed_f', { sender: userId.toString(), reciever: followId.toString(), followStatus: action });
                 } catch (error) {
                     console.error('Error following/unfollowing user:', error);
                 }
