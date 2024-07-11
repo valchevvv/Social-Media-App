@@ -29,7 +29,7 @@ const ProfilePage = () => {
   const { sendNotification } = useNotifications();
 
   const handleSendNotification = () => {
-    sendNotification('Hello from ProfilePage', "g6-JcYhwP0WmXshnAAAL");
+    sendNotification('Hello from ProfilePage', "668e7d5544ac678459e5f4d5");
   };
 
   const location = useLocation();

@@ -11,6 +11,7 @@ export class SocketIoHelper {
             },
         });
         this.setupListeners();
+        this.emitLogin(userId); // Automatically emit login event upon construction
     }
 
     private setupListeners(): void {
@@ -27,7 +28,18 @@ export class SocketIoHelper {
             console.log('notification received:', data);
         });
 
+        // Handle authorization event from backend
+        this.socket.on('authorized', () => {
+            console.log('Authorization successful');
+            // Handle any actions upon successful authorization, if needed
+        });
+
         // Add more event listeners as needed
+    }
+
+    private emitLogin(userId: string): void {
+        this.socket.emit('login', userId);
+        console.log('Login emitted with userId:', userId);
     }
 
     public emit(event: string, data: any): void {

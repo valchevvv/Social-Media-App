@@ -33,7 +33,10 @@ export class SocketIoWorker {
             // Handle login event with user._id
             socket.on('login', (userId: string) => {
                 console.log('user logged in:', userId);
-                this.addUser(userId, socket.id);
+                const authorized = this.authorizeUser(socket, userId);
+                if (authorized) {
+                    socket.emit('authorized'); // Emit authorization event to frontend
+                }
             });
 
             // Handle custom events here
@@ -49,8 +52,26 @@ export class SocketIoWorker {
         });
     }
 
+    private authorizeUser(socket: Socket, userId: string): boolean {
+        // Simulate authorization logic; replace with your actual authorization process
+        // For example, check if userId is valid and authorized
+        const isAuthorized = true; // Replace with your authorization logic
+        if (isAuthorized) {
+            this.addUser(userId, socket.id);
+        }
+        return isAuthorized;
+    }
+
     private addUser(userId: string, socketId: string): void {
-        this.connectedUsers.push({ userId, socketId });
+        // Check if user already exists
+        const existingUser = this.connectedUsers.find(user => user.userId === userId);
+        if (existingUser) {
+            // Update socketId if user re-connects
+            existingUser.socketId = socketId;
+        } else {
+            // Add new user
+            this.connectedUsers.push({ userId, socketId });
+        }
     }
 
     private removeUser(socketId: string): void {
@@ -58,6 +79,7 @@ export class SocketIoWorker {
     }
 
     private getSocketIdByUserId(userId: string): string | undefined {
+        console.log('connectedUsers:', this.connectedUsers);
         const user = this.connectedUsers.find(user => user.userId === userId);
         return user?.socketId;
     }
