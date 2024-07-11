@@ -34,6 +34,16 @@ export class SocketIoHelper {
             // Handle any actions upon successful authorization, if needed
         });
 
+        this.socket.on('followed', (data) => {
+            console.log('followed:', data);
+            // Handle follow event
+        });
+
+        this.socket.on('unfollowed', (data) => {
+            console.log('unfollowed:', data);
+            // Handle unfollow event
+        });
+
         // Add more event listeners as needed
     }
 

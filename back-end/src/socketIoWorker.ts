@@ -1,6 +1,7 @@
-// SocketIoWorker.ts
-import { Server as HttpServer } from 'http';
+// socketIoWorker.ts
+
 import { Server, Socket } from 'socket.io';
+import { Server as HttpServer } from 'http';
 
 interface ConnectedUser {
     userId: string;
@@ -8,21 +9,19 @@ interface ConnectedUser {
 }
 
 export class SocketIoWorker {
-    private io: Server;
-    private connectedUsers: ConnectedUser[] = [];
+    private static instance: SocketIoWorker;
 
-    constructor(server: HttpServer) {
-        this.io = new Server(server, {
-            cors: {
-                origin: '*', // Adjust according to your needs
-                methods: ['GET', 'POST'],
-            },
-        });
-        this.setupConnection();
+    private constructor() {}
+
+    public static getInstance(): SocketIoWorker {
+        if (!SocketIoWorker.instance) {
+            SocketIoWorker.instance = new SocketIoWorker();
+        }
+        return SocketIoWorker.instance;
     }
 
-    private setupConnection(): void {
-        this.io.on('connection', (socket: Socket) => {
+    public setupConnection(server: HttpServer, io: Server): void {
+        io.on('connection', (socket: Socket) => {
             console.log('a user connected:', socket.id);
 
             socket.on('disconnect', () => {
@@ -39,18 +38,11 @@ export class SocketIoWorker {
                 }
             });
 
-            // Handle custom events here
-            socket.on('notification', (data) => {
-                console.log('notification received:', data);
-                const recipientSocketId = this.getSocketIdByUserId(data.recipientUserId);
-                if (recipientSocketId) {
-                    this.io.to(recipientSocketId).emit('notification', data);
-                }
-            });
-
             // Add more event handlers as needed
         });
     }
+
+    private connectedUsers: ConnectedUser[] = [];
 
     private authorizeUser(socket: Socket, userId: string): boolean {
         // Simulate authorization logic; replace with your actual authorization process
@@ -78,13 +70,22 @@ export class SocketIoWorker {
         this.connectedUsers = this.connectedUsers.filter(user => user.socketId !== socketId);
     }
 
-    private getSocketIdByUserId(userId: string): string | undefined {
+    public getConnectedUsers(): ConnectedUser[] {
+        return this.connectedUsers;
+    }
+
+    public getSocketIdByUserId(userId: string): string | undefined {
         console.log('connectedUsers:', this.connectedUsers);
         const user = this.connectedUsers.find(user => user.userId === userId);
         return user?.socketId;
     }
 
-    public emit(event: string, data: any): void {
-        this.io.emit(event, data);
+    public emitToUser(io: Server, userId: string, event: string, data: any): void {
+        const socketId = this.getSocketIdByUserId(userId);
+        if (socketId) {
+            io.to(socketId).emit(event, data);
+        } else {
+            console.log(`User with ID ${userId} is not connected`);
+        }
     }
 }
