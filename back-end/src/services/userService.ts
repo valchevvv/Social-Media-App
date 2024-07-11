@@ -5,8 +5,6 @@ import { Post } from '../models';
 import { User, IUser } from '../models/User';
 import bcrypt from 'bcrypt';
 import { v2 as cloudinary } from 'cloudinary';
-import { SocketIoWorker } from '../socketIoWorker'; // Adjust path if needed
-import { io } from '../server';
 
 cloudinary.config({
     cloud_name: "djrpo8a5y",
@@ -19,106 +17,149 @@ const hasContent = (str: string | null | undefined): boolean => {
 }
 
 export class UserService {
-    private static socketIoWorker = SocketIoWorker.getInstance();
 
     static async createUser(userData: IUser): Promise<IUser> {
-        const existingUser = await User.findOne({ username: userData.username }).exec();
-        if (existingUser) {
-            throw new Error('User with the given username already exists');
+        try {
+            console.log('Attempting to create user:', userData);
+
+            const existingUser = await User.findOne({ username: userData.username }).exec();
+            if (existingUser) {
+                throw new Error('User with the given username already exists');
+            }
+
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
+
+            const user = new User({
+                ...userData,
+                password: hashedPassword,
+            });
+
+            await user.save();
+            console.log('User created successfully:', user);
+
+            return user;
+        } catch (error) {
+            console.error('Error creating user:', { error, userData });
+            throw error;
         }
-
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
-
-        const user = new User({
-            ...userData,
-            password: hashedPassword,
-        });
-
-        await user.save();
-        return user;
     }
 
     static async updateUser(userId: ObjectId, updatedData: Partial<IUser>): Promise<IUser> {
-        const user = await User.findById(userId).exec();
-        if (!user) {
-            throw new Error('User not found');
-        }
+        try {
+            console.log('Attempting to update user:', { userId, updatedData });
 
-        if (hasContent(updatedData.password)) {
-            const saltRounds = 10;
-            const hashed = await bcrypt.hash(updatedData.password!.toString(), saltRounds);
-            user.set("password", hashed);
-        }
-        if (hasContent(updatedData.profilePicture)) {
-            const uploadResponse = await cloudinary.uploader.upload(`data:image/jpeg;base64,${updatedData.profilePicture}`);
-            user.set("profilePicture", uploadResponse.secure_url);
-        }
-        if(hasContent(updatedData.name)) user.set("name", updatedData.name);
-        if(hasContent(updatedData.username)) user.set("username", updatedData.username);
-        if(hasContent(updatedData.email)) user.set("email", updatedData.email);
-        if(hasContent(updatedData.bio)) user.set("bio", updatedData.bio);
-        
-        await user.save();
+            const user = await User.findById(userId).exec();
+            if (!user) {
+                throw new Error('User not found');
+            }
 
-        return user;
+            if (hasContent(updatedData.password)) {
+                const saltRounds = 10;
+                const hashed = await bcrypt.hash(updatedData.password!.toString(), saltRounds);
+                user.set("password", hashed);
+            }
+            if (hasContent(updatedData.profilePicture)) {
+                const uploadResponse = await cloudinary.uploader.upload(`data:image/jpeg;base64,${updatedData.profilePicture}`);
+                user.set("profilePicture", uploadResponse.secure_url);
+            }
+            if(hasContent(updatedData.name)) user.set("name", updatedData.name);
+            if(hasContent(updatedData.username)) user.set("username", updatedData.username);
+            if(hasContent(updatedData.email)) user.set("email", updatedData.email);
+            if(hasContent(updatedData.bio)) user.set("bio", updatedData.bio);
+            
+            await user.save();
+            console.log('User updated successfully:', user);
+
+            return user;
+        } catch (error) {
+            console.error('Error updating user:', { error, userId, updatedData });
+            throw error;
+        }
     }
 
     static async loginUser(username: string, password: string): Promise<IUser | null> {
-        const user = await User.findOne({ username: username }).exec();
-        if (user && await bcrypt.compare(password, user.password)) {
-            return user;
+        try {
+            console.log('Attempting to log in user:', { username });
+
+            const user = await User.findOne({ username: username }).exec();
+            if (user && await bcrypt.compare(password, user.password)) {
+                console.log('User logged in successfully:', user);
+                return user;
+            }
+            console.log('Invalid username or password for user:', { username });
+            return null;
+        } catch (error) {
+            console.error('Error logging in user:', { error, username });
+            throw error;
         }
-        return null;
     }
 
-    static async followUser(userId: ObjectId, followId: ObjectId): Promise<Object> {
-        const user = await User.findById(userId).exec();
-        const follow = await User.findById(followId).exec();
+    static async followUser(userId: ObjectId, followId: ObjectId): Promise<{
+        follow: boolean,
+        followed: boolean
+    }> {
+        try {
+            console.log('Attempting to follow/unfollow user:', { userId, followId });
 
-        if (!user || !follow) {
-            throw new Error('User not found');
+            const user = await User.findById(userId).exec();
+            const follow = await User.findById(followId).exec();
+
+            if (!user || !follow) {
+                throw new Error('User not found');
+            }
+
+            const isFollowing = user.following.includes(followId);
+
+            const userUpdate = isFollowing
+                ? { $pull: { following: followId } }
+                : { $addToSet: { following: followId } };
+            const followUpdate = isFollowing
+                ? { $pull: { followers: userId } }
+                : { $addToSet: { followers: userId } };
+
+            await User.findByIdAndUpdate(userId, userUpdate, { new: true }).exec();
+            await User.findByIdAndUpdate(followId, followUpdate, { new: true }).exec();
+
+            console.log(isFollowing 
+                ? `User ${userId} has unfollowed ${followId}` 
+                : `User ${userId} has followed ${followId}`
+            );
+
+            return {
+                follow: !isFollowing,
+                followed: !isFollowing
+            };
+        } catch (error) {
+            console.error('Error following/unfollowing user:', { error, userId, followId });
+            throw error;
         }
-
-        let event = '';
-
-        if (user.following.includes(followId)) {
-            user.following = user.following.filter((id) => !id.equals(followId));
-            follow.followers = follow.followers.filter((id) => !id.equals(userId));
-            event = 'unfollowed';
-        } else {
-            user.following.push(followId);
-            follow.followers.push(userId);
-            event = 'followed';
-        }
-
-        await user.save();
-        await follow.save();
-
-        // Emit socket events
-        UserService.socketIoWorker.emitToUser(io, followId.toString(), event, { followerId: userId, followStatus: event });
-        UserService.socketIoWorker.emitToUser(io, userId.toString(), event, { followerId: userId, followStatus: event });
-
-        return {
-            follow: user.following.includes(followId),
-            followed: follow.followers.includes(userId)
-        };
     }
 
     static async getUserByUsername(username: string) {
-        const user = await User.findOne({ username: username }).exec();
+        try {
+            console.log('Attempting to get user by username:', { username });
 
-        if (!user) {
-            return null;
+            const user = await User.findOne({ username: username }).exec();
+
+            if (!user) {
+                console.log('User not found for username:', { username });
+                return null;
+            }
+
+            const posts = await Post.find({ author: user.id }).exec();
+
+            const userWithPosts = {
+                ...user.toObject(),
+                posts: posts,
+            };
+
+            console.log('User with posts retrieved successfully:', { username, userWithPosts });
+
+            return userWithPosts;
+        } catch (error) {
+            console.error('Error getting user by username:', { error, username });
+            throw error;
         }
-
-        const posts = await Post.find({ author: user.id }).exec();
-
-        const userWithPosts = {
-            ...user.toObject(),
-            posts: posts,
-        };
-
-        return userWithPosts;
     }
 }
