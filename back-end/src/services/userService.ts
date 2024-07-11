@@ -20,7 +20,7 @@ export class UserService {
 
     static async createUser(userData: IUser): Promise<IUser> {
         try {
-            console.log('Attempting to create user:', userData);
+            // console.log('Attempting to create user:', userData);
 
             const existingUser = await User.findOne({ username: userData.username }).exec();
             if (existingUser) {
@@ -36,7 +36,7 @@ export class UserService {
             });
 
             await user.save();
-            console.log('User created successfully:', user);
+            // console.log('User created successfully:', user);
 
             return user;
         } catch (error) {
@@ -47,7 +47,7 @@ export class UserService {
 
     static async updateUser(userId: ObjectId, updatedData: Partial<IUser>): Promise<IUser> {
         try {
-            console.log('Attempting to update user:', { userId, updatedData });
+            // console.log('Attempting to update user:', { userId, updatedData });
 
             const user = await User.findById(userId).exec();
             if (!user) {
@@ -69,7 +69,7 @@ export class UserService {
             if(hasContent(updatedData.bio)) user.set("bio", updatedData.bio);
             
             await user.save();
-            console.log('User updated successfully:', user);
+            // console.log('User updated successfully:', user);
 
             return user;
         } catch (error) {
@@ -80,14 +80,14 @@ export class UserService {
 
     static async loginUser(username: string, password: string): Promise<IUser | null> {
         try {
-            console.log('Attempting to log in user:', { username });
+            // console.log('Attempting to log in user:', { username });
 
             const user = await User.findOne({ username: username }).exec();
             if (user && await bcrypt.compare(password, user.password)) {
-                console.log('User logged in successfully:', user);
+                // console.log('User logged in successfully:', user);
                 return user;
             }
-            console.log('Invalid username or password for user:', { username });
+            // console.log('Invalid username or password for user:', { username });
             return null;
         } catch (error) {
             console.error('Error logging in user:', { error, username });
@@ -108,7 +108,7 @@ export class UserService {
         }
     }> {
         try {
-            console.log('Attempting to follow/unfollow user:', { userId, followId });
+            // console.log('Attempting to follow/unfollow user:', { userId, followId });
 
             const user = await User.findById(userId).exec();
             const follow = await User.findById(followId).exec();
@@ -129,10 +129,10 @@ export class UserService {
             await User.findByIdAndUpdate(userId, userUpdate, { new: true }).exec();
             await User.findByIdAndUpdate(followId, followUpdate, { new: true }).exec();
 
-            console.log(isFollowing 
-                ? `User ${userId} has unfollowed ${followId}` 
-                : `User ${userId} has followed ${followId}`
-            );
+            // console.log(isFollowing 
+            //     ? `User ${userId} has unfollowed ${followId}` 
+            //     : `User ${userId} has followed ${followId}`
+            // );
 
             return {
                 follow: !isFollowing,
@@ -154,12 +154,12 @@ export class UserService {
 
     static async getUserByUsername(username: string) {
         try {
-            console.log('Attempting to get user by username:', { username });
+            // console.log('Attempting to get user by username:', { username });
 
             const user = await User.findOne({ username: username }).exec();
 
             if (!user) {
-                console.log('User not found for username:', { username });
+                // console.log('User not found for username:', { username });
                 return null;
             }
 
@@ -170,7 +170,7 @@ export class UserService {
                 posts: posts,
             };
 
-            console.log('User with posts retrieved successfully:', { username, userWithPosts });
+            // console.log('User with posts retrieved successfully:', { username, userWithPosts });
 
             return userWithPosts;
         } catch (error) {

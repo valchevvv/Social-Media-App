@@ -2,6 +2,7 @@ import { useRef, useState } from "react"
 import { post } from "../../helper/axiosHelper"
 import { useLoadingSpinner } from "../../contexts/LoadingSpinnerContext"
 import { useNavigate } from "react-router-dom";
+import { notifySuccess } from "../../helper/notificationHelper";
 
 const PostPage = () => {
     const { startLoading, stopLoading } = useLoadingSpinner();
@@ -22,7 +23,8 @@ const PostPage = () => {
             image: image
         }).then(() => {
             stopLoading();
-            navigate('/')
+            navigate('/');
+            notifySuccess('You successfully uploaded a post!');
         });
     }
 

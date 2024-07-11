@@ -1,17 +1,21 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
-export interface IMessage extends Document {
+export interface Message extends mongoose.Document {
+    conversationId: mongoose.Types.ObjectId | string;
     sender: mongoose.Types.ObjectId;
-    receiver: mongoose.Types.ObjectId;
     content: string;
-    createdAt: Date;
+    image?: string;
+    date: Date;
+    isDeleted: boolean;
 }
 
 const MessageSchema: Schema = new Schema({
+    conversationId: { type: Schema.Types.ObjectId, ref: 'Conversation', required: true },
     sender: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    receiver: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     content: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now },
+    image: { type: String },
+    date: { type: Date, default: Date.now },
+    isDeleted: { type: Boolean, default: false }
 });
 
-export const Message = mongoose.model<IMessage>('Message', MessageSchema);
+export default mongoose.model<Message>('Message', MessageSchema);

@@ -8,6 +8,8 @@ interface DecodedToken {
     iat: number;
 }
 
+const debug = false;
+
 export class SocketIoHelper {
     private socket: Socket;
     private userId: string | null;
@@ -45,26 +47,26 @@ export class SocketIoHelper {
 
     private setupListeners(): void {
         this.socket.on('connect', () => {
-            console.log('connected to server');
+            if(debug) console.log('connected to server');
         });
 
         this.socket.on('disconnect', () => {
-            console.log('disconnected from server');
+            if(debug) console.log('disconnected from server');
         });
 
         // Handle custom events here
         this.socket.on('notification', (data) => {
-            console.log('notification received:', data);
+            if(debug) console.log('notification received:', data);
         });
 
         // Handle authorization event from backend
         this.socket.on('authorized', () => {
-            console.log('Authorization successful');
+            if(debug) console.log('Authorization successful');
             // Handle any actions upon successful authorization, if needed
         });
 
         this.socket.on('unauthorized', (message: string) => {
-            console.log('Authorization failed:', message);
+            if(debug) console.log('Authorization failed:', message);
             // Handle unauthorized event, e.g., redirect to login page
         });
 
@@ -80,7 +82,7 @@ export class SocketIoHelper {
                 username: string,
             }
         }}) => {
-            console.log('followed_f event received:', data);
+            if(debug) console.log('followed_f event received:', data);
             if (data.reciever === this.userId) {
                 if (data.followStatus === 'followed' && data.notifyDetails.follow) {
                     notifyInfo(`${data.notifyDetails.sender.username} followed you back`);
@@ -96,7 +98,7 @@ export class SocketIoHelper {
 
     private emitLogin(userId: string, token: string): void {
         this.socket.emit('login', { userId, token });
-        console.log('Login emitted with userId and token:', userId, token);
+        if(debug) console.log('Login emitted with userId and token:', userId, token);
     }
 
     public emit(event: string, data: any): void {

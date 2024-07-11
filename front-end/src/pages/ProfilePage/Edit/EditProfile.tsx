@@ -5,6 +5,7 @@ import { post } from '../../../helper/axiosHelper';
 import { AuthContext } from '../../../contexts/AuthContext';
 import TextInput from '../../../components/TextInput';
 import { useModal } from '../../../contexts/ModalContext';
+import { notifySuccess } from '../../../helper/notificationHelper';
 
 interface EditProfileProps {
   username: string;
@@ -37,6 +38,7 @@ const EditProfile = (userData: EditProfileProps) => {
         console.error('Update failed:', response.data.error);
         return;
       }
+      notifySuccess("Profile updated successfully!")
       hideAllModals();
       login(response.token);
       window.location.reload();
