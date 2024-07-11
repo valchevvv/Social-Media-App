@@ -1,4 +1,5 @@
 // SocketIoHelper.ts
+
 import { io, Socket } from 'socket.io-client';
 
 export class SocketIoHelper {
@@ -34,16 +35,6 @@ export class SocketIoHelper {
             // Handle any actions upon successful authorization, if needed
         });
 
-        this.socket.on('followed', (data) => {
-            console.log('followed:', data);
-            // Handle follow event
-        });
-
-        this.socket.on('unfollowed', (data) => {
-            console.log('unfollowed:', data);
-            // Handle unfollow event
-        });
-
         // Add more event listeners as needed
     }
 
@@ -54,6 +45,14 @@ export class SocketIoHelper {
 
     public emit(event: string, data: any): void {
         this.socket.emit(event, data);
+    }
+
+    public follow(userId: string, followId: string): void {
+        this.socket.emit('follow', { userId, followId });
+    }
+
+    public unfollow(userId: string, followId: string): void {
+        this.socket.emit('unfollow', { userId, followId });
     }
 
     public on(event: string, callback: (data: any) => void): void {

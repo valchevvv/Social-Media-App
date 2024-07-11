@@ -1,111 +1,119 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-// src/pages/ProfilePage.tsx
+// ProfilePage.tsx
+
 import { useContext, useEffect, useState } from 'react';
 import UserInfo from './UserInfo';
 import Posts from './Posts';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
-import { get, post } from '../../helper/axiosHelper';
+import { get } from '../../helper/axiosHelper';
 
 import profile_picture from '../../assets/profile_picture.png';
 import { AuthContext } from '../../contexts/AuthContext';
 
 import { Post } from '../../helper/interfaces';
-import { useNotifications } from '../../contexts/NotificationContext';
+import { SocketIoHelper } from '../../helper/socketIoHelper'; // Adjust path as per your project structure
 
 interface UserInfo {
-  _id: string;
-  username: string;
-  name: string;
-  email: string;
-  stats: { posts: number; followers: number; following: number };
-  bio: string;
-  profilePicture: string;
-  posts: Post[]
+    _id: string;
+    username: string;
+    name: string;
+    email: string;
+    stats: { posts: number; followers: number; following: number };
+    bio: string;
+    profilePicture: string;
+    posts: Post[]
 }
 
 const ProfilePage = () => {
+    const location = useLocation();
+    const profileId = location.pathname.split('/')[2];
+    const navigate = useNavigate();
+    const { startLoading, stopLoading } = useLoadingSpinner();
+    const [userInfo, setUserInfo] = useState<UserInfo>();
+    const { user } = useContext(AuthContext);
 
-  const { sendNotification } = useNotifications();
+    const [socketIoHelper, setSocketIoHelper] = useState<SocketIoHelper | null>(null);
 
-  const handleSendNotification = () => {
-    sendNotification('Hello from ProfilePage', "668e7d5544ac678459e5f4d5");
-  };
+    useEffect(() => {
+        if (!user?._id) {
+            setSocketIoHelper(null);
+        } else {
+            setSocketIoHelper(new SocketIoHelper('http://localhost:5001', user._id));
+        }
+    }, [user?._id]);
 
-  const location = useLocation();
-  const profileId = location.pathname.split('/')[2];
-  const navigate = useNavigate();
+    useEffect(() => {
+        if (location.pathname.split('/')[2] === user?.username) {
+            navigate('/profile/me')
+        }
+    }, [])
 
-  const { startLoading, stopLoading } = useLoadingSpinner();
+    useEffect(() => {
+        startLoading();
+        get(`users/${profileId}`).then((response) => {
+            if (!response) {
+                console.error('Failed to fetch user info');
+                return;
+            }
+            setUserInfo({
+                _id: response._id,
+                username: response.username,
+                email: response.email,
+                name: response.name,
+                stats: {
+                    posts: response.posts.length,
+                    followers: response.followers.length,
+                    following: response.following.length,
+                },
+                bio: response.bio || '',
+                profilePicture: response.profilePicture || profile_picture,
+                posts: response.posts,
+            })
+        }).catch((error) => console.log(error)).finally(() => stopLoading());
+    }, [profileId])
 
-  const [userInfo, setUserInfo] = useState<UserInfo>();
+    const [following, setFollowing] = useState<boolean>(false);
+    const [followed, setFollowed] = useState<boolean>(false);
 
-  const { user } = useContext(AuthContext);
+    useEffect(() => {
+        if (!user || !userInfo || location.pathname === '/profile/me' || !socketIoHelper) return;
 
-  useEffect(() => {
-    if(location.pathname.split('/')[2] == user?.username) navigate('/profile/me')
-  }, [])
+        socketIoHelper.on('followed', (data: { followerId: string, followStatus: string }) => {
+            if (data.followerId === userInfo._id) {
+                setFollowed(data.followStatus === 'followed');
+            }
+        });
 
-  useEffect(() => {
-    startLoading();
-    get(`users/${profileId}`).then((response) => {
-      if (!response) {
-        console.error('Failed to fetch user info');
-        return;
-      }
-      setUserInfo({
-        _id: response._id,
-        username: response.username,
-        email: response.email,
-        name: response.name,
-        stats: {
-          posts: response.posts.length,
-          followers: response.followers.length,
-          following: response.following.length,
-        },
-        bio: response.bio || '',
-        profilePicture: response.profilePicture || profile_picture,
-        posts: response.posts,
-      })
-    }).catch((error) => console.log(error)).finally(() => stopLoading());
-  }, [profileId])
+        socketIoHelper.on('unfollowed', (data: { followerId: string, followStatus: string }) => {
+            if (data.followerId === userInfo._id) {
+                setFollowed(data.followStatus === 'followed');
+            }
+        });
 
+        return () => {
+            if (socketIoHelper) {
+                socketIoHelper.off('followed');
+                socketIoHelper.off('unfollowed');
+            }
+        };
+    }, [socketIoHelper, user?._id]);
 
-  const [following, setFollowing] = useState<boolean>(false);
-  const [follow, setFollowed] = useState<boolean>(false);
+    const handleFollowClick = () => {
+        if (!user || !userInfo || location.pathname === '/profile/me' || !socketIoHelper) return;
+        socketIoHelper.follow(user._id, userInfo._id); // Emit follow event using SocketIoHelper
+    }
 
-  useEffect(() => {
-    if (!user || !userInfo || location.pathname == '/profile/me') return;
-    get(`users/${user?.username}`).then((response) => {
-      console.log("response: ", response)
-      setFollowing(response.following.includes(userInfo._id));
-      setFollowed(response.followers.includes(userInfo._id));
-    }).catch((error) => console.log(error));
-  }, [userInfo, user])
-
-  const handleFollowClick = () => {
-    if (!user || !userInfo || location.pathname == '/profile/me') return;
-    post('users/follow', { _id: userInfo._id }).then(() => {
-      get(`users/${user?.username}`).then((response) => {
-        console.log("response: ", response)
-        setFollowing(response.following.includes(userInfo._id));
-        setFollowed(response.followers.includes(userInfo._id));
-      }).catch((error) => console.log(error));
-    }).catch((error) => console.log(error));
-  }
-
-  return (
-    <div className="w-full mx-auto mt-8">
-      <button onClick={handleSendNotification}>Send Notification</button>
-      {
-        (userInfo && userInfo?.username) &&
-        <>
-          <UserInfo self={(profileId === 'me')} following={following} followed={follow} onFollow={handleFollowClick} username={userInfo.username} email={userInfo.email} name={userInfo.name} stats={userInfo.stats} bio={userInfo.bio} profilePicture={userInfo.profilePicture} />
-          <Posts posts={userInfo.posts} />
-        </>
-      }
-    </div>
-  );
+    return (
+        <div className="w-full mx-auto mt-8">
+            {
+                (userInfo && userInfo?.username) &&
+                <>
+                    <UserInfo self={(profileId === 'me')} following={following} followed={followed} onFollow={handleFollowClick} username={userInfo.username} email={userInfo.email} name={userInfo.name} stats={userInfo.stats} bio={userInfo.bio} profilePicture={userInfo.profilePicture} />
+                    <Posts posts={userInfo.posts} />
+                </>
+            }
+        </div>
+    );
 };
 
 export default ProfilePage;

@@ -5,8 +5,8 @@ import { Post } from '../models';
 import { User, IUser } from '../models/User';
 import bcrypt from 'bcrypt';
 import { v2 as cloudinary } from 'cloudinary';
-import { SocketIoWorker } from '../socketIoWorker'; // Adjust path as per your project structure
-import { io } from '../server'; // Import io from server.ts
+import { SocketIoWorker } from '../socketIoWorker'; // Adjust path if needed
+import { io } from '../server';
 
 cloudinary.config({
     cloud_name: "djrpo8a5y",
@@ -18,9 +18,9 @@ const hasContent = (str: string | null | undefined): boolean => {
     return str != null && str.trim().length > 0;
 }
 
-const socketIoWorker = SocketIoWorker.getInstance(); // Initialize SocketIoWorker
-
 export class UserService {
+    private static socketIoWorker = SocketIoWorker.getInstance();
+
     static async createUser(userData: IUser): Promise<IUser> {
         const existingUser = await User.findOne({ username: userData.username }).exec();
         if (existingUser) {
@@ -67,7 +67,6 @@ export class UserService {
     static async loginUser(username: string, password: string): Promise<IUser | null> {
         const user = await User.findOne({ username: username }).exec();
         if (user && await bcrypt.compare(password, user.password)) {
-            console.log(user)
             return user;
         }
         return null;
@@ -81,7 +80,7 @@ export class UserService {
             throw new Error('User not found');
         }
 
-        let event = ''; // Event to emit based on follow or unfollow action
+        let event = '';
 
         if (user.following.includes(followId)) {
             user.following = user.following.filter((id) => !id.equals(followId));
@@ -96,8 +95,9 @@ export class UserService {
         await user.save();
         await follow.save();
 
-        // Emit a socket event to notify clients about the follow/unfollow
-        socketIoWorker.emitToUser(io, followId.toString(), event, { followerId: userId, followStatus: event });
+        // Emit socket events
+        UserService.socketIoWorker.emitToUser(io, followId.toString(), event, { followerId: userId, followStatus: event });
+        UserService.socketIoWorker.emitToUser(io, userId.toString(), event, { followerId: userId, followStatus: event });
 
         return {
             follow: user.following.includes(followId),

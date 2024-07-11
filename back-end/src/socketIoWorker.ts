@@ -2,6 +2,11 @@
 
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
+import jwt from 'jsonwebtoken';
+import { ObjectId } from 'mongodb';
+import { UserService } from './services/userService'; // Adjust path if needed
+
+const JWT_SECRET = 'your_jwt_secret'; // Replace with your actual secret key
 
 interface ConnectedUser {
     userId: string;
@@ -10,6 +15,7 @@ interface ConnectedUser {
 
 export class SocketIoWorker {
     private static instance: SocketIoWorker;
+    private connectedUsers: ConnectedUser[] = [];
 
     private constructor() {}
 
@@ -19,6 +25,7 @@ export class SocketIoWorker {
         }
         return SocketIoWorker.instance;
     }
+    
 
     public setupConnection(server: HttpServer, io: Server): void {
         io.on('connection', (socket: Socket) => {
@@ -29,20 +36,42 @@ export class SocketIoWorker {
                 this.removeUser(socket.id);
             });
 
-            // Handle login event with user._id
-            socket.on('login', (userId: string) => {
-                console.log('user logged in:', userId);
-                const authorized = this.authorizeUser(socket, userId);
-                if (authorized) {
-                    socket.emit('authorized'); // Emit authorization event to frontend
+            socket.on('login', (data: { userId: string; token: string }) => {
+                console.log('user logged in:', data.userId);
+                // Verify JWT token
+                jwt.verify(data.token, JWT_SECRET, (err, decoded) => {
+                    if (err) {
+                        console.log('Authentication failed for user:', data.userId);
+                        socket.emit('unauthorized', 'Invalid token'); // Emit unauthorized event to frontend if token is invalid
+                        return;
+                    }
+                    // Proceed with authorization if token is valid
+                    const authorized = this.authorizeUser(socket, data.userId);
+                    if (authorized) {
+                        socket.emit('authorized'); // Emit authorization event to frontend
+                    }
+                });
+            });
+
+            // Handle follow event
+            socket.on('follow', async (data: { userId: string; followId: string }) => {
+                try {
+                    const userId = new ObjectId(data.userId);
+                    const followId = new ObjectId(data.followId);
+                    const result = await UserService.followUser(userId, followId);
+                    if (result) {
+                        console.log(`User ${userId} followed user ${followId}`);
+                        socket.emit('followed', { followerId: userId.toString(), followStatus: 'followed' });
+                        socket.emit('followed', { followerId: followId.toString(), followStatus: 'followed' });
+                    }
+                } catch (error) {
+                    console.error('Error following user:', error);
                 }
             });
 
             // Add more event handlers as needed
         });
     }
-
-    private connectedUsers: ConnectedUser[] = [];
 
     private authorizeUser(socket: Socket, userId: string): boolean {
         // Simulate authorization logic; replace with your actual authorization process
@@ -75,7 +104,6 @@ export class SocketIoWorker {
     }
 
     public getSocketIdByUserId(userId: string): string | undefined {
-        console.log('connectedUsers:', this.connectedUsers);
         const user = this.connectedUsers.find(user => user.userId === userId);
         return user?.socketId;
     }
@@ -88,4 +116,11 @@ export class SocketIoWorker {
             console.log(`User with ID ${userId} is not connected`);
         }
     }
+}
+
+export const io = (server: HttpServer) => {
+    const io = new Server(server);
+    const socketIoWorker = SocketIoWorker.getInstance();
+    socketIoWorker.setupConnection(server, io);
+    return io;
 }
