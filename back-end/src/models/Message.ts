@@ -1,7 +1,7 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
-export interface Message extends mongoose.Document {
-    conversationId: mongoose.Types.ObjectId | string;
+export interface IMessage extends Document {
+    conversationId: mongoose.Types.ObjectId;
     sender: mongoose.Types.ObjectId;
     content: string;
     image?: string;
@@ -18,4 +18,4 @@ const MessageSchema: Schema = new Schema({
     isDeleted: { type: Boolean, default: false }
 });
 
-export default mongoose.model<Message>('Message', MessageSchema);
+export const Message = mongoose.model<IMessage>('Message', MessageSchema);

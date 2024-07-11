@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 
-export interface Conversation extends mongoose.Document {
+export interface IConversation extends mongoose.Document {
     createdAt: Date;
     participants: mongoose.Types.ObjectId[];
 }
@@ -10,4 +10,4 @@ const ConversationSchema: Schema = new Schema({
     participants: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }]
 });
 
-export default mongoose.model<Conversation>('Conversation', ConversationSchema);
+export const Conversation = mongoose.model<IConversation>('Conversation', ConversationSchema);
