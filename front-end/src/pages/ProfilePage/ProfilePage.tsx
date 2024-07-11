@@ -38,7 +38,7 @@ const ProfilePage = () => {
         if (!user?._id) {
             setSocketIoHelper(null);
         } else {
-            setSocketIoHelper(new SocketIoHelper('http://localhost:5001', user._id));
+            setSocketIoHelper(new SocketIoHelper('http://localhost:5001'));
         }
     }, [user?._id]);
 
@@ -68,9 +68,11 @@ const ProfilePage = () => {
                 bio: response.bio || '',
                 profilePicture: response.profilePicture || profile_picture,
                 posts: response.posts,
-            })
+            });
+            setFollowing(response.followers.includes(user?._id));
+            setFollowed(response.following.includes(user?._id));
         }).catch((error) => console.log(error)).finally(() => stopLoading());
-    }, [profileId])
+    }, [profileId, user?._id])
 
     const [following, setFollowing] = useState<boolean>(false);
     const [followed, setFollowed] = useState<boolean>(false);
@@ -78,29 +80,31 @@ const ProfilePage = () => {
     useEffect(() => {
         if (!user || !userInfo || location.pathname === '/profile/me' || !socketIoHelper) return;
 
-        socketIoHelper.on('followed', (data: { followerId: string, followStatus: string }) => {
+        const handleFollowed = (data: { followerId: string, followStatus: string }) => {
             if (data.followerId === userInfo._id) {
                 setFollowed(data.followStatus === 'followed');
-            }
-        });
-
-        socketIoHelper.on('unfollowed', (data: { followerId: string, followStatus: string }) => {
-            if (data.followerId === userInfo._id) {
-                setFollowed(data.followStatus === 'followed');
-            }
-        });
-
-        return () => {
-            if (socketIoHelper) {
-                socketIoHelper.off('followed');
-                socketIoHelper.off('unfollowed');
             }
         };
-    }, [socketIoHelper, user?._id]);
+
+        const handleUnfollowed = (data: { followerId: string, followStatus: string }) => {
+            if (data.followerId === userInfo._id) {
+                setFollowed(data.followStatus === 'followed');
+            }
+        };
+
+        socketIoHelper.on('followed', handleFollowed);
+        socketIoHelper.on('unfollowed', handleUnfollowed);
+
+        return () => {
+            socketIoHelper.off('followed', handleFollowed);
+            socketIoHelper.off('unfollowed', handleUnfollowed);
+        };
+    }, [socketIoHelper, user, userInfo, location.pathname]);
 
     const handleFollowClick = () => {
         if (!user || !userInfo || location.pathname === '/profile/me' || !socketIoHelper) return;
-        socketIoHelper.follow(user._id, userInfo._id); // Emit follow event using SocketIoHelper
+        socketIoHelper.follow(userInfo._id); // Emit follow event using SocketIoHelper
+        setFollowing(!following); // Update following state locally
     }
 
     return (
