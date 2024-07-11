@@ -11,6 +11,7 @@ import profile_picture from '../../assets/profile_picture.png';
 import { AuthContext } from '../../contexts/AuthContext';
 
 import { Post } from '../../helper/interfaces';
+import { useNotifications } from '../../contexts/NotificationContext';
 
 interface UserInfo {
   _id: string;
@@ -24,6 +25,13 @@ interface UserInfo {
 }
 
 const ProfilePage = () => {
+
+  const { sendNotification } = useNotifications();
+
+  const handleSendNotification = () => {
+    sendNotification('Hello from ProfilePage', "g6-JcYhwP0WmXshnAAAL");
+  };
+
   const location = useLocation();
   const profileId = location.pathname.split('/')[2];
   const navigate = useNavigate();
@@ -88,6 +96,7 @@ const ProfilePage = () => {
 
   return (
     <div className="w-full mx-auto mt-8">
+      <button onClick={handleSendNotification}>Send Notification</button>
       {
         (userInfo && userInfo?.username) &&
         <>
