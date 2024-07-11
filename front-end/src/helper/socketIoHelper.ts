@@ -1,7 +1,6 @@
-// SocketIoHelper.ts
-
 import { io, Socket } from 'socket.io-client';
 import { jwtDecode } from 'jwt-decode';
+import { notifyInfo } from './notificationHelper';
 
 interface DecodedToken {
     _id: string;
@@ -69,6 +68,29 @@ export class SocketIoHelper {
             // Handle unauthorized event, e.g., redirect to login page
         });
 
+        this.socket.on('followed_f', (data: { sender: string; reciever: string; followStatus: string, notifyDetails: {
+            follow: boolean,
+            followed: boolean,
+            sender: {
+                id: string,
+                username: string,
+            },
+            reciever: {
+                id: string,
+                username: string,
+            }
+        }}) => {
+            console.log('followed_f event received:', data);
+            if (data.reciever === this.userId) {
+                if (data.followStatus === 'followed' && data.notifyDetails.follow) {
+                    notifyInfo(`${data.notifyDetails.sender.username} followed you back`);
+                } else {
+                    notifyInfo(`${data.notifyDetails.sender.username} ${(data.followStatus === 'followed' ? 'started' : 'stopped')} following you`);
+                }
+            }
+            // Handle follow event here
+        });
+
         // Add more event listeners as needed
     }
 
@@ -95,3 +117,13 @@ export class SocketIoHelper {
         this.socket.off(event, callback);
     }
 }
+
+// Singleton instance to ensure only one socket connection throughout the application
+let socketIoHelper: SocketIoHelper | null = null;
+
+export const getSocketIoHelperInstance = (serverUrl: string): SocketIoHelper => {
+    if (!socketIoHelper) {
+        socketIoHelper = new SocketIoHelper(serverUrl);
+    }
+    return socketIoHelper;
+};

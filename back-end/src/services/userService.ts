@@ -97,7 +97,15 @@ export class UserService {
 
     static async followUser(userId: ObjectId, followId: ObjectId): Promise<{
         follow: boolean,
-        followed: boolean
+        followed: boolean,
+        sender: {
+            id: string,
+            username: string,
+        },
+        receiver: {
+            id: string,
+            username: string,
+        }
     }> {
         try {
             console.log('Attempting to follow/unfollow user:', { userId, followId });
@@ -128,7 +136,15 @@ export class UserService {
 
             return {
                 follow: !isFollowing,
-                followed: !isFollowing
+                followed: !isFollowing,
+                sender: {
+                    id: userId.toString(),
+                    username: user.username
+                },
+                receiver: {
+                    id: followId.toString(),
+                    username: follow.username
+                }
             };
         } catch (error) {
             console.error('Error following/unfollowing user:', { error, userId, followId });

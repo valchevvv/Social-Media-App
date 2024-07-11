@@ -4,6 +4,7 @@ import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import jwt from 'jsonwebtoken';
 import { ObjectId } from 'mongodb';
+import { IUser } from './models/User'; // Adjust path as per your project structure
 import { UserService } from './services/userService'; // Adjust path as per your project structure
 
 const JWT_SECRET = 'daniel2k24'; // Replace with your actual secret key
@@ -65,12 +66,42 @@ export class SocketIoWorker {
                     const followId = new ObjectId(data.followId);
                     const result : {
                         follow: boolean,
-                        followed: boolean
+                        followed: boolean,
+                        sender: {
+                            id: string,
+                            username: string
+                        },
+                        receiver: {
+                            id: string,
+                            username: string
+                        }
                     } = await UserService.followUser(userId, followId);
                     const action = result.follow ? 'followed' : 'unfollowed';
                     console.log(`User ${data.userId} ${action} user ${data.followId}`);
-                    this.emitToUser(io, followId.toString(), 'followed_f', { sender: userId.toString(), reciever: followId.toString(), followStatus: action });
-                    this.emitToUser(io, userId.toString(), 'followed_f', { sender: userId.toString(), reciever: followId.toString(), followStatus: action });
+                    this.emitToUser(io, followId.toString(), 'followed_f', { sender: userId.toString(), reciever: followId.toString(), followStatus: action, notifyDetails: {
+                        follow: result.follow,
+                        followed: result.followed,
+                        sender: {
+                            id: result.sender.id,
+                            username: result.sender.username,
+                        },
+                        reciever: {
+                            id: result.receiver.id,
+                            username: result.receiver.username,
+                        }
+                    } });
+                    this.emitToUser(io, userId.toString(), 'followed_f', { sender: userId.toString(), reciever: followId.toString(), followStatus: action, notifyDetails: {
+                        follow: result.follow,
+                        followed: result.followed,
+                        sender: {
+                            id: result.sender.id,
+                            username: result.sender.username,
+                        },
+                        reciever: {
+                            id: result.receiver.id,
+                            username: result.receiver.username,
+                        }
+                    }});
                 } catch (error) {
                     console.error('Error following/unfollowing user:', error);
                 }
