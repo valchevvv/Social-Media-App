@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IMessage extends Document {
-    conversationId: mongoose.Types.ObjectId;
+    conversation: mongoose.Types.ObjectId;
     sender: mongoose.Types.ObjectId;
     content: string;
     image?: string;
@@ -10,7 +10,7 @@ export interface IMessage extends Document {
 }
 
 const MessageSchema: Schema = new Schema({
-    conversationId: { type: Schema.Types.ObjectId, ref: 'Conversation', required: true },
+    conversation: { type: Schema.Types.ObjectId, ref: 'Conversation', required: true },
     sender: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     content: { type: String, required: true },
     image: { type: String },
