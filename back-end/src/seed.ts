@@ -1,4 +1,4 @@
-import mongoose, { mongo } from 'mongoose';
+import mongoose from 'mongoose';
 import { User, IUser } from './models/User';
 import { Post, IPost } from './models/Post';
 import { Comment, IComment } from './models/Comment';
@@ -37,33 +37,35 @@ const seedDatabase = async () => {
         const postsData: Partial<IPost>[] = [];
         const commentsData: Partial<IComment>[] = [];
 
-        // Create posts and comments for each user
         for (let i = 0; i < users.length; i++) {
-            for (let j = 0; j < 2; j++) { // Create 5 posts per user
-                const post = await Post.create({
+            for (let j = 0; j < 2; j++) { // Create 2 posts per user
+                const post = {
                     author: users[i]._id,
                     content: `Post ${j + 1} from user${i}`,
                     image: 'https://via.placeholder.com/150',
                     likes: [],
-                    comments: []
-                });
+                    comments: [],
+                    createdAt: new Date()
+                } as Partial<IPost>;
+
                 postsData.push(post);
-
-                // Create comments for the post
-                for (let k = 0; k < 3; k++) { // Create 3 comments per post
-                    const comment = await Comment.create({
-                        author: users[(i + k + 1) % users.length]._id,
-                        post: post._id,
-                        content: `Comment ${k + 1} on post ${post._id} by user ${(i + k + 1) % users.length}`
-                    });
-                    commentsData.push(comment);
-
-                    // Update post with comments
-                    post.comments.push(new mongoose.Types.ObjectId(comment!._id!.toString()));
-                    await post.save();
-                }
             }
         }
+        const posts = await Post.insertMany(postsData);
+
+        for (let i = 0; i < posts.length; i++) {
+            for (let k = 0; k < 3; k++) { // Create 3 comments per post
+                const comment = {
+                    author: users[(i + k + 1) % users.length]._id,
+                    post: posts[i]._id,
+                    content: `Comment ${k + 1} on post ${posts[i]._id} by user ${(i + k + 1) % users.length}`,
+                    createdAt: new Date()
+                } as Partial<IComment>;
+
+                commentsData.push(comment);
+            }
+        }
+        await Comment.insertMany(commentsData);
 
         // Create dummy notifications
         const notificationsData: Partial<INotification>[] = [];
@@ -72,34 +74,36 @@ const seedDatabase = async () => {
                 user: new mongoose.Types.ObjectId(users[i]!._id!.toString()),
                 type: 'like',
                 message: `Notification ${i + 1}`,
-                isRead: false
+                isRead: false,
+                createdAt: new Date()
             });
         }
-        const notifications = await Notification.insertMany(notificationsData);
+        await Notification.insertMany(notificationsData);
 
         // Create conversations and messages
         const conversationsData: Partial<IConversation>[] = [];
         const messagesData: Partial<IMessage>[] = [];
 
-        // Create conversations and messages between users
         for (let i = 0; i < users.length; i++) {
             for (let j = i + 1; j < users.length; j++) {
-                const conversation = await Conversation.create({
-                    participants: [users[i]._id, users[j]._id]
-                });
-                conversationsData.push(conversation);
+                const conversation = {
+                    participants: [users[i]._id, users[j]._id],
+                    createdAt: new Date()
+                } as Partial<IConversation>;
 
-                // Create messages for the conversation
+                const newConversation = await Conversation.create(conversation);
+                conversationsData.push(newConversation);
+
                 for (let k = 0; k < 5; k++) {
                     messagesData.push({
-                        conversation: new mongoose.Types.ObjectId(conversation!._id!.toString()),
+                        conversation: new mongoose.Types.ObjectId(newConversation!.id!.toString()),
                         sender: new mongoose.Types.ObjectId(users[i]!._id!.toString()),
                         content: `Message ${k + 1} from user${i} to user${j}`,
                         date: new Date()
                     });
 
                     messagesData.push({
-                        conversation: new mongoose.Types.ObjectId(conversation!._id!.toString()),
+                        conversation: new mongoose.Types.ObjectId(newConversation!.id!.toString()),
                         sender: new mongoose.Types.ObjectId(users[j]!._id!.toString()),
                         content: `Message ${k + 1} from user${j} to user${i}`,
                         date: new Date()
@@ -107,12 +111,7 @@ const seedDatabase = async () => {
                 }
             }
         }
-
-        // Insert posts, comments, conversations, and messages
-        await Post.insertMany(postsData);
-        await Comment.insertMany(commentsData);
-        await Conversation.insertMany(conversationsData);
-        const messages = await Message.insertMany(messagesData);
+        await Message.insertMany(messagesData);
 
         console.log('Database seeded successfully');
     } catch (err) {
