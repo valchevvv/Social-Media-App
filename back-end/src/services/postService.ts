@@ -88,7 +88,7 @@ export class PostService {
         }
         const random = Math.floor(Math.random() * count);
         const posts = await Post.find()
-            .skip(random)
+            /*.skip(random)*/
             .limit(limit)
             .populate({
                 path: 'author',
