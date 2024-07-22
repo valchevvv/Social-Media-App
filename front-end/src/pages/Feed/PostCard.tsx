@@ -44,7 +44,7 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
 
     useEffect(() => {
         loadData();
-    }, [])
+    }, [postData.comments.length])
 
     return (
         <div className="p-4">
@@ -82,7 +82,10 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
 
                     <div className="w-full rounded-xl px-5 py-3 flex flex-row align-center justify-center items-center gap-3">
                         <input type="text" value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="Add a comment..." className="w-full border-r-2 border-gray-300 focus:outline-none" />
-                        <button onClick={() => onComment(postData._id, newComment)}>
+                        <button onClick={() => {
+                            setNewComment('');
+                            onComment(postData._id, newComment)
+                        }}>
                             <VscSend size={24} />
                         </button>
                     </div>

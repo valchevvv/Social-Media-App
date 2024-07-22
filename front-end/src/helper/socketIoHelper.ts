@@ -93,10 +93,23 @@ export class SocketIoHelper {
             // Handle follow event here
         });
 
-        this.socket.on('liked_f', (data: { sender: string; post: string }) => {
+        this.socket.on('liked_f', (data: { sender: {
+            id: string,
+            username: string,
+        }; post: string }) => {
             if(debug) console.log('liked_f event received:', data);
             console.log('liked_f event received:', data);
-            notifyInfo(`${data.sender} liked your post`);
+            console.log("sender", data.sender);
+            console.log("userId", this.userId);
+            if(data.sender.id !== this.userId) notifyInfo(`${data.sender.username} liked your post`);
+        });
+
+        this.socket.on('commented_f', (data: { sender: {
+            id: string,
+            username: string
+        } }) => {
+            if(debug) console.log('commented_f event received:', data);
+            if(data.sender.id !== this.userId) notifyInfo(`${data.sender.username} commented on your post`);
         });
 
         // Add more event listeners as needed

@@ -6,7 +6,7 @@ import PostCard from './PostCard';
 import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
 import { getSocketIoHelperInstance, SocketIoHelper } from '../../helper/socketIoHelper';
 import { AuthContext } from '../../contexts/AuthContext';
-import { Post } from '../../helper/interfaces';
+import { Comment, Post } from '../../helper/interfaces';
 
 const Feed = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -23,14 +23,28 @@ const Feed = () => {
     }
   }, [user?._id]);
 
-  const updateLikes = (data: { sender: string, post: string, likeStatus: string }) => {
+  const updateLikes = (data: { sender: {
+    id: string,
+    username: string
+  }, post: string, likeStatus: string }) => {
     const updated = posts.map((post: Post ) => {
       if (post._id === data.post) {
-        if(data.likeStatus === "liked" && !post.likes.includes(data.sender)) post.likes.push(data.sender);
-        if(data.likeStatus === "unliked") post.likes = post.likes.filter((like) => like !== data.sender);
+        if(data.likeStatus === "liked" && !post.likes.includes(data.sender.id)) post.likes.push(data.sender.id);
+        if(data.likeStatus === "unliked") post.likes = post.likes.filter((like) => like !== data.sender.id);
       }
       return post;
     });
+    setPosts(updated);
+  }
+
+  const updateComments = (data: Comment) => {
+    const updated = posts.map((post) => {
+      if (post._id === data.post) {
+        post.comments.push(data._id);
+      }
+      return post;
+    });
+    console.log(updated);
     setPosts(updated);
   }
 
@@ -41,8 +55,14 @@ const Feed = () => {
       updateLikes(data);
     });
 
+    socketIoHelper.on('comment_f', (data) => {
+      updateComments(data);
+    });
+
+
     return () => {
       socketIoHelper.off('like_f',  () => {});
+      socketIoHelper.off('comment_f',  () => {});
     };
   }, [socketIoHelper, user, location.pathname, posts]);
 

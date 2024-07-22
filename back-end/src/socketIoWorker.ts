@@ -117,9 +117,15 @@ export class SocketIoWorker {
                     const result = await PostService.likePost(new ObjectId(data.postId), new ObjectId(data.userId));
                     const action = result.likeStatus ? 'liked' : 'unliked';
                     if(debug) console.log(`User ${data.userId} ${action} post ${data.postId}`);
-                    this.emitToUser(io, data.userId, 'like_f', { sender: data.userId, post: data.postId, likeStatus: action });
-                    console.log("here")
-                    if(action === "liked") this.emitToUser(io, result.author.toString(), 'liked_f', { sender: UserService.getSimpleUserById(data.userId), post: data.postId });
+                    const username = await UserService.getSimpleUserById(data.userId);
+                    this.emitToUser(io, data.userId, 'like_f', { sender: {
+                        id: data.userId,
+                        username: username
+                    }, post: data.postId, likeStatus: action });
+                    if(action === "liked") this.emitToUser(io, result.author.toString(), 'liked_f', { sender: {
+                        id: data.userId,
+                        username: username
+                    } });
                 } catch (error) {
                     if(debug) console.error('Error liking/unliking post:', error);
                 }
@@ -130,8 +136,21 @@ export class SocketIoWorker {
                 try {
                     const result = await CommentService.createComment(new ObjectId(data.userId), new ObjectId(data.postId), data.content);
                     if(debug) console.log(`User ${data.userId} commented on post ${data.postId}`);
-                    this.emitToUser(io, data.userId, 'comment_f', { sender: data.userId, post: data.postId, comment: result });
-                    this.emitToUser(io, result.author.toString(), 'comment_f', { sender: data.userId, post: data.postId, comment: result });
+                    const username = await UserService.getSimpleUserById(data.userId);
+                    const comment = {
+                        _id: result.comment._id,
+                        author: {
+                            _id: result.comment.author.toString(),
+                            username: username
+                        },
+                        content: result.comment.content,
+                        createdAt: result.comment.createdAt
+                    }
+                    this.emitToUser(io, data.userId, 'comment_f', comment);
+                    this.emitToUser(io, result.postAuthor.toString(), 'commented_f', { sender: {
+                        id: data.userId,
+                        username: username
+                    } });
                 } catch (error) {
                     if(debug) console.error('Error commenting on post:', error);
                 }

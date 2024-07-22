@@ -1,17 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { get } from '../../helper/axiosHelper';
 import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
 import { IoIosHeartEmpty } from 'react-icons/io';
 import { IoIosArrowBack } from "react-icons/io";
 import { useModal } from '../../contexts/ModalContext';
-import { post } from '../../helper/axiosHelper';
 
 import profile_picture from '../../assets/profile_picture.png';
 import { VscSend } from 'react-icons/vsc';
-import { Comment, Like } from '../../helper/interfaces';
-
+import { Comment, Like, Post } from '../../helper/interfaces';
+import { AuthContext } from '../../contexts/AuthContext';
+import { getSocketIoHelperInstance, SocketIoHelper } from '../../helper/socketIoHelper';
+import { FaHeart } from 'react-icons/fa';
 
 
 interface PostLikes {
@@ -60,19 +61,67 @@ const PostPreview = () => {
         }
     }
 
+    const [socketIoHelper, setSocketIoHelper] = useState<SocketIoHelper | null>(null);
+    const { user } = useContext(AuthContext);
+  
+    useEffect(() => {
+      if (!user?._id) {
+        setSocketIoHelper(null);
+      } else {
+        const socketHelper = getSocketIoHelperInstance('http://localhost:5001');
+        setSocketIoHelper(socketHelper);
+      }
+    }, [user?._id]);
+
+    const updateLikes = (data: { sender: {
+        id: string,
+        username: string
+    }, post: string, likeStatus: string }) => {
+        if (!postData) return;
+        let updated = postData.likes;
+
+        if (data.likeStatus === "liked" && !postData.likes.find(like => like._id === data.sender.id)) {
+            updated.push({ _id: data.sender.id, username: data.sender.username, profilePicture: '' });
+            
+        } 
+        else if (data.likeStatus === "unliked" && postData.likes.find(like => like._id === data.sender.id)) {
+            updated = postData.likes.filter(like => like._id !== data.sender.id);
+        }
+
+        setPostData({ ...postData, likes: updated });
+    }
+
+    useEffect(() => {
+        if (!user || !socketIoHelper || !postData) return;
+    
+        socketIoHelper.on('like_f', (data) => {
+            updateLikes(data);
+        });
+    
+        socketIoHelper.on('comment_f', (data) => {
+            console.log("comment_f data", data);
+            console.log("postData", postData);
+        });
+    
+    
+        return () => {
+          // socketIoHelper.off('like_f',  () => {});
+          socketIoHelper.off('comment_f',  () => {});
+        };
+      }, [socketIoHelper, user, location.pathname, postData]);
+
     const commentPost = () => {
-        startLoading();
-        post('comment/', { postId: postData?._id, content: newComment }).then(() => {
-            setNewComment('');
-            loadData();
-        }).catch(error => {
-            console.error('Failed to comment post:', error);
-        }).finally(() => stopLoading());
+        socketIoHelper?.emit('comment_b', { userId: user?._id, postId: postData?._id, content: newComment });
     }
 
     useEffect(() => {
         loadData();
     }, [])
+
+    useEffect(() => {
+        if(!postData || !user) return;
+        setLiked(postData?.likes.findIndex(x => x._id == user?._id) !== -1);
+    }, [postData, user])
 
     const loadData = () => {
         startLoading();
@@ -83,6 +132,13 @@ const PostPreview = () => {
         }).finally(() => {
             stopLoading();
         });
+    }
+    
+    const [liked, setLiked] = useState(false);
+
+    const likePost = () => {
+        setLiked(liked => !liked);
+        socketIoHelper?.emit('like_b', { userId: user?._id, postId: postData!._id });
     }
 
     return (
@@ -102,27 +158,31 @@ const PostPreview = () => {
                         </div>
                         <div className="flex flex-col h-full">
                             <img className='px-10 bg-black object-contain' src={postData.image} alt={postData.author.username} />
-                            <div className='flex flex-row items-center justify-between p-5'>
-                                <span className='font-semibold'>{postData.content}</span>
-                                <button className='flex flex-row items-center gap-2 border border-black px-2 py-1 rounded-full shadow-gray-200 shadow-xl' onClick={() => {
-                                    showModal({
-                                        title: 'Likes',
-                                        size: 'large',
-                                        content: <div className='flex flex-col gap-5 max-h-96 overflow-y-scroll'>
-                                            {
-                                                postData.likes.map(like => (
-                                                    <div key={like._id} className='flex flex-row items-center gap-3'>
-                                                        <img src={like.profilePicture || profile_picture} className='w-12 rounded-full' alt="" />
-                                                        <span className='font-semibold'>{like.username}</span>
-                                                    </div>
-                                                ))
-                                            }
-                                        </div>
-                                    })
-                                }}>
-                                    <IoIosHeartEmpty size={22} />
-                                    <span>{postData.likes.length}</span>
+                            <div className='flex flex-row justify-between items-center px-4'>
+                                <span className='p-4 font-semibold'>{postData.content}</span>
+                                <div className='flex flex-row gap-2 items-center'>
+                                <button onClick={likePost} className='flex flex-row items-center gap-2'>
+                                    {
+                                        liked ? <FaHeart color="red" size={22} /> : <IoIosHeartEmpty size={24} />
+                                    }
                                 </button>
+                                    <span className='underline cursor-pointer' onClick={() => {
+                                        showModal({
+                                            title: 'Likes',
+                                            size: 'large',
+                                            content: <div className='flex flex-col gap-5 max-h-96 overflow-y-scroll'>
+                                                {
+                                                    postData.likes.map(like => (
+                                                        <div key={like._id} className='flex flex-row items-center gap-3'>
+                                                            <img src={like.profilePicture || profile_picture} className='w-12 rounded-full' alt="" />
+                                                            <span className='font-semibold'>{like.username}</span>
+                                                        </div>
+                                                    ))
+                                                }
+                                            </div>
+                                        })
+                                    }}>{postData.likes.length} liked</span>
+                                </div>
                             </div>
                             <div className='px-2 flex flex-col gap-2'>
                                 <div className="w-full flex p-2 flex-row align-center justify-center items-center gap-3">

@@ -3,7 +3,10 @@ import { Comment, IComment, ICommentDetailed } from '../models/Comment';
 import { IPost, Post } from '../models';
 
 export class CommentService {
-    static async createComment(userId: ObjectId, postId: ObjectId, content: string): Promise<IComment> {
+    static async createComment(userId: ObjectId, postId: ObjectId, content: string): Promise<{
+        postAuthor: ObjectId;
+        comment: IComment;
+    }> {
         const comment = new Comment({
             author: userId,
             post: postId,
@@ -16,7 +19,10 @@ export class CommentService {
         post.comments.push(new ObjectId((comment._id as string).toString()));
         await post.save();
         await comment.save();
-        return comment;
+        return {
+            postAuthor: post.author,
+            comment
+        };
     }
 
     static async fetchPostWithComments(postId: string): Promise<IPost | null> {

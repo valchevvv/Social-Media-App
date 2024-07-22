@@ -21,7 +21,7 @@ export class PostService {
         likeStatus: boolean,
         author: ObjectId
     }> {
-        const post = await Post.findById(postId).select('likes').exec();
+        const post = await Post.findById(postId).select('author likes').exec();
 
         let update;
         let liked = false;
@@ -39,7 +39,7 @@ export class PostService {
 
         return {
             likeStatus: liked,
-            author: post!.author._id
+            author: post!.author
         };
     }
 
