@@ -152,6 +152,18 @@ export class UserService {
         }
     }
 
+    static async getSimpleUserById(userId: string): Promise<string | null> {
+        try {
+            const user = await User.findById(userId).exec();
+
+            if (!user) return null;
+
+            return user.username;
+        } catch (error) {
+            throw error;
+        }
+    }
+
     static async getUserByUsername(username: string) {
         try {
             // console.log('Attempting to get user by username:', { username });

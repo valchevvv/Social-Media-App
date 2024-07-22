@@ -17,15 +17,30 @@ export class PostService {
         return post;
     }
 
-    static async likePost(postId: string, userId: ObjectId, liked: boolean): Promise<IPost | null> {
-        if (!liked) {
-            return Post.findByIdAndUpdate(postId, {
-                $pull: { likes: userId }
-            }, { new: true }).exec();
+    static async likePost(postId: ObjectId, userId: ObjectId): Promise<{
+        likeStatus: boolean,
+        author: ObjectId
+    }> {
+        const post = await Post.findById(postId).select('likes').exec();
+
+        let update;
+        let liked = false;
+
+        if (post && post.likes.includes(userId)) {
+            // If userId is already in likes, pull it to unlike
+            update = { $pull: { likes: userId } };
+        } else {
+            // If userId is not in likes, add it to like
+            update = { $addToSet: { likes: userId } };
+            liked = true;
         }
-        return Post.findByIdAndUpdate(postId, {
-            $addToSet: { likes: userId }
-        }, { new: true }).exec();
+
+        await Post.findByIdAndUpdate(postId, update, { new: true }).exec();
+
+        return {
+            likeStatus: liked,
+            author: post!.author._id
+        };
     }
 
     static async getPostById(postId: string): Promise<IPost | null> {
@@ -83,7 +98,7 @@ export class PostService {
 
     static async getRandomPosts(limit: number): Promise<IPostWithLikesCount[]> {
         const count = await Post.countDocuments().exec();
-        if(limit > count) {
+        if (limit > count) {
             limit = count;
         }
         const random = Math.floor(Math.random() * count);

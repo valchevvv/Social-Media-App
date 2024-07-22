@@ -93,6 +93,12 @@ export class SocketIoHelper {
             // Handle follow event here
         });
 
+        this.socket.on('liked_f', (data: { sender: string; post: string }) => {
+            if(debug) console.log('liked_f event received:', data);
+            console.log('liked_f event received:', data);
+            notifyInfo(`${data.sender} liked your post`);
+        });
+
         // Add more event listeners as needed
     }
 

@@ -8,20 +8,31 @@ import { IoIosArrowBack } from "react-icons/io";
 import { useModal } from '../../contexts/ModalContext';
 import { post } from '../../helper/axiosHelper';
 
-import { Post } from '../../helper/interfaces';
-
 import profile_picture from '../../assets/profile_picture.png';
 import { VscSend } from 'react-icons/vsc';
+import { Comment, Like } from '../../helper/interfaces';
 
 
 
-
+interface PostLikes {
+    _id: string;
+    author: {
+        _id: string;
+        username: string;
+        profilePicture: string;
+    },
+    content: string;
+    image: string;
+    likes: Like[];
+    comments: Comment[];
+    createdAt: string;
+}
 
 const PostPreview = () => {
     const location = useLocation();
     const postId = location.pathname.split('/')[2];
 
-    const [postData, setPostData] = useState<Post | null>(null);
+    const [postData, setPostData] = useState<PostLikes | null>(null);
     const [newComment, setNewComment] = useState('');
 
     const { startLoading, stopLoading } = useLoadingSpinner();
@@ -155,25 +166,25 @@ const PostPreview = () => {
                             <img src={postData.image} className='h-96 bg-black aspect-video object-contain' alt="" />
                             <div className='flex flex-row justify-between items-center px-4'>
                                 <span className='p-4 font-semibold'>{postData.content}</span>
-                                <button className='flex flex-row items-center gap-2 border border-gray-300 outline-gray-500 px-2 py-1 rounded-full shadow-gray-200 shadow' onClick={() => {
-                                    showModal({
-                                        title: 'Likes',
-                                        size: 'small',
-                                        content: <div className='flex flex-col gap-5 max-h-96 overflow-y-scroll'>
-                                            {
-                                                postData.likes.map(like => (
-                                                    <div key={like._id} className='flex flex-row items-center gap-3'>
-                                                        <img src={like.profilePicture || profile_picture} className='w-12 rounded-full' alt="" />
-                                                        <span className='font-semibold'>{like.username}</span>
-                                                    </div>
-                                                ))
-                                            }
-                                        </div>
-                                    })
-                                }}>
+                                <div className='flex flex-row gap-2 items-center'>
                                     <IoIosHeartEmpty size={22} />
-                                    <span>{postData.likes.length}</span>
-                                </button>
+                                    <span className='underline cursor-pointer' onClick={() => {
+                                        showModal({
+                                            title: 'Likes',
+                                            size: 'small',
+                                            content: <div className='flex flex-col gap-5 max-h-96 overflow-y-scroll'>
+                                                {
+                                                    postData.likes.map(like => (
+                                                        <div key={like._id} className='flex flex-row items-center gap-3'>
+                                                            <img src={like.profilePicture || profile_picture} className='w-12 rounded-full' alt="" />
+                                                            <span className='font-semibold'>{like.username}</span>
+                                                        </div>
+                                                    ))
+                                                }
+                                            </div>
+                                        })
+                                    }}>{postData.likes.length} liked</span>
+                                </div>
                             </div>
                         </div>
                         <div className='mb-4 mx-5 flex flex-col gap-2'>

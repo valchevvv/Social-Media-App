@@ -26,7 +26,7 @@ export interface Post {
     },
     content: string;
     image: string;
-    likes: Like[];
+    likes: string[];
     comments: Comment[];
     createdAt: string;
 }

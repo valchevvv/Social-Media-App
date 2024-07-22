@@ -4,8 +4,10 @@ import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import jwt from 'jsonwebtoken';
 import { ObjectId } from 'mongodb';
-import { IUser } from './models/User'; // Adjust path as per your project structure
+import { IUser, User } from './models/User'; // Adjust path as per your project structure
 import { UserService } from './services/userService'; // Adjust path as per your project structure
+import { PostService } from './services/postService';
+import { CommentService } from './services/commentService';
 
 const JWT_SECRET = 'daniel2k24'; // Replace with your actual secret key
 
@@ -106,6 +108,32 @@ export class SocketIoWorker {
                     }});
                 } catch (error) {
                     if(debug) console.error('Error following/unfollowing user:', error);
+                }
+            });
+            socket.on('like_b', async (data: { userId: string; postId: string }) => {
+                
+                if(debug) console.log('User attempting to like/unlike post:', data.userId, '->', data.postId);
+                try {
+                    const result = await PostService.likePost(new ObjectId(data.postId), new ObjectId(data.userId));
+                    const action = result.likeStatus ? 'liked' : 'unliked';
+                    if(debug) console.log(`User ${data.userId} ${action} post ${data.postId}`);
+                    this.emitToUser(io, data.userId, 'like_f', { sender: data.userId, post: data.postId, likeStatus: action });
+                    console.log("here")
+                    if(action === "liked") this.emitToUser(io, result.author.toString(), 'liked_f', { sender: UserService.getSimpleUserById(data.userId), post: data.postId });
+                } catch (error) {
+                    if(debug) console.error('Error liking/unliking post:', error);
+                }
+            });
+
+            socket.on('comment_b', async (data: { userId: string, postId: string, content: string }) => {
+                if(debug) console.log('User attempting to comment on post:', data.userId, '->', data.postId);
+                try {
+                    const result = await CommentService.createComment(new ObjectId(data.userId), new ObjectId(data.postId), data.content);
+                    if(debug) console.log(`User ${data.userId} commented on post ${data.postId}`);
+                    this.emitToUser(io, data.userId, 'comment_f', { sender: data.userId, post: data.postId, comment: result });
+                    this.emitToUser(io, result.author.toString(), 'comment_f', { sender: data.userId, post: data.postId, comment: result });
+                } catch (error) {
+                    if(debug) console.error('Error commenting on post:', error);
                 }
             });
 

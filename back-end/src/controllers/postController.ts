@@ -33,17 +33,17 @@ export class PostController {
         }
     }
 
-    static async likePost(req: Request, res: Response) {
-        try {
-            const post = await PostService.likePost(req.body.postId, new ObjectId(req.user?._id), req.body.liked);
-            if (!post) {
-                return res.status(404).json({ error: 'Post not found' });
-            }
-            res.status(200).json(post);
-        } catch (error) {
-            res.status(400).json({ error: error instanceof Error ? error.message : error });
-        }
-    }
+    // static async likePost(req: Request, res: Response) {
+    //     try {
+    //         const post = await PostService.likePost(req.body.postId, new ObjectId(req.user?._id), req.body.liked);
+    //         if (!post) {
+    //             return res.status(404).json({ error: 'Post not found' });
+    //         }
+    //         res.status(200).json(post);
+    //     } catch (error) {
+    //         res.status(400).json({ error: error instanceof Error ? error.message : error });
+    //     }
+    // }
 
     static async getPost(req: Request, res: Response) {
         try {
