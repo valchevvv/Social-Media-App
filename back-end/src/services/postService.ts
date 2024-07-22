@@ -30,25 +30,25 @@ export class PostService {
 
     static async getPostById(postId: string): Promise<IPost | null> {
         return Post.findById(postId)
-                .populate({
+            .populate({
+                path: 'author',
+                select: 'username profilePicture nickname' // Including nickname and profilePicture
+            })
+            .populate({
+                path: 'comments',
+                select: 'content createdAt author', // Assuming you want the text, creation date, and author of each comment
+                options: { sort: { 'createdAt': -1 } }, // Sorting comments by createdAt in descending order
+                populate: {
                     path: 'author',
-                    select: 'username profilePicture nickname' // Including nickname and profilePicture
-                })
-                .populate({
-                    path: 'comments',
-                    select: 'content createdAt author', // Assuming you want the text, creation date, and author of each comment
-                    options: { sort: { 'createdAt': -1 } }, // Sorting comments by createdAt in descending order
-                    populate: {
-                        path: 'author',
-                        select: 'username profilePicture' // Assuming you also want to include the author's username and profilePicture for each comment
-                    }
-                })
-                .populate({ // Adding this populate for likes
-                    path: 'likes',
-                    select: 'username profilePicture' // Assuming likes is an array of ObjectId references to user documents
-                })
-                .select('content image likes comments createdAt') // Including createdAt
-                .exec();
+                    select: 'username profilePicture' // Assuming you also want to include the author's username and profilePicture for each comment
+                }
+            })
+            .populate({ // Adding this populate for likes
+                path: 'likes',
+                select: 'username profilePicture' // Assuming likes is an array of ObjectId references to user documents
+            })
+            .select('content image likes comments createdAt') // Including createdAt
+            .exec();
     }
 
     static async updatePost(postId: string, updateData: Partial<IPost>): Promise<IPost | null> {
@@ -77,7 +77,42 @@ export class PostService {
             commentsCount: post.comments.length
             // Do not include likes in the output
         }));
-        
+
+        return postsWithLikesCount;
+    }
+
+    static async getRandomPosts(limit: number): Promise<IPostWithLikesCount[]> {
+        const count = await Post.countDocuments().exec();
+        if(limit > count) {
+            limit = count;
+        }
+        const random = Math.floor(Math.random() * count);
+        const posts = await Post.find()
+            .skip(random)
+            .limit(limit)
+            .populate({
+                path: 'author',
+                select: 'username profilePicture _id'
+            })
+            .populate({
+                path: 'comments',
+                select: 'content createdAt author',
+                options: { sort: { 'createdAt': -1 } },
+                populate: {
+                    path: 'author',
+                    select: 'username profilePicture'
+                }
+            })
+            .select('content image likes comments createdAt')
+            .lean()
+            .exec();
+
+        const postsWithLikesCount: IPostWithLikesCount[] = posts.map(post => ({
+            ...post,
+            likesCount: post.likes.length,
+            commentsCount: post.comments.length
+        }));
+
         return postsWithLikesCount;
     }
 }

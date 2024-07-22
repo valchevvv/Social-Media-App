@@ -12,6 +12,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 import ProfilePage from './pages/ProfilePage';
 import NotFoundPage from './pages/NotFound';
 import PostPreview from './pages/ProfilePage/PostPreview';
+import ExplorePage from './pages/ExplorePage';
 
 const AuthChecker = () => {
   const navigate = useNavigate();
@@ -50,6 +51,7 @@ const AppContent = () => {
           <Route path="/profile/:id" element={<ProfilePage />} />
           <Route path="/profile" element={<Navigate to={'/profile/me'} />} />
           <Route path="/post/:id" element={<PostPreview />} />
+          <Route path="/explore" element={<ExplorePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>

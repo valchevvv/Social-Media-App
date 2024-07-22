@@ -89,4 +89,13 @@ export class PostController {
             res.status(400).json({ error: error instanceof Error ? error.message : error });
         }
     }
+
+    static async explorePosts(req: Request, res: Response) {
+        try {
+            const posts = await PostService.getRandomPosts(100);
+            res.status(200).json(posts);
+        } catch (error) {
+            res.status(400).json({ error: error instanceof Error ? error.message : error });
+        }
+    }
 }
