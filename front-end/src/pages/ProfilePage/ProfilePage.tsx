@@ -1,12 +1,11 @@
 import { useContext, useEffect, useState } from 'react';
 import UserInfo from './UserInfo';
 import Posts from './Posts';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
 import { get } from '../../helper/axiosHelper';
 import { AuthContext } from '../../contexts/AuthContext';
 import { Post } from '../../helper/interfaces';
-import { notifyInfo } from '../../helper/notificationHelper';
 import { SocketIoHelper, getSocketIoHelperInstance } from '../../helper/socketIoHelper'; // Adjust path as per your project structure
 
 import profile_picture from '../../assets/profile_picture.png';
@@ -25,7 +24,6 @@ interface UserInfo {
 const ProfilePage = () => {
   const location = useLocation();
   const profileId = location.pathname.split('/')[2];
-  const navigate = useNavigate();
   const { startLoading, stopLoading } = useLoadingSpinner();
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const { user } = useContext(AuthContext);

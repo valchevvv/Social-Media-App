@@ -51,7 +51,6 @@ export class PostController {
             if (!post) {
                 return res.status(404).json({ error: 'Post not found' });
             }
-            console.log("post", post)
             res.status(200).json(post);
         } catch (error) {
             res.status(400).json({ error: error instanceof Error ? error.message : error });

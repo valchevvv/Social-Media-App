@@ -37,6 +37,7 @@ export class PostService {
                 .populate({
                     path: 'comments',
                     select: 'content createdAt author', // Assuming you want the text, creation date, and author of each comment
+                    options: { sort: { 'createdAt': -1 } }, // Sorting comments by createdAt in descending order
                     populate: {
                         path: 'author',
                         select: 'username profilePicture' // Assuming you also want to include the author's username and profilePicture for each comment
