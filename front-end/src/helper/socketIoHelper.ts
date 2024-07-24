@@ -1,3 +1,4 @@
+// File: socketIoHelper.ts
 import { io, Socket } from 'socket.io-client';
 import { jwtDecode } from 'jwt-decode';
 import { notifyInfo } from './notificationHelper';
@@ -22,7 +23,6 @@ export class SocketIoHelper {
             throw new Error('Token not found. Please log in.');
         }
 
-        // Decode token to get userId
         const decodedUser = jwtDecode<DecodedToken>(this.token);
 
         if (!decodedUser) {
@@ -45,6 +45,10 @@ export class SocketIoHelper {
         this.emitLogin(this.userId, this.token); // Automatically emit login event upon construction
     }
 
+    public getSocket(): Socket {
+        return this.socket;
+    }
+
     private setupListeners(): void {
         this.socket.on('connect', () => {
             if(debug) console.log('connected to server');
@@ -62,12 +66,10 @@ export class SocketIoHelper {
         // Handle authorization event from backend
         this.socket.on('authorized', () => {
             if(debug) console.log('Authorization successful');
-            // Handle any actions upon successful authorization, if needed
         });
 
         this.socket.on('unauthorized', (message: string) => {
             if(debug) console.log('Authorization failed:', message);
-            // Handle unauthorized event, e.g., redirect to login page
         });
 
         this.socket.on('followed_f', (data: { sender: string; reciever: string; followStatus: string, notifyDetails: {
@@ -90,7 +92,6 @@ export class SocketIoHelper {
                     notifyInfo(`${data.notifyDetails.sender.username} ${(data.followStatus === 'followed' ? 'started' : 'stopped')} following you`);
                 }
             }
-            // Handle follow event here
         });
 
         this.socket.on('liked_f', (data: { sender: {

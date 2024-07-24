@@ -7,6 +7,7 @@ import { SidebarProvider } from './contexts/SidebarContext';
 import { LoadingSpinnerProvider } from './contexts/LoadingSpinnerContext';
 import { ModalProvider } from './contexts/ModalContext';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { SocketConnectionProvider } from './contexts/SocketConnection';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -15,7 +16,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <NotificationProvider>
           <ModalProvider>
             <SidebarProvider>
-              <App />
+              <SocketConnectionProvider serverUrl={"http://localhost:5001"}>
+                <App />
+              </SocketConnectionProvider>
             </SidebarProvider>
           </ModalProvider>
         </NotificationProvider>
