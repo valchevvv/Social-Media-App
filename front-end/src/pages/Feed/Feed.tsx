@@ -6,21 +6,7 @@ import PostCard from './PostCard';
 import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
 import { getSocketIoHelperInstance, SocketIoHelper } from '../../helper/socketIoHelper';
 import { AuthContext } from '../../contexts/AuthContext';
-import { Comment } from '../../helper/interfaces';
-
-interface Post {
-  _id: string;
-  author: {
-      _id: string;
-      username: string;
-      profilePicture: string;
-  },
-  content: string;
-  image: string;
-  likes: string[];
-  comments: string[];
-  createdAt: string;
-}
+import { Post } from '../../helper/interfaces';
 
 const Feed = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -51,17 +37,6 @@ const Feed = () => {
     setPosts(updated);
   }
 
-  const updateComments = (data: Comment) => {
-    const updated = posts.map((post: Post ) => {
-      if (post._id === data.post) {
-        post.comments.push(data._id);
-        console.log(post.comments);
-      }
-      return post;
-    });
-    setPosts(updated);    
-  }
-
   useEffect(() => {
     if (!user || !socketIoHelper || !posts) return;
 
@@ -69,14 +44,9 @@ const Feed = () => {
       updateLikes(data);
     });
 
-    socketIoHelper.on('comment_f', (data) => {
-      updateComments(data);
-    });
-
 
     return () => {
       socketIoHelper.off('like_f',  () => {});
-      socketIoHelper.off('comment_f',  () => {});
     };
   }, [socketIoHelper, user, location.pathname, posts]);
 

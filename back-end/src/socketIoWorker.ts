@@ -139,6 +139,7 @@ export class SocketIoWorker {
                     console.log(result.postAuthor)
                     const comment = {
                         _id: result.comment._id,
+                        post: result.comment.post,
                         author: {
                             id: result.comment.author.toString(),
                             username: result.postAuthor.username,

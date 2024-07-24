@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useContext, useEffect, useState } from 'react';
-import profile_picture from '../../assets/profile_picture.png'
+import profile_picture from '../../assets/profile_picture.png';
 import { IoIosHeartEmpty } from "react-icons/io";
 import { FaHeart } from "react-icons/fa";
 import { RiMessage3Line, RiMessage3Fill } from "react-icons/ri";
@@ -14,14 +14,41 @@ import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
 import { Comment } from '../../helper/interfaces';
 import { useNavigate } from 'react-router-dom';
 import { Post } from '../../helper/interfaces';
-
+import { getSocketIoHelperInstance, SocketIoHelper } from '../../helper/socketIoHelper';
 
 const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () => void, onComment: (postId: string, comment: string) => void }) => {
+    const [socketIoHelper, setSocketIoHelper] = useState<SocketIoHelper | null>(null);
     const { user } = useContext(AuthContext);
+  
+    useEffect(() => {
+      if (!user?._id) {
+        setSocketIoHelper(null);
+      } else {
+        const socketHelper = getSocketIoHelperInstance('http://localhost:5001');
+        setSocketIoHelper(socketHelper);
+      }
+    }, [user?._id]);
+
+    const updateComments = (data: Comment) => {
+        setComments((comments) => [...comments, data]);
+        postData.commentsCount += 1;
+    }
+        
+    useEffect(() => {
+        if (!user || !socketIoHelper || !postData || !comments) return;
+
+        socketIoHelper.on('comment_f', (data) => {
+            if(data.post === postData._id) updateComments(data)
+        });
+
+
+        return () => {
+        socketIoHelper.off('comment_f',  () => {});
+        };
+    }, [socketIoHelper, user, location.pathname]);
 
     const [commenting, setCommenting] = useState(false);
-
-    const [newComment, setNewComment] = useState('' as string);
+    const [newComment, setNewComment] = useState('');
     const { startLoading, stopLoading } = useLoadingSpinner();
 
     const navigate = useNavigate();
@@ -32,26 +59,32 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
         onLike();
     }
 
-    const [comments, setComments] = useState([] as Comment[]);
+    const [comments, setComments] = useState<Comment[]>([]);
+    
+    useEffect(() => {
+        if(comments.length === 0) return; 
+        setComments((comments) => comments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+    }, [comments.length])
 
     const loadData = async () => {
         startLoading();
         const response = await get(`comment/post/${postData._id}`);
         setComments(response);
+        postData.commentsCount = response.length;
         stopLoading();
         return response;
     }
 
     useEffect(() => {
         loadData();
-    }, [postData.commentsCount])
+    }, [postData._id]);
 
     return (
         <div className="p-4">
             <div className="bg-white border shadow-sm rounded-xl max-w-md">
                 <div className="flex items-center px-4 py-3 cursor-pointer hover:underline" onClick={() => navigate(`/profile/${postData.author.username}`)}>
                     <img className="h-8 w-8 rounded-full" src={postData.author.profilePicture || profile_picture} />
-                    <div className="ml-3 ">
+                    <div className="ml-3">
                         <span className="text-sm font-semibold antialiased block leading-tight">{postData.author.username}</span>
                     </div>
                 </div>
@@ -80,41 +113,40 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
                         </button> */}
                     </div>
                 </div>
-                {commenting && <>
-
-                    <div className="w-full rounded-xl px-5 py-3 flex flex-row align-center justify-center items-center gap-3">
-                        <input 
-                            type="text"
-                            value={newComment} 
-                            onChange={(e) => setNewComment(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    e.preventDefault()
-                                    setNewComment('');
-                                    onComment(postData._id, newComment)
-                                }
-                            }} 
-                            placeholder="Add a comment..." className="w-full border-r-2 border-gray-300 focus:outline-none" 
-                        />
-                        <button onClick={() => {
-                            setNewComment('');
-                            onComment(postData._id, newComment)
-                        }}>
-                            <VscSend size={24} />
-                        </button>
-                    </div>
-                    {comments.length > 0 && <hr />}
-                    <div className={`${comments.length > 0 ? "block" : "hidden"} flex flex-col px-5 py-2 pb-6 gap-4 overflow-y-scroll max-h-72`}>
-                        {
-                            comments.map((commentData, index) => <CommentComponent key={index} comment={commentData} />)
-                        }
-                    </div>
-                </>
-                }
-
+                {commenting && (
+                    <>
+                        <div className="w-full rounded-xl px-5 py-3 flex flex-row align-center justify-center items-center gap-3">
+                            <input
+                                type="text"
+                                value={newComment}
+                                onChange={(e) => setNewComment(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        onComment(postData._id, newComment);
+                                        setNewComment('');
+                                    }
+                                }}
+                                placeholder="Add a comment..." className="w-full border-r-2 border-gray-300 focus:outline-none"
+                            />
+                            <button onClick={() => {
+                                onComment(postData._id, newComment);
+                                setNewComment('');
+                            }}>
+                                <VscSend size={24} />
+                            </button>
+                        </div>
+                        {comments.length > 0 && <hr />}
+                        <div className={`${comments.length > 0 ? "block" : "hidden"} flex flex-col px-5 py-2 pb-6 gap-4 overflow-y-scroll max-h-72`}>
+                            {
+                                comments.map((commentData, index) => <CommentComponent key={index} comment={commentData} />)
+                            }
+                        </div>
+                    </>
+                )}
             </div>
         </div>
-    )
+    );
 }
 
 export default PostCard;

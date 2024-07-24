@@ -5,7 +5,7 @@ export interface Comment {
         username: string,
         profilePicture: string
     }
-    post?: string,
+    post: string,
     content: string,
     createdAt: string
 }
