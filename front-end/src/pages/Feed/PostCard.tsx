@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 import profile_picture from '../../assets/profile_picture.png'
 import { IoIosHeartEmpty } from "react-icons/io";
 import { FaHeart } from "react-icons/fa";
-import { RiMessage3Line } from "react-icons/ri";
+import { RiMessage3Line, RiMessage3Fill } from "react-icons/ri";
 import { VscSend } from "react-icons/vsc";
 
 import { get } from '../../helper/axiosHelper';
@@ -70,12 +70,14 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
                             <span>{postData.likes.length}</span>
                         </button>
                         <button  className='flex flex-row items-center gap-2' onClick={() => setCommenting(commenting => !commenting)}>
-                            <RiMessage3Line size={24} />
+                            {
+                                commenting ? <RiMessage3Fill size={24} /> : <RiMessage3Line size={24} />
+                            }
                             <span>{postData.comments.length}</span>
                         </button>
-                        <button className='flex justify-start'>
+                        {/* <button className='flex justify-start'>
                             <VscSend size={24} />
-                        </button>
+                        </button> */}
                     </div>
                 </div>
                 {commenting && <>

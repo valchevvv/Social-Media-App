@@ -9,7 +9,7 @@ import { useModal } from '../../contexts/ModalContext';
 
 import profile_picture from '../../assets/profile_picture.png';
 import { VscSend } from 'react-icons/vsc';
-import { Comment, Like, Post } from '../../helper/interfaces';
+import { Comment, Like } from '../../helper/interfaces';
 import { AuthContext } from '../../contexts/AuthContext';
 import { getSocketIoHelperInstance, SocketIoHelper } from '../../helper/socketIoHelper';
 import { FaHeart } from 'react-icons/fa';
@@ -63,27 +63,29 @@ const PostPreview = () => {
 
     const [socketIoHelper, setSocketIoHelper] = useState<SocketIoHelper | null>(null);
     const { user } = useContext(AuthContext);
-  
+
     useEffect(() => {
-      if (!user?._id) {
-        setSocketIoHelper(null);
-      } else {
-        const socketHelper = getSocketIoHelperInstance('http://localhost:5001');
-        setSocketIoHelper(socketHelper);
-      }
+        if (!user?._id) {
+            setSocketIoHelper(null);
+        } else {
+            const socketHelper = getSocketIoHelperInstance('http://localhost:5001');
+            setSocketIoHelper(socketHelper);
+        }
     }, [user?._id]);
 
-    const updateLikes = (data: { sender: {
-        id: string,
-        username: string
-    }, post: string, likeStatus: string }) => {
+    const updateLikes = (data: {
+        sender: {
+            id: string,
+            username: string
+        }, post: string, likeStatus: string
+    }) => {
         if (!postData) return;
         let updated = postData.likes;
 
         if (data.likeStatus === "liked" && !postData.likes.find(like => like._id === data.sender.id)) {
             updated.push({ _id: data.sender.id, username: data.sender.username, profilePicture: '' });
-            
-        } 
+
+        }
         else if (data.likeStatus === "unliked" && postData.likes.find(like => like._id === data.sender.id)) {
             updated = postData.likes.filter(like => like._id !== data.sender.id);
         }
@@ -91,27 +93,53 @@ const PostPreview = () => {
         setPostData({ ...postData, likes: updated });
     }
 
+    const updateComments = (data: {
+        _id: string,
+        author: {
+            id: string,
+            username: string,
+            profilePicture: string
+        },
+        content: string,
+        createdAt: string,
+    }) => {
+        if (!postData) return;
+        const updated = postData.comments;
+        updated.push({
+            _id: data._id,
+            author: {
+                _id: data.author.id,
+                username: data.author.username,
+                profilePicture: data.author.profilePicture
+            },
+            content: data.content,
+            createdAt: data.createdAt
+        });
+        updated.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        setPostData({ ...postData, comments: updated });
+    }
+
     useEffect(() => {
         if (!user || !socketIoHelper || !postData) return;
-    
+
         socketIoHelper.on('like_f', (data) => {
             updateLikes(data);
         });
-    
+
         socketIoHelper.on('comment_f', (data) => {
-            console.log("comment_f data", data);
-            console.log("postData", postData);
+            updateComments(data);
         });
-    
-    
+
+
         return () => {
-          // socketIoHelper.off('like_f',  () => {});
-          socketIoHelper.off('comment_f',  () => {});
+            // socketIoHelper.off('like_f',  () => {});
+            socketIoHelper.off('comment_f', () => { });
         };
-      }, [socketIoHelper, user, location.pathname, postData]);
+    }, [socketIoHelper, user, location.pathname, postData]);
 
     const commentPost = () => {
         socketIoHelper?.emit('comment_b', { userId: user?._id, postId: postData?._id, content: newComment });
+        setNewComment('');
     }
 
     useEffect(() => {
@@ -119,7 +147,7 @@ const PostPreview = () => {
     }, [])
 
     useEffect(() => {
-        if(!postData || !user) return;
+        if (!postData || !user) return;
         setLiked(postData?.likes.findIndex(x => x._id == user?._id) !== -1);
     }, [postData, user])
 
@@ -133,7 +161,7 @@ const PostPreview = () => {
             stopLoading();
         });
     }
-    
+
     const [liked, setLiked] = useState(false);
 
     const likePost = () => {
@@ -161,11 +189,11 @@ const PostPreview = () => {
                             <div className='flex flex-row justify-between items-center px-4'>
                                 <span className='p-4 font-semibold'>{postData.content}</span>
                                 <div className='flex flex-row gap-2 items-center'>
-                                <button onClick={likePost} className='flex flex-row items-center gap-2'>
-                                    {
-                                        liked ? <FaHeart color="red" size={22} /> : <IoIosHeartEmpty size={24} />
-                                    }
-                                </button>
+                                    <button onClick={likePost} className='flex flex-row items-center gap-2'>
+                                        {
+                                            liked ? <FaHeart color="red" size={22} /> : <IoIosHeartEmpty size={24} />
+                                        }
+                                    </button>
                                     <span className='underline cursor-pointer' onClick={() => {
                                         showModal({
                                             title: 'Likes',

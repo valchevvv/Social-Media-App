@@ -1,10 +1,10 @@
 import { ObjectId } from 'mongodb';
 import { Comment, IComment, ICommentDetailed } from '../models/Comment';
-import { IPost, Post } from '../models';
+import { IPost, IUser, Post, User } from '../models';
 
 export class CommentService {
     static async createComment(userId: ObjectId, postId: ObjectId, content: string): Promise<{
-        postAuthor: ObjectId;
+        postAuthor: IUser;
         comment: IComment;
     }> {
         const comment = new Comment({
@@ -19,8 +19,11 @@ export class CommentService {
         post.comments.push(new ObjectId((comment._id as string).toString()));
         await post.save();
         await comment.save();
+        
+        const user = await User.findOne({ _id: comment.author }).exec();
+
         return {
-            postAuthor: post.author,
+            postAuthor: user!,
             comment
         };
     }

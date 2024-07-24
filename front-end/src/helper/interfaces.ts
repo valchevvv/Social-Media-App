@@ -7,8 +7,7 @@ export interface Comment {
     }
     post?: string,
     content: string,
-    createdAt: string,
-    __v: number
+    createdAt: string
 }
 
 export interface Like {
