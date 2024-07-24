@@ -17,13 +17,27 @@ export const useSocketIoHelper = (): {
         let retryCount = 0;
         const maxRetries = 3; // Adjust the number of retries as needed
         const retryDelay = 5000; // Delay between retries in milliseconds
+        let helper: SocketIoHelper | null = null;
+        let socketInstance: any = null;
 
         const initializeSocket = () => {
             try {
-                const helper = getSocketIoHelperInstance();
-                setSocket(helper);
+                if (helper) {
+                    // Clean up existing listeners before creating new ones
+                    socketInstance.off('connect');
+                    socketInstance.off('disconnect');
+                    socketInstance.off('connect_error');
+                    helper.off('notification');
+                    helper.off('authorized');
+                    helper.off('unauthorized');
+                    helper.off('followed_f');
+                    helper.off('liked_f');
+                    helper.off('commented_f');
+                }
 
-                const socketInstance = helper.getSocketInstance();
+                helper = getSocketIoHelperInstance();
+                setSocket(helper);
+                socketInstance = helper.getSocketInstance();
 
                 // Check connection status
                 socketInstance.on('connect', () => {
@@ -83,18 +97,6 @@ export const useSocketIoHelper = (): {
                     }
                 });
 
-                // Clean up on unmount
-                return () => {
-                    socketInstance.off('connect');
-                    socketInstance.off('disconnect');
-                    socketInstance.off('connect_error');
-                    helper.off('notification');
-                    helper.off('authorized');
-                    helper.off('unauthorized');
-                    helper.off('followed_f');
-                    helper.off('liked_f');
-                    helper.off('commented_f');
-                };
             } catch (error) {
                 console.error('Error initializing SocketIoHelper:', error);
                 setIsError(true);
@@ -117,6 +119,17 @@ export const useSocketIoHelper = (): {
 
         return () => {
             clearInterval(retry);
+            if (helper && socketInstance) {
+                socketInstance.off('connect');
+                socketInstance.off('disconnect');
+                socketInstance.off('connect_error');
+                helper.off('notification');
+                helper.off('authorized');
+                helper.off('unauthorized');
+                helper.off('followed_f');
+                helper.off('liked_f');
+                helper.off('commented_f');
+            }
         };
     }, []);
 
