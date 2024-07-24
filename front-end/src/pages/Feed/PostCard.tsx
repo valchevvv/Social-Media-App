@@ -10,7 +10,8 @@ import { get } from '../../helper/axiosHelper';
 import { AuthContext } from '../../contexts/AuthContext';
 import CommentComponent from './Comment';
 import { Comment, Post } from '../../helper/interfaces';
-import { getSocketIoHelperInstance, SocketIoHelper } from '../../helper/socketIoHelper';
+import { useSocketIoHelper } from '../../hooks/useSocket';
+import { formatDate, formatNumber } from '../../helper/functions';
 
 const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () => void, onComment: (postId: string, comment: string) => void }) => {
     const { user } = useContext(AuthContext);
@@ -20,7 +21,8 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
     const [commenting, setCommenting] = useState(false);
     const [newComment, setNewComment] = useState('');
     const [comments, setComments] = useState<Comment[]>([]);
-    const [socketIoHelper, setSocketIoHelper] = useState<SocketIoHelper | null>(null);
+    
+    const { socket } = useSocketIoHelper();
 
     useEffect(() => {
         const fetchComments = async () => {
@@ -34,25 +36,9 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
         };
         fetchComments();
     }, [postData._id]);
-
-    useEffect(() => {
-        if (user?._id) {
-            const socketHelper = getSocketIoHelperInstance();
-            setSocketIoHelper(socketHelper);
-
-            socketHelper.on('comment_f', handleNewComment);
-
-            return () => {
-                socketHelper.off('comment_f', handleNewComment);
-            };
-        } else {
-            setSocketIoHelper(null);
-        }
-    }, [user?._id]);
-
+    
     const handleNewComment = (data: Comment) => {
         setComments(prevComments => {
-            // Avoid adding duplicate comments
             if (prevComments.some(comment => comment._id === data._id)) return prevComments;
 
             const updatedComments = [...prevComments, data]
@@ -61,6 +47,16 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
             return updatedComments;
         });
     };
+
+    useEffect(() => {
+        if (!socket || !user?._id) return;
+        console.log(socket)
+        socket.on('comment_f', handleNewComment);
+
+        return () => {
+            socket.off('comment_f', handleNewComment);
+        };
+    }, [socket, user?._id]);
 
     const likePost = () => {
         setLiked(prev => !prev);
@@ -73,43 +69,6 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
             setNewComment('');
         }
     };
-
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffTime = now.getTime() - date.getTime();
-        const diffMinutes = Math.floor(diffTime / (1000 * 60));
-        const diffHours = Math.floor(diffMinutes / 60);
-        const diffDays = Math.floor(diffHours / 24);
-    
-        if (diffMinutes < 1) {
-            return "Just now";
-        } else if (diffMinutes < 60) {
-            return `${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""} ago`;
-        } else if (diffHours < 24) {
-            return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
-        } else if (diffDays < 7) {
-            return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
-        } else {
-            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            return `${date.getDate()} ${monthNames[date.getMonth()]}`;
-        }
-    };
-
-    const formatNumber = (num: number): string => {
-        if (num < 100) {
-            return num.toString();
-        } else if (num < 1000) {
-            return '100+';
-        } else if (num < 1000000) {
-            return `${(num / 1000).toFixed(1)}K`;
-        } else {
-            return `${(num / 1000000).toFixed(1)}M`;
-        }
-    };
-    
-    
 
     return (
         <div className="p-4">

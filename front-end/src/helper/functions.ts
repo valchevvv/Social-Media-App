@@ -20,3 +20,15 @@ export const formatDate = (dateString: string) => {
         return `${date.getDate()} ${monthNames[date.getMonth()]}`;
     }
 };
+
+export const formatNumber = (num: number): string => {
+    if (num < 100) {
+        return num.toString();
+    } else if (num < 1000) {
+        return '100+';
+    } else if (num < 1000000) {
+        return `${(num / 1000).toFixed(1)}K`;
+    } else {
+        return `${(num / 1000000).toFixed(1)}M`;
+    }
+};
