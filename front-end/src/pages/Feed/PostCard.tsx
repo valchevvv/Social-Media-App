@@ -50,7 +50,7 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
 
     useEffect(() => {
         if (!socket || !user?._id) return;
-        console.log(socket)
+        
         socket.on('comment_f', handleNewComment);
 
         return () => {

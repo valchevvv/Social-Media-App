@@ -49,6 +49,10 @@ export class PostService {
                 path: 'author',
                 select: 'username profilePicture nickname' // Including nickname and profilePicture
             })
+            .populate({
+                path: 'likes',
+                select: 'username _id profilePicture' // Including username, id, and profilePicture
+            })
             .select('content image likes createdAt') // Including createdAt, removing comments
             .exec();
     }

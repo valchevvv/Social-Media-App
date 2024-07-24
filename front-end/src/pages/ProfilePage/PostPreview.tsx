@@ -215,7 +215,9 @@ const PostPreview = () => {
                             <div className='flex flex-row justify-between items-center px-4'>
                                 <span className='p-4 font-semibold'>{postData.content}</span>
                                 <div className='flex flex-row gap-2 items-center'>
-                                    <IoIosHeartEmpty size={22} />
+                                    <button onClick={likePost} className='flex flex-row items-center gap-2'>
+                                        {liked ? <FaHeart color="red" size={22} /> : <IoIosHeartEmpty size={24} />}
+                                    </button>
                                     <span className='underline cursor-pointer' onClick={() => {
                                         showModal({
                                             title: 'Likes',
