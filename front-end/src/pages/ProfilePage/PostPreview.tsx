@@ -11,6 +11,7 @@ import { Comment, Like } from '../../helper/interfaces';
 import { AuthContext } from '../../contexts/AuthContext';
 import { getSocketIoHelperInstance, SocketIoHelper } from '../../helper/socketIoHelper';
 import { FaHeart } from 'react-icons/fa';
+import { formatDate } from '../../helper/functions';
 
 interface PostLikes {
     _id: string;
@@ -40,7 +41,7 @@ const PostPreview = () => {
 
     useEffect(() => {
         if (user?._id) {
-            const socketHelper = getSocketIoHelperInstance('http://localhost:5001');
+            const socketHelper = getSocketIoHelperInstance();
             setSocketIoHelper(socketHelper);
         } else {
             setSocketIoHelper(null);
@@ -63,27 +64,24 @@ const PostPreview = () => {
         };
     }, [socketIoHelper, user, postData]);
 
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffTime = now.getTime() - date.getTime();
-        const diffMinutes = Math.floor(diffTime / (1000 * 60));
-        const diffHours = Math.floor(diffMinutes / 60);
-        const diffDays = Math.floor(diffHours / 24);
-    
-        if (diffMinutes < 1) {
-            return "Just now";
-        } else if (diffMinutes < 60) {
-            return `${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""} ago`;
-        } else if (diffHours < 24) {
-            return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
-        } else if (diffDays < 7) {
-            return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
-        } else {
-            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            return `${date.getDate()} ${monthNames[date.getMonth()]}`;
+    useEffect(() => {
+        if (postData && user) {
+            setLiked(postData.likes.some(like => like._id === user._id));
         }
+    }, [postData, user]);
+
+    const loadData = () => {
+        startLoading();
+        get(`/post/${postId}`).then(response => {
+            setPostData(response);
+            get(`comment/post/${postId}`).then(comments => {
+                setComments(comments);
+            });
+        }).catch(error => {
+            console.error(error);
+        }).finally(() => {
+            stopLoading();
+        });
     };
 
     const updateLikes = (data: {
@@ -113,32 +111,12 @@ const PostPreview = () => {
         });
     };
 
-    const loadData = () => {
-        startLoading();
-        get(`/post/${postId}`).then(response => {
-            setPostData(response);
-            get(`comment/post/${postId}`).then(comments => {
-                setComments(comments);
-            });
-        }).catch(error => {
-            console.error(error);
-        }).finally(() => {
-            stopLoading();
-        });
-    };
-
     const commentPost = () => {
         if (newComment.trim() !== '') {
             socketIoHelper?.emit('comment_b', { userId: user?._id, postId: postData?._id, content: newComment });
             setNewComment('');
         }
     };
-
-    useEffect(() => {
-        if (postData && user) {
-            setLiked(postData.likes.some(like => like._id === user._id));
-        }
-    }, [postData, user]);
 
     const likePost = () => {
         setLiked(prevLiked => !prevLiked);

@@ -139,9 +139,9 @@ export class SocketIoHelper {
 // Singleton instance to ensure only one socket connection throughout the application
 let socketIoHelper: SocketIoHelper | null = null;
 
-export const getSocketIoHelperInstance = (serverUrl: string): SocketIoHelper => {
+export const getSocketIoHelperInstance = (): SocketIoHelper => {
     if (!socketIoHelper) {
-        socketIoHelper = new SocketIoHelper(serverUrl);
+        socketIoHelper = new SocketIoHelper("http://localhost:5001");
     }
     return socketIoHelper;
 };

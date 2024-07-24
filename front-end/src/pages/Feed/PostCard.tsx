@@ -37,7 +37,7 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
 
     useEffect(() => {
         if (user?._id) {
-            const socketHelper = getSocketIoHelperInstance('http://localhost:5001');
+            const socketHelper = getSocketIoHelperInstance();
             setSocketIoHelper(socketHelper);
 
             socketHelper.on('comment_f', handleNewComment);

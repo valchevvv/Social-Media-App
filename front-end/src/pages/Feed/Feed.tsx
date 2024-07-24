@@ -18,7 +18,7 @@ const Feed = () => {
     if (!user?._id) {
       setSocketIoHelper(null);
     } else {
-      const socketHelper = getSocketIoHelperInstance('http://localhost:5001');
+      const socketHelper = getSocketIoHelperInstance();
       setSocketIoHelper(socketHelper);
     }
   }, [user?._id]);
