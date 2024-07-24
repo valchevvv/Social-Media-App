@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { SocketIoHelper, getSocketIoHelperInstance } from '../helper/socketIoHelper';
 import { notifyInfo } from '../helper/notificationHelper';
 
@@ -13,31 +13,38 @@ export const useSocketIoHelper = (): {
     const [isError, setIsError] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
 
+    // Refs to hold persistent socket and helper instances
+    const socketRef = useRef<SocketIoHelper | null>(null);
+    const socketInstanceRef = useRef<any>(null);
+
     useEffect(() => {
         let retryCount = 0;
         const maxRetries = 3; // Adjust the number of retries as needed
         const retryDelay = 5000; // Delay between retries in milliseconds
-        let helper: SocketIoHelper | null = null;
-        let socketInstance: any = null;
 
         const initializeSocket = () => {
             try {
-                if (helper) {
+                if (socketRef.current) {
                     // Clean up existing listeners before creating new ones
-                    socketInstance.off('connect');
-                    socketInstance.off('disconnect');
-                    socketInstance.off('connect_error');
-                    helper.off('notification');
-                    helper.off('authorized');
-                    helper.off('unauthorized');
-                    helper.off('followed_f');
-                    helper.off('liked_f');
-                    helper.off('commented_f');
+                    socketInstanceRef.current?.off('connect');
+                    socketInstanceRef.current?.off('disconnect');
+                    socketInstanceRef.current?.off('connect_error');
+                    socketRef.current?.off('notification');
+                    socketRef.current?.off('authorized');
+                    socketRef.current?.off('unauthorized');
+                    socketRef.current?.off('followed_f');
+                    socketRef.current?.off('liked_f');
+                    socketRef.current?.off('commented_f');
                 }
 
-                helper = getSocketIoHelperInstance();
+                const helper = getSocketIoHelperInstance();
+                const socketInstance = helper.getSocketInstance();
+
+                // Set references
+                socketRef.current = helper;
+                socketInstanceRef.current = socketInstance;
+
                 setSocket(helper);
-                socketInstance = helper.getSocketInstance();
 
                 // Check connection status
                 socketInstance.on('connect', () => {
@@ -119,16 +126,16 @@ export const useSocketIoHelper = (): {
 
         return () => {
             clearInterval(retry);
-            if (helper && socketInstance) {
-                socketInstance.off('connect');
-                socketInstance.off('disconnect');
-                socketInstance.off('connect_error');
-                helper.off('notification');
-                helper.off('authorized');
-                helper.off('unauthorized');
-                helper.off('followed_f');
-                helper.off('liked_f');
-                helper.off('commented_f');
+            if (socketRef.current && socketInstanceRef.current) {
+                socketInstanceRef.current.off('connect');
+                socketInstanceRef.current.off('disconnect');
+                socketInstanceRef.current.off('connect_error');
+                socketRef.current.off('notification');
+                socketRef.current.off('authorized');
+                socketRef.current.off('unauthorized');
+                socketRef.current.off('followed_f');
+                socketRef.current.off('liked_f');
+                socketRef.current.off('commented_f');
             }
         };
     }, []);
