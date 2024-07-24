@@ -41,7 +41,7 @@ const seedDatabase = async () => {
                 const post = {
                     author: users[i]._id,
                     content: `Post ${j + 1} from user${i}`,
-                    image: 'https://via.placeholder.com/150',
+                    image: 'https://i.imgur.com/RwzdsYi.jpeg',
                     likes: [],
                     createdAt: new Date()
                 } as Partial<IPost>;
