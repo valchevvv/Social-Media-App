@@ -1,7 +1,7 @@
-import { Comment } from '../models';
-import { Post, IPost } from '../models/Post';
 import { ObjectId } from 'mongodb';
-import { CommentService } from '../services/commentService'
+import { Post, IPost } from '../models/Post';
+import { Comment } from '../models/Comment';
+import { User, IUser } from '../models/User';
 
 // Assuming IPost is defined somewhere with all necessary fields
 interface IPostWithLikesCount extends Omit<IPost, 'likes'> {
@@ -49,20 +49,7 @@ export class PostService {
                 path: 'author',
                 select: 'username profilePicture nickname' // Including nickname and profilePicture
             })
-            .populate({
-                path: 'comments',
-                select: 'content createdAt author', // Assuming you want the text, creation date, and author of each comment
-                options: { sort: { 'createdAt': -1 } }, // Sorting comments by createdAt in descending order
-                populate: {
-                    path: 'author',
-                    select: 'username profilePicture' // Assuming you also want to include the author's username and profilePicture for each comment
-                }
-            })
-            .populate({ // Adding this populate for likes
-                path: 'likes',
-                select: 'username profilePicture' // Assuming likes is an array of ObjectId references to user documents
-            })
-            .select('content image likes comments createdAt') // Including createdAt
+            .select('content image likes createdAt') // Including createdAt, removing comments
             .exec();
     }
 
@@ -80,18 +67,21 @@ export class PostService {
                 path: 'author',
                 select: 'username profilePicture _id' // Selecting username and profilePicture, excluding _id
             })
-            .select('content image likes comments')
+            .select('content image likes createdAt')
             .sort({ createdAt: -1 }) // Sort by createdAt in descending order
             .lean() // Lean to get plain JavaScript objects
             .exec();
 
-        // Transforming posts to include likesCount and exclude likes
-        const postsWithLikesCount: IPostWithLikesCount[] = posts.map(post => ({
-            ...post,
-            likesCount: post.likes.length, // Counting the likes array
-            commentsCount: post.comments.length
-            // Do not include likes in the output
-        }));
+        const postsWithLikesCount: IPostWithLikesCount[] = await Promise.all(
+            posts.map(async (post) => {
+                const commentsCount = await Comment.countDocuments({ post: post._id }).exec();
+                return {
+                    ...post,
+                    likesCount: post.likes.length, // Counting the likes array
+                    commentsCount: commentsCount // Getting the comments count
+                };
+            })
+        );
 
         return postsWithLikesCount;
     }
@@ -103,30 +93,26 @@ export class PostService {
         }
         const random = Math.floor(Math.random() * count);
         const posts = await Post.find()
-            /*.skip(random)*/
+            //.skip(random)  // If you want to implement random selection, you can use aggregation with $sample
             .limit(limit)
             .populate({
                 path: 'author',
                 select: 'username profilePicture _id'
             })
-            .populate({
-                path: 'comments',
-                select: 'content createdAt author',
-                options: { sort: { 'createdAt': -1 } },
-                populate: {
-                    path: 'author',
-                    select: 'username profilePicture'
-                }
-            })
-            .select('content image likes comments createdAt')
+            .select('content image likes createdAt')
             .lean()
             .exec();
 
-        const postsWithLikesCount: IPostWithLikesCount[] = posts.map(post => ({
-            ...post,
-            likesCount: post.likes.length,
-            commentsCount: post.comments.length
-        }));
+        const postsWithLikesCount: IPostWithLikesCount[] = await Promise.all(
+            posts.map(async (post) => {
+                const commentsCount = await Comment.countDocuments({ post: post._id }).exec();
+                return {
+                    ...post,
+                    likesCount: post.likes.length,
+                    commentsCount: commentsCount
+                };
+            })
+        );
 
         return postsWithLikesCount;
     }

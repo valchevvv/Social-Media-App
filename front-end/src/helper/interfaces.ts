@@ -26,6 +26,7 @@ export interface Post {
     content: string;
     image: string;
     likes: string[];
-    comments: Comment[];
+    commentsCount: number;
+    likesCount: number;
     createdAt: string;
 }

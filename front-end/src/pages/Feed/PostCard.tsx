@@ -44,7 +44,7 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
 
     useEffect(() => {
         loadData();
-    }, [postData.comments.length])
+    }, [postData.commentsCount])
 
     return (
         <div className="p-4">
@@ -73,7 +73,7 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
                             {
                                 commenting ? <RiMessage3Fill size={24} /> : <RiMessage3Line size={24} />
                             }
-                            <span>{postData.comments.length}</span>
+                            <span>{postData.commentsCount}</span>
                         </button>
                         {/* <button className='flex justify-start'>
                             <VscSend size={24} />
