@@ -136,7 +136,6 @@ export class SocketIoWorker {
                 try {
                     const result = await CommentService.createComment(new ObjectId(data.userId), new ObjectId(data.postId), data.content);
                     if(debug) console.log(`User ${data.userId} commented on post ${data.postId}`);
-                    console.log(result.postAuthor)
                     const comment = {
                         _id: result.comment._id,
                         post: result.comment.post,
@@ -148,9 +147,8 @@ export class SocketIoWorker {
                         content: result.comment.content,
                         createdAt: result.comment.createdAt
                     }
-                    console.log(comment);
                     this.emitToUser(io, data.userId, 'comment_f', comment);
-                    this.emitToUser(io, result.postAuthor.toString(), 'commented_f', { sender: {
+                    this.emitToUser(io, result!.postAuthor!._id!.toString(), 'commented_f', { sender: {
                         id: data.userId,
                         username: result.postAuthor.username,
                         profilePicture: result.postAuthor.profilePicture

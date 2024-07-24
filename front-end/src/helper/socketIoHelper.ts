@@ -98,9 +98,6 @@ export class SocketIoHelper {
             username: string,
         }; post: string }) => {
             if(debug) console.log('liked_f event received:', data);
-            console.log('liked_f event received:', data);
-            console.log("sender", data.sender);
-            console.log("userId", this.userId);
             if(data.sender.id !== this.userId) notifyInfo(`${data.sender.username} liked your post`);
         });
 
@@ -109,6 +106,7 @@ export class SocketIoHelper {
             username: string
         } }) => {
             if(debug) console.log('commented_f event received:', data);
+            console.log("Data: ", data);
             if(data.sender.id !== this.userId) notifyInfo(`${data.sender.username} commented on your post`);
         });
 

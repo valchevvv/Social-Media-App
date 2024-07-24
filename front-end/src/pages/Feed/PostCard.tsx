@@ -57,6 +57,7 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
 
             const updatedComments = [...prevComments, data]
                 .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
             return updatedComments;
         });
     };
@@ -96,6 +97,20 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
         }
     };
 
+    const formatNumber = (num: number): string => {
+        if (num < 100) {
+            return num.toString();
+        } else if (num < 1000) {
+            return '100+';
+        } else if (num < 1000000) {
+            return `${(num / 1000).toFixed(1)}K`;
+        } else {
+            return `${(num / 1000000).toFixed(1)}M`;
+        }
+    };
+    
+    
+
     return (
         <div className="p-4">
             <div className="bg-white border shadow-sm rounded-xl max-w-md">
@@ -117,11 +132,11 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
                     <div className="flex gap-5">
                         <button onClick={likePost} className='flex items-center gap-2'>
                             {liked ? <FaHeart color="red" size={22} /> : <IoIosHeartEmpty size={24} />}
-                            <span>{postData.likes.length}</span>
+                            <span>{formatNumber(postData.likes.length)}</span>
                         </button>
                         <button className='flex items-center gap-2' onClick={() => setCommenting(prev => !prev)}>
                             {commenting ? <RiMessage3Fill size={24} /> : <RiMessage3Line size={24} />}
-                            <span>{postData.commentsCount}</span>
+                            <span>{formatNumber(comments.length)}</span>
                         </button>
                     </div>
                 </div>

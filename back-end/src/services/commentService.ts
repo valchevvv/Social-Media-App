@@ -20,7 +20,7 @@ export class CommentService {
         await post.save();
         await comment.save();
         
-        const user = await User.findOne({ _id: comment.author }).exec();
+        const user = await User.findOne({ _id: post.author }).exec();
 
         return {
             postAuthor: user!,
