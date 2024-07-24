@@ -33,9 +33,8 @@ const seedDatabase = async () => {
         }
         const users = await User.insertMany(usersData);
 
-        // Create dummy posts and comments
+        // Create dummy posts
         const postsData: Partial<IPost>[] = [];
-        const commentsData: Partial<IComment>[] = [];
 
         for (let i = 0; i < users.length; i++) {
             for (let j = 0; j < 2; j++) { // Create 2 posts per user
@@ -44,7 +43,6 @@ const seedDatabase = async () => {
                     content: `Post ${j + 1} from user${i}`,
                     image: 'https://via.placeholder.com/150',
                     likes: [],
-                    comments: [],
                     createdAt: new Date()
                 } as Partial<IPost>;
 
@@ -52,6 +50,9 @@ const seedDatabase = async () => {
             }
         }
         const posts = await Post.insertMany(postsData);
+
+        // Create dummy comments
+        const commentsData: Partial<IComment>[] = [];
 
         for (let i = 0; i < posts.length; i++) {
             for (let k = 0; k < 3; k++) { // Create 3 comments per post

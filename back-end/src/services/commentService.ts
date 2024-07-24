@@ -16,7 +16,7 @@ export class CommentService {
         if (!post) {
             throw new Error('Post not found');
         }
-        post.comments.push(new ObjectId((comment._id as string).toString()));
+        // post.comments.push(new ObjectId((comment._id as string).toString()));
         await post.save();
         await comment.save();
         

@@ -6,7 +6,21 @@ import PostCard from './PostCard';
 import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
 import { getSocketIoHelperInstance, SocketIoHelper } from '../../helper/socketIoHelper';
 import { AuthContext } from '../../contexts/AuthContext';
-import { Comment, Post } from '../../helper/interfaces';
+import { Comment } from '../../helper/interfaces';
+
+interface Post {
+  _id: string;
+  author: {
+      _id: string;
+      username: string;
+      profilePicture: string;
+  },
+  content: string;
+  image: string;
+  likes: string[];
+  comments: string[];
+  createdAt: string;
+}
 
 const Feed = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -38,14 +52,14 @@ const Feed = () => {
   }
 
   const updateComments = (data: Comment) => {
-    const updated = posts.map((post) => {
+    const updated = posts.map((post: Post ) => {
       if (post._id === data.post) {
         post.comments.push(data._id);
+        console.log(post.comments);
       }
       return post;
     });
-    console.log(updated);
-    setPosts(updated);
+    setPosts(updated);    
   }
 
   useEffect(() => {

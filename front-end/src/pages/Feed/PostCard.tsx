@@ -69,7 +69,7 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
                             }
                             <span>{postData.likes.length}</span>
                         </button>
-                        <button  className='flex flex-row items-center gap-2' onClick={() => setCommenting(commenting => !commenting)}>
+                        <button className='flex flex-row items-center gap-2' onClick={() => setCommenting(commenting => !commenting)}>
                             {
                                 commenting ? <RiMessage3Fill size={24} /> : <RiMessage3Line size={24} />
                             }
@@ -83,7 +83,19 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
                 {commenting && <>
 
                     <div className="w-full rounded-xl px-5 py-3 flex flex-row align-center justify-center items-center gap-3">
-                        <input type="text" value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="Add a comment..." className="w-full border-r-2 border-gray-300 focus:outline-none" />
+                        <input 
+                            type="text"
+                            value={newComment} 
+                            onChange={(e) => setNewComment(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault()
+                                    setNewComment('');
+                                    onComment(postData._id, newComment)
+                                }
+                            }} 
+                            placeholder="Add a comment..." className="w-full border-r-2 border-gray-300 focus:outline-none" 
+                        />
                         <button onClick={() => {
                             setNewComment('');
                             onComment(postData._id, newComment)
@@ -91,7 +103,7 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
                             <VscSend size={24} />
                         </button>
                     </div>
-                    { comments.length > 0 && <hr /> }
+                    {comments.length > 0 && <hr />}
                     <div className={`${comments.length > 0 ? "block" : "hidden"} flex flex-col px-5 py-2 pb-6 gap-4 overflow-y-scroll max-h-72`}>
                         {
                             comments.map((commentData, index) => <CommentComponent key={index} comment={commentData} />)
