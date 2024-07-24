@@ -10,7 +10,7 @@ import { get } from '../../helper/axiosHelper';
 import { AuthContext } from '../../contexts/AuthContext';
 import CommentComponent from './Comment';
 import { Comment, Post } from '../../helper/interfaces';
-import { getSocketIoHelperInstance, SocketIoHelper } from '../../helper/socketIoHelper';
+import { useSocketConnection } from '../../contexts/SocketConnection';
 
 const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () => void, onComment: (postId: string, comment: string) => void }) => {
     const { user } = useContext(AuthContext);
@@ -20,7 +20,8 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
     const [commenting, setCommenting] = useState(false);
     const [newComment, setNewComment] = useState('');
     const [comments, setComments] = useState<Comment[]>([]);
-    const [socketIoHelper, setSocketIoHelper] = useState<SocketIoHelper | null>(null);
+
+    const { socket, isConnected } = useSocketConnection();
 
     useEffect(() => {
         const fetchComments = async () => {
@@ -36,31 +37,25 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
     }, [postData._id]);
 
     useEffect(() => {
-        if (user?._id) {
-            const socketHelper = getSocketIoHelperInstance('http://localhost:5001');
-            setSocketIoHelper(socketHelper);
+        const handleNewComment = (data: Comment) => {
+            setComments(prevComments => {
+                if (prevComments.some(comment => comment._id === data._id)) return prevComments;
 
-            socketHelper.on('comment_f', handleNewComment);
+                const updatedComments = [...prevComments, data]
+                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+                return updatedComments;
+            });
+        };
+
+        if (isConnected && socket) {
+            socket.on('comment_f', handleNewComment);
 
             return () => {
-                socketHelper.off('comment_f', handleNewComment);
+                socket.off('comment_f', handleNewComment);
             };
-        } else {
-            setSocketIoHelper(null);
         }
-    }, [user?._id]);
-
-    const handleNewComment = (data: Comment) => {
-        setComments(prevComments => {
-            // Avoid adding duplicate comments
-            if (prevComments.some(comment => comment._id === data._id)) return prevComments;
-
-            const updatedComments = [...prevComments, data]
-                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-            return updatedComments;
-        });
-    };
+    }, [isConnected, socket]);
 
     const likePost = () => {
         setLiked(prev => !prev);
@@ -81,7 +76,7 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
         const diffMinutes = Math.floor(diffTime / (1000 * 60));
         const diffHours = Math.floor(diffMinutes / 60);
         const diffDays = Math.floor(diffHours / 24);
-    
+
         if (diffMinutes < 1) {
             return "Just now";
         } else if (diffMinutes < 60) {
@@ -108,8 +103,6 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
             return `${(num / 1000000).toFixed(1)}M`;
         }
     };
-    
-    
 
     return (
         <div className="p-4">

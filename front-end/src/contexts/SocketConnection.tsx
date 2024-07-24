@@ -3,6 +3,7 @@ import { getSocketIoHelperInstance } from '../helper/socketIoHelper'; // Adjust 
 import { Socket } from 'socket.io-client'; // Import Socket type
 import { useNotifications } from './NotificationContext'; // Adjust the import path as needed
 import { useLoadingSpinner } from './LoadingSpinnerContext'; // Adjust the import path as needed
+import { useNavigate } from 'react-router-dom'; // For navigation
 
 interface SocketConnectionContextType {
     socket: Socket | null;
@@ -18,13 +19,22 @@ export const SocketConnectionProvider: React.FC<{ children: ReactNode, serverUrl
     const [isConnected, setIsConnected] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const socketIoHelper = getSocketIoHelperInstance(serverUrl);
-    const socket = socketIoHelper.getSocket();
-    
+    const navigate = useNavigate(); // Hook for navigation
+    let socket: Socket | null = null;
+
     const { sendNotification } = useNotifications();
     const { startLoading, stopLoading } = useLoadingSpinner();
 
     useEffect(() => {
+        try {
+            const socketIoHelper = getSocketIoHelperInstance(serverUrl);
+            socket = socketIoHelper.getSocket();
+        } catch (error: any) {
+            setError(error.message);
+            navigate('/login'); // Redirect to login page if there's an error
+            return;
+        }
+
         const handleConnect = () => {
             setIsConnected(true);
             setIsLoading(false);
@@ -54,16 +64,16 @@ export const SocketConnectionProvider: React.FC<{ children: ReactNode, serverUrl
             startLoading(); // Start loading spinner on reconnect error
         };
 
-        socket.on('connect', handleConnect);
-        socket.on('disconnect', handleDisconnect);
-        socket.on('error', handleError);
-        socket.on('reconnect_error', handleReconnectError);
+        socket?.on('connect', handleConnect);
+        socket?.on('disconnect', handleDisconnect);
+        socket?.on('error', handleError);
+        socket?.on('reconnect_error', handleReconnectError);
 
         // Initial connection check
         const checkConnection = () => {
-            socket.connect();
+            socket?.connect();
             setTimeout(() => {
-                if (!socket.connected) {
+                if (!socket?.connected) {
                     setError('Server is not reachable.');
                     setIsLoading(true);
                     sendNotification('Server is not reachable.');
@@ -76,12 +86,12 @@ export const SocketConnectionProvider: React.FC<{ children: ReactNode, serverUrl
 
         // Clean up on unmount
         return () => {
-            socket.off('connect', handleConnect);
-            socket.off('disconnect', handleDisconnect);
-            socket.off('error', handleError);
-            socket.off('reconnect_error', handleReconnectError);
+            socket?.off('connect', handleConnect);
+            socket?.off('disconnect', handleDisconnect);
+            socket?.off('error', handleError);
+            socket?.off('reconnect_error', handleReconnectError);
         };
-    }, [serverUrl, socket, sendNotification, startLoading, stopLoading]);
+    }, [serverUrl, sendNotification, startLoading, stopLoading, navigate]);
 
     const sendMessage = (message: string) => {
         if (socket) {

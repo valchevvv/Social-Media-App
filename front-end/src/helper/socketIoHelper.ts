@@ -1,4 +1,4 @@
-// File: socketIoHelper.ts
+// socketIoHelper.ts
 import { io, Socket } from 'socket.io-client';
 import { jwtDecode } from 'jwt-decode';
 import { notifyInfo } from './notificationHelper';
@@ -12,41 +12,48 @@ interface DecodedToken {
 const debug = false;
 
 export class SocketIoHelper {
-    private socket: Socket;
-    private userId: string | null;
-    private token: string | null;
+    private socket: Socket | null = null;
+    private userId: string | null = null;
+    private token: string | null = null;
 
     constructor(serverUrl: string) {
-        this.token = localStorage.getItem('userToken');
+        try {
+            this.token = localStorage.getItem('userToken');
 
-        if (!this.token) {
-            throw new Error('Token not found. Please log in.');
+            if (!this.token) {
+                throw new Error('Token not found. Please log in.');
+            }
+
+            const decodedUser = jwtDecode<DecodedToken>(this.token);
+
+            if (!decodedUser || !decodedUser._id) {
+                throw new Error('Invalid token. Please log in.');
+            }
+
+            this.userId = decodedUser._id;
+
+            this.socket = io(serverUrl, {
+                query: {
+                    userId: this.userId,
+                    token: this.token,
+                },
+            });
+
+            this.setupListeners();
+            this.emitLogin(this.userId, this.token); // Automatically emit login event upon construction
+        } catch (error) {
+            // Redirect to login page or handle error appropriately
+            window.location.href = '/login';
         }
-
-        const decodedUser = jwtDecode<DecodedToken>(this.token);
-
-        if (!decodedUser || !decodedUser._id) {
-            throw new Error('Invalid token. Please log in.');
-        }
-
-        this.userId = decodedUser._id;
-
-        this.socket = io(serverUrl, {
-            query: {
-                userId: this.userId,
-                token: this.token,
-            },
-        });
-
-        this.setupListeners();
-        this.emitLogin(this.userId, this.token); // Automatically emit login event upon construction
     }
 
-    public getSocket(): Socket {
+    public getSocket(): Socket | null {
         return this.socket;
     }
 
     private setupListeners(): void {
+        if (!this.socket) return;
+
         this.socket.on('connect', () => {
             if (debug) console.log('Connected to server');
         });
@@ -111,25 +118,28 @@ export class SocketIoHelper {
     }
 
     private emitLogin(userId: string, token: string): void {
+        if (!this.socket) return;
         this.socket.emit('login', { userId, token });
         if (debug) console.log('Login emitted with userId and token:', userId, token);
     }
 
     public emit(event: string, data: any): void {
+        if (!this.socket) return;
         this.socket.emit(event, data);
     }
 
     public follow(followId: string): void {
-        if (this.userId) {
-            this.socket.emit('follow_b', { userId: this.userId, followId });
-        }
+        if (!this.socket || !this.userId) return;
+        this.socket.emit('follow_b', { userId: this.userId, followId });
     }
 
     public on(event: string, callback: (data: any) => void): void {
+        if (!this.socket) return;
         this.socket.on(event, callback);
     }
 
     public off(event: string, callback?: (data: any) => void): void {
+        if (!this.socket) return;
         this.socket.off(event, callback);
     }
 }
