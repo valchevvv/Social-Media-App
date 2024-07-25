@@ -131,7 +131,7 @@ const ProfilePage = () => {
       {userInfo && userInfo?.username && (
         <>
           <UserInfo
-            self={(profileId === 'me')}
+            self={(profileId === user?.username || profileId === 'me')}
             following={following}
             followed={followed}
             onFollow={handleFollowClick}
