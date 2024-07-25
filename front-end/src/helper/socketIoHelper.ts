@@ -25,7 +25,6 @@ export class SocketIoHelper {
         }
 
         this.userId = decodedUser._id;
-        console.log('userId:', this.userId);
 
         this.socket = io(serverUrl, {
             extraHeaders: {
