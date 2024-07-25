@@ -7,8 +7,11 @@ import { CgProfile } from "react-icons/cg";
 import { MdOutlineRssFeed, MdOutlineExplore } from "react-icons/md";
 import { useSidebarContext } from "../../contexts/SidebarContext";
 
+import { TbLayoutSidebarLeftCollapseFilled, TbLayoutSidebarRightCollapseFilled } from "react-icons/tb";
+import { Link } from "react-router-dom";
+
 const Sidebar = () => {
-    const { isCollapsed } = useSidebarContext();
+    const { isCollapsed, toggleSidebar } = useSidebarContext();
     return (
         <>
             <aside
@@ -18,9 +21,9 @@ const Sidebar = () => {
             >
                 <div className="h-full flex flex-col justify-between px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
                     <div className="flex flex-col gap-5">
-                        <div className={`flex align-center justify-${(isCollapsed ? "center" : "start")} px-2 py-5`}>
+                        <Link to={'/'} className={`flex align-center justify-${(isCollapsed ? "center" : "start")} px-2 py-5`}>
                             <span className={`text-white font-bold text-${(isCollapsed ? "xl" : "4xl")}`}>{(isCollapsed ? "DM" : "DMedia")}</span>
-                        </div>
+                        </Link>
                         <ul className="space-y-2 font-medium">
                             <SidebarItem to="/" iconOnly={isCollapsed} icon={MdOutlineRssFeed} label="News Feed" />
                             <SidebarItem to="/messages" iconOnly={isCollapsed} icon={BiMessageSquareDots} label="Messages" />
@@ -29,7 +32,16 @@ const Sidebar = () => {
                         </ul>
                     </div>
                     <ul className="space-y-2 font-medium">
-                        <SidebarItem to="/profile" iconOnly={isCollapsed} icon={CgProfile} label="Profile" />
+                        <div className={`flex flex-${(isCollapsed ? "col" : "row")} gap-2`}>
+                            <SidebarItem to="/profile" iconOnly={isCollapsed} icon={CgProfile} label="Profile" />
+                            
+                            <div className={`text-white text-3xl justify-center flex items-center p-2 text-gray-900 rounded-lg ${(!isCollapsed ? "bg-gray-700" : "")} hover:bg-gray-500 group cursor-pointer`} onClick={toggleSidebar}>
+                                {
+                                    isCollapsed ? <TbLayoutSidebarLeftCollapseFilled />
+                                    : <TbLayoutSidebarRightCollapseFilled />
+                                }
+                            </div >
+                        </div>
                     </ul>
                 </div>
             </aside>

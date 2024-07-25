@@ -38,10 +38,6 @@ export class SocketIoHelper {
         this.socket.emit(event, data);
     }
 
-    public follow(followId: string): void {
-        this.socket.emit('follow_b', { userId: this.userId, followId });
-    }
-
     public on(event: string, callback: (data: any) => void): void {
         this.socket.on(event, callback);
     }

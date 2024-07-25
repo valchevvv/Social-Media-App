@@ -16,6 +16,13 @@ const hasContent = (str: string | null | undefined): boolean => {
     return str != null && str.trim().length > 0;
 }
 
+interface IPeopleYouMayKnow {
+    _id: ObjectId;
+    profilePicture?: string;
+    name: string;
+    username: string;
+}
+
 export class UserService {
 
     static async createUser(userData: IUser): Promise<IUser> {
@@ -63,11 +70,11 @@ export class UserService {
                 const uploadResponse = await cloudinary.uploader.upload(`data:image/jpeg;base64,${updatedData.profilePicture}`);
                 user.set("profilePicture", uploadResponse.secure_url);
             }
-            if(hasContent(updatedData.name)) user.set("name", updatedData.name);
-            if(hasContent(updatedData.username)) user.set("username", updatedData.username);
-            if(hasContent(updatedData.email)) user.set("email", updatedData.email);
-            if(hasContent(updatedData.bio)) user.set("bio", updatedData.bio);
-            
+            if (hasContent(updatedData.name)) user.set("name", updatedData.name);
+            if (hasContent(updatedData.username)) user.set("username", updatedData.username);
+            if (hasContent(updatedData.email)) user.set("email", updatedData.email);
+            if (hasContent(updatedData.bio)) user.set("bio", updatedData.bio);
+
             await user.save();
             // console.log('User updated successfully:', user);
 
@@ -95,6 +102,47 @@ export class UserService {
         }
     }
 
+    static async getPeopleYouKnow(userId: ObjectId): Promise<IPeopleYouMayKnow[]> {
+        try {
+            const user = await User.findById(userId).exec();
+            if (!user) {
+                throw new Error('User not found');
+            }
+
+            // Users not followed by the given user and exclude the user themselves
+            const notFollowedUsers = await User.find({ _id: { $nin: user.following.concat(userId) } }).exec();
+
+            // Users that follow the given user and exclude the user themselves
+            const followers = await User.find({ following: userId, _id: { $nin: user.following.concat(userId) } }).exec();
+
+            // Users that follow users followed by the given user and exclude the user themselves
+            const following = await User.find({ following: { $in: user.following }, _id: { $nin: user.following.concat(userId) } }).exec();
+
+            // Users that are followed by the user's followers and exclude the user themselves
+            const followersFollowings = await User.find({ followers: { $in: user.followers }, _id: { $nin: user.following.concat(userId) } }).exec();
+
+            // Combine all the results and remove duplicates
+            const peopleYouMayKnowSet = new Set([...notFollowedUsers, ...followers, ...following, ...followersFollowings]);
+
+            // Convert Set to array and extract required fields
+            const peopleYouMayKnow: IPeopleYouMayKnow[] = Array.from(peopleYouMayKnowSet)
+                .map(user => ({
+                    _id: user._id as ObjectId,
+                    profilePicture: user.profilePicture,
+                    name: user.name,
+                    username: user.username
+                }))
+                .slice(0, 5);
+
+            return peopleYouMayKnow;
+        } catch (error) {
+            console.error('Error getting people you may know:', { error, userId });
+            throw error;
+        }
+    }
+
+
+
     static async followUser(userId: ObjectId, followId: ObjectId): Promise<{
         follow: boolean,
         followed: boolean,
@@ -111,15 +159,15 @@ export class UserService {
             // Fetch both users from the database
             const user = await User.findById(userId).exec();
             const follow = await User.findById(followId).exec();
-    
+
             // Check if both users exist
             if (!user || !follow) {
                 throw new Error('User not found');
             }
-    
+
             // Determine if the user is currently following the other user
             const isFollowing = user.following.includes(followId);
-            
+
             // Create update operations based on current follow status
             const userUpdate = isFollowing
                 ? { $pull: { following: followId } } // Remove followId from user’s following list
@@ -127,15 +175,15 @@ export class UserService {
             const followUpdate = isFollowing
                 ? { $pull: { followers: userId } } // Remove userId from follow’s followers list
                 : { $addToSet: { followers: userId } }; // Add userId to follow’s followers list
-    
+
             // Apply updates to both users
             await User.findByIdAndUpdate(userId, userUpdate, { new: true }).exec();
             await User.findByIdAndUpdate(followId, followUpdate, { new: true }).exec();
-    
+
             // Determine the new follow and followed status
             const newFollowStatus = !isFollowing; // If was not following, now following
             const newFollowedStatus = follow.following.includes(userId); // Check if follow now follows back
-    
+
             return {
                 follow: newFollowStatus, // True if user is now following the other user
                 followed: newFollowedStatus, // True if the follow user is now following the user
