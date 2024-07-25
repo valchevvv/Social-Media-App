@@ -25,17 +25,13 @@ export class SocketIoHelper {
         }
 
         this.userId = decodedUser._id;
+        console.log('userId:', this.userId);
 
         this.socket = io(serverUrl, {
-            query: {
+            extraHeaders: {
                 userId: this.userId,
-                token,
-            },
-        });
-
-        // Emit login event when connected
-        this.socket.on('connect', () => {
-            this.emit('login', { userId: this.userId, token });
+                token
+            }
         });
     }
 

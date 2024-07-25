@@ -33,33 +33,25 @@ export class SocketIoWorker {
 
     public setupConnection(server: HttpServer, io: Server): void {
         io.on('connection', (socket: Socket) => {
-            if(debug) console.log('A user connected:', socket.id);
+            const { userid, token } = socket.request.headers;
+
+            if(debug) console.log('User attempting to connect:', userid);
+
+            if(!userid || !token) {
+                if(debug) console.log('User not authenticated');
+                socket.emit('unauthorized', 'Authentication required'); // Emit unauthorized event to frontend if user is not authenticated
+                return;
+            }
+
+            if(debug) console.log('User authenticated:', userid);
+            // Add user to connected users
+            const authorized = this.authorizeUser(socket, userid as string);
+            if(authorized) socket.emit('authorized'); // Emit authorization event to frontend
+            else socket.emit('unauthorized', 'Authentication failed'); // Emit unauthorized event to frontend if user is not authorized
 
             socket.on('disconnect', () => {
                 if(debug) console.log('User disconnected:', socket.id);
                 this.removeUser(socket.id);
-            });
-
-            socket.on('login', (data: { userId: string; token: string }) => {
-                if(debug) console.log('User attempting to log in:', data.userId);
-                // Verify JWT token
-                jwt.verify(data.token, JWT_SECRET, (err, decoded) => {
-                    if (err) {
-                        if(debug) console.log('Authentication failed for user:', data.userId);
-                        socket.emit('unauthorized', 'Invalid token'); // Emit unauthorized event to frontend if token is invalid
-                        return;
-                    }
-                    if(debug) console.log('Authentication succeeded for user:', data.userId);
-                    // Proceed with authorization if token is valid
-                    const authorized = this.authorizeUser(socket, data.userId);
-                    if (authorized) {
-                        if(debug) console.log('Authorization succeeded for user:', data.userId);
-                        socket.emit('authorized'); // Emit authorization event to frontend
-                    } else {
-                        if(debug) console.log('Authorization failed for user:', data.userId);
-                        socket.emit('unauthorized', 'Authorization failed'); // Emit unauthorized event to frontend if authorization fails
-                    }
-                });
             });
 
             // Handle follow event
