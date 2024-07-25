@@ -7,6 +7,7 @@ const router = Router();
 router.post('/', verifyToken, PostController.createPost);
 // router.post('/like', verifyToken, PostController.likePost);
 router.get('/explore', verifyToken, PostController.explorePosts);
+router.get('/paginated', verifyToken, PostController.getPaginatedPosts);
 router.get('/:id', verifyToken, PostController.getPost);
 router.delete('/:id', verifyToken, PostController.deletePost);
 router.get('/', verifyToken, PostController.getAllPosts);

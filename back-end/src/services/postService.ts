@@ -120,4 +120,33 @@ export class PostService {
 
         return postsWithLikesCount;
     }
+    
+    static async getPaginatedPosts(page: number, limit: number): Promise<IPostWithLikesCount[]> {
+        const skip = (page - 1) * limit;
+
+        const posts = await Post.find()
+            .populate({
+                path: 'author',
+                select: 'username profilePicture _id'
+            })
+            .select('content image likes createdAt')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean()
+            .exec();
+
+        const postsWithLikesCount: IPostWithLikesCount[] = await Promise.all(
+            posts.map(async (post) => {
+                const commentsCount = await Comment.countDocuments({ post: post._id }).exec();
+                return {
+                    ...post,
+                    likesCount: post.likes.length,
+                    commentsCount: commentsCount
+                };
+            })
+        );
+
+        return postsWithLikesCount;
+    }
 }

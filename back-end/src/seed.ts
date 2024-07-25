@@ -37,7 +37,7 @@ const seedDatabase = async () => {
         const postsData: Partial<IPost>[] = [];
 
         for (let i = 0; i < users.length; i++) {
-            for (let j = 0; j < 2; j++) { // Create 2 posts per user
+            for (let j = 0; j < 10; j++) { // Create 2 posts per user
                 const post = {
                     author: users[i]._id,
                     content: `Post ${j + 1} from user${i}`,
