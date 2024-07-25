@@ -29,10 +29,10 @@ const CommentComponent = ({ comment } : { comment: Comment }) => {
     };
 
     return <div className="p-2 shadow rounded-xl">
-        <div className="flex flex-row gap-2 items-center cursor-pointer hover:underline" onClick={() => navigate(`/profile/${comment.author.username}`)}>
+        <div className="flex flex-row gap-2 items-center cursor-pointer ">
             <img src={comment.author.profilePicture || profile_picture} className='h-7 rounded-full' alt="" />
             <div className='flex flex-col'>
-                <span className="font-semibold text-sm content-center">{comment.author.username}</span>
+                <span className="font-semibold text-sm content-center hover:underline" onClick={() => navigate(`/profile/${comment.author.username}`)}>{comment.author.username}</span>
                 <span className='text-xs text-gray-500'>{formatDate(comment.createdAt)}</span>
             </div>
         </div>

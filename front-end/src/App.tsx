@@ -2,6 +2,7 @@
 import { useContext, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { AuthContext } from './contexts/AuthContext';
+import { useSocketIoHelper } from './hooks/useSocket';
 import { useLoadingSpinner } from './contexts/LoadingSpinnerContext';
 import Feed from './pages/Feed';
 import Auth from './pages/AuthPage';
@@ -62,11 +63,12 @@ const AppContent = () => {
 const App = () => {
   const { isLoading } = useLoadingSpinner();
   const { isAuthLoading } = useContext(AuthContext);
+  const { isConnected, isLoading: socketLoading } = useSocketIoHelper();
 
   return (
     <Router>
       <AuthChecker />
-      {isLoading && <LoadingSpinner />}
+      {isLoading || (!isConnected || socketLoading) && <LoadingSpinner />}
       {!isAuthLoading && (
         <Routes>
           <Route path="/auth/:type" element={<Auth />} />
