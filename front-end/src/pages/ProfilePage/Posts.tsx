@@ -13,7 +13,7 @@ const Posts: React.FC<PostsProps> = ({ posts }) => {
   return (
     <div className="grid grid-cols-3 gap-1 p-4">
       {posts.map(post => (
-        <div key={post._id} className="relative group aspect-square">
+        <div key={post._id} className="relative group aspect-square cursor-pointer">
           {
             post.image ? <img onClick={() => navigate(`/post/${post._id}`)} className="w-full h-full object-cover absolute top-0 left-0" src={post.image} alt={post.author.username} /> 
             :

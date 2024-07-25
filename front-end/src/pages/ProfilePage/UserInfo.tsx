@@ -26,7 +26,7 @@ const UserInfo = (userData: UserInfoProps) => {
     <div className="p-4">
       <div className="flex flex-col items-center laptop:flex-row laptop:items-center laptop:space-x-6 border-b border-gray-300 pb-4">
         <img
-          className="h-24 w-24 laptop:h-32 laptop:w-32 rounded-full"
+          className="h-32 w-32 laptop:h-40 laptop:w-40 rounded-full"
           src={userData.profilePicture || profile_picture}
           alt={`${userData.username}'s profile`}
         />
