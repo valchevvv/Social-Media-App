@@ -16,7 +16,7 @@ const hasContent = (str: string | null | undefined): boolean => {
     return str != null && str.trim().length > 0;
 }
 
-interface IPeopleYouMayKnow {
+interface IUserSimpleInfo {
     _id: ObjectId;
     profilePicture?: string;
     name: string;
@@ -102,7 +102,7 @@ export class UserService {
         }
     }
 
-    static async getPeopleYouKnow(userId: ObjectId): Promise<IPeopleYouMayKnow[]> {
+    static async getPeopleYouKnow(userId: ObjectId): Promise<IUserSimpleInfo[]> {
         try {
             const user = await User.findById(userId).exec();
             if (!user) {
@@ -125,7 +125,7 @@ export class UserService {
             const peopleYouMayKnowSet = new Set([...notFollowedUsers, ...followers, ...following, ...followersFollowings]);
 
             // Convert Set to array and extract required fields
-            const peopleYouMayKnow: IPeopleYouMayKnow[] = Array.from(peopleYouMayKnowSet)
+            const peopleYouMayKnow: IUserSimpleInfo[] = Array.from(peopleYouMayKnowSet)
                 .map(user => ({
                     _id: user._id as ObjectId,
                     profilePicture: user.profilePicture,
@@ -141,6 +141,60 @@ export class UserService {
         }
     }
 
+
+    static async getFollowers(userId: ObjectId): Promise<IUserSimpleInfo[]> {
+        try {
+            const user = await User.findById(userId)
+                .populate({
+                    path: 'followers',
+                    select: 'username _id profilePicture name'
+                })
+                .exec();
+    
+            if (!user) {
+                throw new Error('User not found');
+            }
+    
+            const followers: IUserSimpleInfo[] = user.followers.map((follower: any) => ({
+                _id: follower._id,
+                username: follower.username,
+                profilePicture: follower.profilePicture,
+                name: follower.name
+            }));
+    
+            return followers;
+        } catch (error) {
+            console.error('Error fetching followers:', { error, userId });
+            throw error;
+        }
+    }
+
+    static async getFollowing(userId: ObjectId): Promise<IUserSimpleInfo[]> {
+        try {
+            const user = await User.findById(userId)
+                .populate({
+                    path: 'following',
+                    select: 'username _id profilePicture name'
+                })
+                .exec();
+    
+            if (!user) {
+                throw new Error('User not found');
+            }
+    
+            const following: IUserSimpleInfo[] = user.following.map((followedUser: any) => ({
+                _id: followedUser._id,
+                username: followedUser.username,
+                profilePicture: followedUser.profilePicture,
+                name: followedUser.name
+            }));
+    
+            return following;
+        } catch (error) {
+            console.error('Error fetching following users:', { error, userId });
+            throw error;
+        }
+    }
 
 
     static async followUser(userId: ObjectId, followId: ObjectId): Promise<{

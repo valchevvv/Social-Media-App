@@ -8,6 +8,8 @@ router.post('/register', UserController.createUser);
 router.post('/update', verifyToken, UserController.updateUser);
 router.get('/login', UserController.loginUser);
 router.get('/people-you-know', verifyToken, UserController.getPeopleYouKnow);
+router.get('/followers', verifyToken, UserController.getFollowers);
+router.get('/following', verifyToken, UserController.getFollowing);
 // router.post('/follow', verifyToken, UserController.followUser);
 router.get('/:username', verifyToken, UserController.getUser);
 

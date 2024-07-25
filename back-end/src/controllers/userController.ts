@@ -61,6 +61,26 @@ export class UserController {
         }
     }
 
+    static async getFollowers(req: Request, res: Response) {
+        try {
+            if(!req.user) throw new Error('Unauthorized');
+            const users = await UserService.getFollowers(req.user._id);
+            res.status(200).json(users);
+        } catch (error) {
+            res.status(401).json({ error: error instanceof Error ? error.message : error });
+        }
+    }
+
+    static async getFollowing(req: Request, res: Response) {
+        try {
+            if(!req.user) throw new Error('Unauthorized');
+            const users = await UserService.getFollowing(req.user._id);
+            res.status(200).json(users);
+        } catch (error) {
+            res.status(401).json({ error: error instanceof Error ? error.message : error });
+        }
+    }
+
     // static async followUser(req: Request, res: Response) {
     //     try {
     //         if(!req.user) throw new Error('Unauthorized');
