@@ -108,35 +108,37 @@ export class UserService {
         }
     }> {
         try {
-            // console.log('Attempting to follow/unfollow user:', { userId, followId });
-
+            // Fetch both users from the database
             const user = await User.findById(userId).exec();
             const follow = await User.findById(followId).exec();
-
+    
+            // Check if both users exist
             if (!user || !follow) {
                 throw new Error('User not found');
             }
-
+    
+            // Determine if the user is currently following the other user
             const isFollowing = user.following.includes(followId);
-
+            
+            // Create update operations based on current follow status
             const userUpdate = isFollowing
-                ? { $pull: { following: followId } }
-                : { $addToSet: { following: followId } };
+                ? { $pull: { following: followId } } // Remove followId from user’s following list
+                : { $addToSet: { following: followId } }; // Add followId to user’s following list
             const followUpdate = isFollowing
-                ? { $pull: { followers: userId } }
-                : { $addToSet: { followers: userId } };
-
+                ? { $pull: { followers: userId } } // Remove userId from follow’s followers list
+                : { $addToSet: { followers: userId } }; // Add userId to follow’s followers list
+    
+            // Apply updates to both users
             await User.findByIdAndUpdate(userId, userUpdate, { new: true }).exec();
             await User.findByIdAndUpdate(followId, followUpdate, { new: true }).exec();
-
-            // console.log(isFollowing 
-            //     ? `User ${userId} has unfollowed ${followId}` 
-            //     : `User ${userId} has followed ${followId}`
-            // );
-
+    
+            // Determine the new follow and followed status
+            const newFollowStatus = !isFollowing; // If was not following, now following
+            const newFollowedStatus = follow.following.includes(userId); // Check if follow now follows back
+    
             return {
-                follow: !isFollowing,
-                followed: !isFollowing,
+                follow: newFollowStatus, // True if user is now following the other user
+                followed: newFollowedStatus, // True if the follow user is now following the user
                 sender: {
                     id: userId.toString(),
                     username: user.username

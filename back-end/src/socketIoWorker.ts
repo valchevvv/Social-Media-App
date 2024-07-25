@@ -74,26 +74,26 @@ export class SocketIoWorker {
                     } = await UserService.followUser(userId, followId);
                     const action = result.follow ? 'followed' : 'unfollowed';
                     if(debug) console.log(`User ${data.userId} ${action} user ${data.followId}`);
-                    this.emitToUser(io, followId.toString(), 'followed_f', { sender: userId.toString(), reciever: followId.toString(), followStatus: action, notifyDetails: {
+                    this.emitToUser(io, followId.toString(), 'followed_f', { sender: userId.toString(), receiver: followId.toString(), followStatus: action, notifyDetails: {
                         follow: result.follow,
                         followed: result.followed,
                         sender: {
                             id: result.sender.id,
                             username: result.sender.username,
                         },
-                        reciever: {
+                        receiver: {
                             id: result.receiver.id,
                             username: result.receiver.username,
                         }
                     } });
-                    this.emitToUser(io, userId.toString(), 'followed_f', { sender: userId.toString(), reciever: followId.toString(), followStatus: action, notifyDetails: {
+                    this.emitToUser(io, userId.toString(), 'followed_f', { sender: userId.toString(), receiver: followId.toString(), followStatus: action, notifyDetails: {
                         follow: result.follow,
                         followed: result.followed,
                         sender: {
                             id: result.sender.id,
                             username: result.sender.username,
                         },
-                        reciever: {
+                        receiver: {
                             id: result.receiver.id,
                             username: result.receiver.username,
                         }

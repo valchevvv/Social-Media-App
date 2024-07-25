@@ -63,12 +63,12 @@ const AppContent = () => {
 const App = () => {
   const { isLoading } = useLoadingSpinner();
   const { isAuthLoading } = useContext(AuthContext);
-  const { isConnected, isLoading: socketLoading } = useSocketIoHelper();
+  const { isLoading: socketLoading } = useSocketIoHelper();
 
   return (
     <Router>
       <AuthChecker />
-      {isLoading || (!isConnected || socketLoading) && <LoadingSpinner />}
+      {isLoading || socketLoading && <LoadingSpinner />}
       {!isAuthLoading && (
         <Routes>
           <Route path="/auth/:type" element={<Auth />} />

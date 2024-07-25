@@ -6,9 +6,29 @@ import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
 import { get } from '../../helper/axiosHelper';
 import { AuthContext } from '../../contexts/AuthContext';
 import { Post } from '../../helper/interfaces';
-import { SocketIoHelper, getSocketIoHelperInstance } from '../../helper/socketIoHelper'; // Adjust path as per your project structure
+import { SocketIoHelper, getSocketIoHelperInstance } from '../../helper/socketIoHelper';
 
 import profile_picture from '../../assets/profile_picture.png';
+
+
+
+interface FollowData {
+  sender: string;
+  receiver: string;
+  followStatus: string;
+  notifyDetails: {
+    follow: boolean;
+    followed: boolean;
+    sender: {
+      id: string;
+      username: string;
+    };
+    receiver: {
+      id: string;
+      username: string;
+    };
+  }
+}
 
 interface UserInfo {
   _id: string;
@@ -61,7 +81,6 @@ const ProfilePage = () => {
           profilePicture: response.profilePicture || profile_picture,
           posts: response.posts,
         });
-        // Assuming response.followers and response.following are arrays of user IDs
         setFollowing(response.followers.includes(user?._id));
         setFollowed(response.following.includes(user?._id));
       })
@@ -72,53 +91,34 @@ const ProfilePage = () => {
   const [following, setFollowing] = useState<boolean>(false);
   const [followed, setFollowed] = useState<boolean>(false);
 
+  
+
+  const handleFollowed = (data: FollowData) => {
+    if(!user) return;
+    if(data.sender === user._id) setFollowing(data.followStatus === 'followed');
+    else if(data.receiver === user._id) setFollowed(data.followStatus === 'followed');
+
+    if(userInfo) {
+      const updatedUserInfo = {...userInfo};
+      if(data.sender === userInfo._id) {
+        updatedUserInfo.stats.following += data.followStatus === 'followed' ? 1 : -1;
+      } else if(data.receiver === userInfo._id) {
+        updatedUserInfo.stats.followers += data.followStatus === 'followed' ? 1 : -1;
+      }
+
+      setUserInfo(updatedUserInfo);
+    }
+  };
+
   useEffect(() => {
     if (!user || !userInfo || !socketIoHelper) return;
-
-    const handleFollowed = (data: {
-      sender: string; reciever: string; followStatus: string, notifyDetails: {
-        follow: boolean,
-        followed: boolean,
-        sender: {
-          id: string,
-          username: string,
-        },
-        reciever: {
-          id: string,
-          username: string,
-        }
-      }
-    }) => {
-      if (data.sender === user._id && data.reciever === userInfo._id) {
-        setFollowing(data.followStatus === 'followed');
-        updateStatsOnFollow(data.followStatus === 'followed', 'followers');
-      }
-      if (data.sender === userInfo._id && data.reciever === user._id) {
-        updateStatsOnFollow(data.followStatus === 'followed', 'following');
-      }
-    };
-
-    const updateStatsOnFollow = (isFollowed: boolean, statType: 'followers' | 'following') => {
-      setUserInfo((prev) => {
-        if (prev) {
-          return {
-            ...prev,
-            stats: {
-              ...prev.stats,
-              [statType]: isFollowed ? prev.stats[statType] + 1 : prev.stats[statType] - 1,
-            },
-          };
-        }
-        return prev;
-      });
-    };
 
     socketIoHelper.on('followed_f', handleFollowed);
 
     return () => {
       socketIoHelper.off('followed_f', handleFollowed);
     };
-  }, [socketIoHelper, user, userInfo, location.pathname]);
+  }, [socketIoHelper, user, userInfo]);
 
   const handleFollowClick = () => {
     if (!user || !userInfo || location.pathname === '/profile/me' || !socketIoHelper) return;

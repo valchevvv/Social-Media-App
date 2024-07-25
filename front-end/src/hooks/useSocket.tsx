@@ -82,14 +82,18 @@ export const useSocketIoHelper = (): {
                     console.log('Authorization failed:', message);
                 });
 
-                helper.on('followed_f', (data: { sender: string; reciever: string; followStatus: string; notifyDetails: { follow: boolean; followed: boolean; sender: { id: string; username: string }; reciever: { id: string; username: string } } }) => {
-                    if (data.reciever === helper['userId']) {
-                        if (data.followStatus === 'followed' && data.notifyDetails.follow) {
+                helper.on('followed_f', (data: { sender: string; receiver: string; followStatus: string; notifyDetails: { follow: boolean; followed: boolean; sender: { id: string; username: string }; receiver: { id: string; username: string } } }) => {
+                    if(data.receiver !== helper['userId']) return;
+                    if(data.followStatus !== "followed") return;
+
+                    if(data.notifyDetails.follow) {
+                        if(data.notifyDetails.followed) {
                             notifyInfo(`${data.notifyDetails.sender.username} followed you back`);
                         } else {
-                            notifyInfo(`${data.notifyDetails.sender.username} ${(data.followStatus === 'followed' ? 'started' : 'stopped')} following you`);
+                            notifyInfo(`${data.notifyDetails.sender.username} followed you`);
                         }
                     }
+                    
                 });
 
                 helper.on('liked_f', (data: { sender: { id: string; username: string }; post: string }) => {
