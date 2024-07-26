@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -51,7 +51,7 @@ const post = async (url: string, data: object) => {
   }
 };
 
-const patch = async (url:string, data: object) => {
+const patch = async (url: string, data: object) => {
   try {
     const response = await axiosInstance.patch(url, data);
     return response.data;

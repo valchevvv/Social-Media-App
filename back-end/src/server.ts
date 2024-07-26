@@ -33,13 +33,14 @@ app.use(express.urlencoded({ limit: '100mb', extended: true }));
 loadRoutes(app);
 
 const PORT = process.env.PORT || 5000;
+const SOCKET_IO_PORT = process.env.SOCKET_IO_PORT || 5001;
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
 
-server.listen(5001, () => {
-    console.log(`Socket.IO server is running on port ${5001}`);
+server.listen(SOCKET_IO_PORT, () => {
+    console.log(`Socket.IO server is running on port ${SOCKET_IO_PORT}`);
 });
 
 export { io }; // Export io instance from server.ts

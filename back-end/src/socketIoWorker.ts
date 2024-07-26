@@ -9,7 +9,7 @@ import { UserService } from './services/userService'; // Adjust path as per your
 import { PostService } from './services/postService';
 import { CommentService } from './services/commentService';
 
-const JWT_SECRET = 'daniel2k24'; // Replace with your actual secret key
+const JWT_SECRET = process.env.JWT_SECRET; // Replace with your actual secret key
 
 interface ConnectedUser {
     userId: string;
