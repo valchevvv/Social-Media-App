@@ -82,7 +82,7 @@ const AuthPage = () => {
                     <TextInput name="email" value={email} onChange={(e) => setEmail(e.target.value)} placeHolder="E-mail" />
                   </>
                 }
-                <TextInput name="password" value={password} onChange={(e) => setPassword(e.target.value)} placeHolder="Password" />
+                <TextInput name="password" type='password' value={password} onChange={(e) => setPassword(e.target.value)} placeHolder="Password" />
                 <div className="flex justify-center pt-2">
                   <button type='submit' className="bg-cyan-500 text-white rounded-md text-base px-5 py-2 laptop:px-2 laptop:py-1">{isLogin ? "Login" : "Register"}</button>
                 </div>

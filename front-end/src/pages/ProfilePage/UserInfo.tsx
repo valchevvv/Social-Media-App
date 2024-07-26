@@ -39,7 +39,7 @@ const UserInfo = (userData: UserInfoProps) => {
                       title: 'Edit Profile',
                       size: 'large',
                       content: <EditProfile username={userData.username} email={userData.email} bio={userData.bio} name={userData.name} profilePicture={userData.profilePicture} />,
-                      isRequired: false
+                      isRequired: true
                     });
                   }}
                   className="px-4 py-1 bg-gray-800 text-white text-sm rounded-full hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-600 flex items-center gap-2"
@@ -73,8 +73,8 @@ const UserInfo = (userData: UserInfoProps) => {
               </span>
             </div>
             <div>
-              <div className="text-lg font-semibold">{userData.name}</div>
-              <div className="text-base text-gray-500">{userData.bio}</div>
+              <div className="font-semibold">{userData.name}</div>
+              <div className="text-sm font-semibold text-gray-500">{userData.bio}</div>
             </div>
           </div>
         </div>
