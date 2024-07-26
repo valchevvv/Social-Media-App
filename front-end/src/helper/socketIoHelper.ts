@@ -56,7 +56,7 @@ let socketIoHelper: SocketIoHelper | null = null;
 
 export const getSocketIoHelperInstance = (): SocketIoHelper => {
     if (!socketIoHelper) {
-        socketIoHelper = new SocketIoHelper("http://localhost:5001");
+        socketIoHelper = new SocketIoHelper(import.meta.env.VITE_SOCKET_URL as string);
     }
     return socketIoHelper;
 };
