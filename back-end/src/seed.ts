@@ -20,15 +20,23 @@ const seedDatabase = async () => {
 
         // Create dummy users
         const usersData: Partial<IUser>[] = [];
-        for (let i = 0; i < 10; i++) {
-            const isAdmin = i === 0; // Make only the first user admin
+        for (let i = 0; i < 100; i++) {
+            if(i === 0) {
+                usersData.push({
+                    username: `valchevvv`,
+                    email: `dvalchevvv@gmail.com`,
+                    password: '$2a$10$vT6yqvOQ51L8PY7V7fa9y.A5LY29H0QdEzv.m9/8RuRQ6EgFb55yW', // hashed password
+                    name: `Daniel Valchev`,
+                    isAdmin: true,
+                    profilePicture: 'https://res.cloudinary.com/djrpo8a5y/image/upload/v1721982378/ybd5bgckkx5rmtcqoqge.png'
+                });
+            }
             usersData.push({
                 username: `user${i}`,
                 email: `user${i}@example.com`,
                 password: '$2a$10$OnLPOQpsT/5a68jFl4rwcuI8Xt3vce1kL9Kq/owWrpZBZMddV2CVC', // hashed password
                 name: `User ${i}`,
-                isAdmin: isAdmin,
-                isDeleted: false
+                isAdmin: false
             });
         }
         const users = await User.insertMany(usersData);
@@ -37,7 +45,7 @@ const seedDatabase = async () => {
         const postsData: Partial<IPost>[] = [];
 
         for (let i = 0; i < users.length; i++) {
-            for (let j = 0; j < 10; j++) { // Create 2 posts per user
+            for (let j = 0; j < 100; j++) { // Create 2 posts per user
                 const post = {
                     author: users[i]._id,
                     content: `Post ${j + 1} from user${i}`,
