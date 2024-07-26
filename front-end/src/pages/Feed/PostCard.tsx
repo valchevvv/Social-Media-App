@@ -73,13 +73,15 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
     return (
         <div className="p-4">
             <div className="bg-white border shadow-sm rounded-xl max-w-md">
-                <div
-                    className="flex items-center px-4 py-3 cursor-pointer hover:underline"
-                    onClick={() => navigate(`/profile/${postData.author.username}`)}
-                >
+                <div className="flex items-center px-4 py-3">
                     <img className="h-8 w-8 rounded-full" src={postData.author.profilePicture || profile_picture} alt="Profile" />
                     <div className="ml-3">
-                        <span className="text-sm font-semibold antialiased block leading-tight">{postData.author.username}</span>
+                        <span 
+                            className="text-sm font-semibold antialiased block leading-tight cursor-pointer hover:underline"
+                            onClick={() => navigate(`/profile/${postData.author.username}`)}
+                        >
+                            {postData.author.username}
+                        </span>
                         <span className='text-xs text-gray-500'>{formatDate(postData.createdAt)}</span>
                     </div>
                 </div>
