@@ -9,10 +9,12 @@ import { getSocketIoHelperInstance, SocketIoHelper } from '../../helper/socketIo
 import { AuthContext } from '../../contexts/AuthContext';
 import { Post } from '../../helper/interfaces';
 import ProfileCard, { ProfileCardProps } from './ProfileCard';
+import { useSidebarContext } from '../../contexts/SidebarContext';
 
 const Feed = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [page, setPage] = useState(1);
+  const { isCollapsed } = useSidebarContext();
   const { startLoading, stopLoading } = useLoadingSpinner();
   const [socketIoHelper, setSocketIoHelper] = useState<SocketIoHelper | null>(null);
   const { user } = useContext(AuthContext);
@@ -112,7 +114,7 @@ const Feed = () => {
       </div>
       {
         (people && people.length > 0) &&
-        <div className='mobile:hidden sticky top-9 w-[20%] h-full rounded-lg px-10 p-10 shadow-2xl flex flex-col gap-2'>
+        <div className={`mobile:hidden tablet:hidden laptop:block sticky top-9 ${(isCollapsed ? "laptop:w-[30%] desktop:w-[20%]" : "laptop:w-[45%] desktop:w-[25%]")} h-full rounded-lg px-10 p-10 shadow-2xl flex flex-col gap-2`}>
           <span className='font-semibold'>People you may know</span>
           <hr />
           <div className='flex flex-col gap-4 mt-2'>
