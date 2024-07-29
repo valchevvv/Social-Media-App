@@ -104,7 +104,7 @@ export class SocketIoWorker {
                 }
             });
             socket.on('like_b', async (data: { userId: string; postId: string }) => {
-                
+                if(!data.userId || !data.postId) throw new Error('Invalid data');
                 if(debug) console.log('User attempting to like/unlike post:', data.userId, '->', data.postId);
                 try {
                     const result = await PostService.likePost(new ObjectId(data.postId), new ObjectId(data.userId));
@@ -125,6 +125,7 @@ export class SocketIoWorker {
             });
 
             socket.on('comment_b', async (data: { userId: string, postId: string, content: string }) => {
+                if(!data.userId || !data.postId || !data.content) throw new Error('Invalid data');
                 if(debug) console.log('User attempting to comment on post:', data.userId, '->', data.postId);
                 try {
                     const result = await CommentService.createComment(new ObjectId(data.userId), new ObjectId(data.postId), data.content);
@@ -152,6 +153,7 @@ export class SocketIoWorker {
             });
 
             socket.on('unfollow_b', async (data: { userId: string, followId: string, type: "unfollow" | "remove" }) => {
+                if(!data.userId || !data.followId) throw new Error('Invalid data');
                 if(debug) console.log('User attempting to unfollow:', data.userId, '->', data.followId);
                 try {
                     const userId = new ObjectId(data.userId);
