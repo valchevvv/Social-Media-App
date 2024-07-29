@@ -8,10 +8,11 @@ import { MdOutlineRssFeed, MdOutlineExplore } from "react-icons/md";
 import { useSidebarContext } from "../../contexts/SidebarContext";
 
 import { TbLayoutSidebarLeftCollapseFilled, TbLayoutSidebarRightCollapseFilled } from "react-icons/tb";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
     const { isCollapsed, toggleSidebar } = useSidebarContext();
+    const { pathname: location } = useLocation();
     return (
         <>
             <aside
@@ -35,12 +36,14 @@ const Sidebar = () => {
                         <div className={`flex flex-${(isCollapsed ? "col" : "row")} gap-2`}>
                             <SidebarItem to="/profile" iconOnly={isCollapsed} icon={CgProfile} label="Profile" />
                             
-                            <div className={`text-white text-3xl justify-center flex items-center p-2 text-gray-900 rounded-lg ${(!isCollapsed ? "bg-gray-700" : "")} hover:bg-gray-500 group cursor-pointer`} onClick={toggleSidebar}>
+                            {
+                                !location.includes('/messages') && <div className={`text-white text-3xl justify-center flex items-center p-2 text-gray-900 rounded-lg ${(!isCollapsed ? "bg-gray-700" : "")} hover:bg-gray-500 group cursor-pointer`} onClick={toggleSidebar}>
                                 {
                                     isCollapsed ? <TbLayoutSidebarLeftCollapseFilled />
                                     : <TbLayoutSidebarRightCollapseFilled />
                                 }
                             </div >
+                            }
                         </div>
                     </ul>
                 </div>

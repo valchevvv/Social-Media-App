@@ -14,6 +14,7 @@ import ProfilePage from './pages/ProfilePage';
 import NotFoundPage from './pages/NotFound';
 import PostPreview from './pages/ProfilePage/PostPreview';
 import ExplorePage from './pages/ExplorePage';
+import ChatPage from './pages/ChatPage';
 
 const AuthChecker = () => {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ const AppContent = () => {
     <div className={`App ${(user ? "laptop:flex" : "hidden")}`}>
       {user && <Sidebar />}
       {user && <Navigation />}
-      <div className="content flex flex-col justify-center items-center p-0 laptop:p-5 w-full h-full">
+      <div className="content flex flex-col justify-center items-center p-0 w-full h-full">
         <Routes>
           <Route path="/" element={<Feed />} />
           <Route path="/post" element={<PostPage />} />
@@ -53,6 +54,7 @@ const AppContent = () => {
           <Route path="/profile" element={<Navigate to={'/profile/me'} />} />
           <Route path="/post/:id" element={<PostPreview />} />
           <Route path="/explore" element={<ExplorePage />} />
+          <Route path="/messages" element={<ChatPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
@@ -68,7 +70,7 @@ const App = () => {
   return (
     <Router>
       <AuthChecker />
-      {isLoading || socketLoading && <LoadingSpinner />}
+      {(isLoading || socketLoading) && <LoadingSpinner />}
       {!isAuthLoading && (
         <Routes>
           <Route path="/auth/:type" element={<Auth />} />
