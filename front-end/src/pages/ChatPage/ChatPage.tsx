@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useSidebarContext } from '../../contexts/SidebarContext'
 import profile_picture from "../../assets/profile_picture.png"
+import { VscSend } from 'react-icons/vsc';
+import { IoInformationCircleOutline } from "react-icons/io5";
 
 const ChatPage = () => {
     const { isCollapsed, toggleSidebar } = useSidebarContext();
@@ -54,7 +56,12 @@ const ChatPage = () => {
             }
         </div>
         <div className='w-[80%] bg-gray-700 h-screen flex flex-col'>
-            <div className='h-[7%] bg-white shadow-2xl'>
+            <div className='h-[7%] bg-gray-700 text-white shadow-2xl flex flex-row items-center justify-between px-5'>
+                <div className='h-[100%] flex flex-row items-center gap-2'>
+                    <img src={profile_picture} alt="" className='h-[60%]' />
+                    <span className='text-lg font-semibold'>Daniel Valchev</span>
+                </div>
+                <IoInformationCircleOutline size={32} />
             </div>
             <div className='h-[93%] p-5 overflow-y-auto'>
                 {
@@ -70,11 +77,11 @@ const ChatPage = () => {
                         </div>
                     })
                 }
-                <div className="bg-gray-800 z-50 shadow sticky bottom-1 p-2 w-full h-[60px] text-white flex flex-row justify-center rounded-2xl backdrop-blur bg-opacity-60">
-                    
-                    <div className={`flex flex-col gap-1 justify-center items-center text-white w-full bg-opacity-10 rounded-xl`}>
-                        
-                    </div>
+                <div className="bg-black z-50 shadow-2xl sticky bottom-1 p-2 w-full h-[60px] text-white flex flex-row justify-center rounded-2xl backdrop-blur bg-opacity-60">
+                    <input type="text" className='w-full bg-transparent outline-none px-5 border-r-2' placeholder='Enter message...' />
+                    <button className='px-3'>
+                        <VscSend size={24} />
+                    </button>
                 </div>
             </div>
         </div>
