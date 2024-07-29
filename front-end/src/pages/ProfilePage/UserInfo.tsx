@@ -3,6 +3,11 @@ import { SlUserFollow, SlUserUnfollow } from "react-icons/sl";
 import profile_picture from '../../assets/profile_picture.png';
 import EditProfile from './Edit';
 import { useModal } from "../../contexts/ModalContext";
+import { useContext, useEffect, useState } from "react";
+import { get } from "../../helper/axiosHelper";
+import FollowerCard from "./FollowerCard";
+import { useSocketIoHelper } from "../../hooks/useSocket";
+import { AuthContext } from "../../contexts/AuthContext";
 
 interface UserInfoProps {
   username: string;
@@ -17,8 +22,56 @@ interface UserInfoProps {
   onFollow: () => void;
 }
 
+export interface IUserSimpleInfo {
+  _id: string;
+  profilePicture?: string;
+  name: string;
+  username: string;
+}
+
 const UserInfo = (userData: UserInfoProps) => {
   const { showModal } = useModal();
+
+  const { socket } = useSocketIoHelper();
+  const { user } = useContext(AuthContext);
+
+
+  const [followers, setFollowers] = useState<IUserSimpleInfo[]>([]);
+  const [following, setFollowing] = useState<IUserSimpleInfo[]>([]);
+
+  const updateFollows = async () => {
+    get(`/users/followers`)
+      .then((res) => setFollowers(res))
+      .then(() => get(`/users/following`).then((res) => setFollowing(res)))
+  }
+
+  useEffect(() => {
+    updateFollows();
+  }, []);
+
+  const handleUnfollowCallback = (data: unknown) => {
+    console.log("update")
+    updateFollows();
+  }
+
+  useEffect(() => {
+    if (!socket || !user?._id) return;
+
+    socket.on('unfollow_f', handleUnfollowCallback);
+
+    return () => {
+      socket.off('unfollow_f', handleUnfollowCallback);
+    };
+  }, [socket, user?._id]);
+
+  const onUnfollow = (id: string, type: string) => {
+    if (!socket || !user) return;
+    socket.emit('unfollow_b', {
+      userId: user._id,
+      followId: id,
+      type
+    });
+  }
 
   return (
     <div className="p-4">
@@ -65,11 +118,31 @@ const UserInfo = (userData: UserInfoProps) => {
           <div className='flex laptop:flex-col mobile:flex-col-reverse justify-between mobile:items-center my-4 gap-4'>
             <div className="flex flex-row justify-between space-x-10">
               <span><span className="font-semibold">{userData.stats.posts}</span> posts</span>
-              <span>
-                <span className="font-semibold">{userData.stats.followers}</span> followers
+              <span className="hover:underline cursor-pointer" onClick={() => {
+                if(followers.length === 0) return;
+                showModal({
+                  title: 'Followers',
+                  size: 'small',
+                  content: <div className='flex flex-col gap-2'>{
+                    followers.map((follower) => <FollowerCard key={follower._id} data={follower} follower={true} onUnfollow={() => onUnfollow(follower._id, 'remove')} />)
+                  }</div>,
+                  isRequired: false
+                });
+              }}>
+                <span className="font-semibold">{followers.length}</span> followers
               </span>
-              <span>
-                <span className="font-semibold">{userData.stats.following}</span> following
+              <span className="hover:underline cursor-pointer" onClick={() => {
+                if(following.length === 0) return;
+                showModal({
+                  title: 'Following',
+                  size: 'small',
+                  content: <div className='flex flex-col gap-2 max-h-96 overflow-y-auto p-2'>{
+                    following.map((follower) => <FollowerCard key={follower._id} data={follower} follower={false} onUnfollow={() => onUnfollow(follower._id, 'unfollow')} />)
+                  }</div>,
+                  isRequired: false
+                });
+              }}>
+                <span className="font-semibold">{following.length}</span> following
               </span>
             </div>
             <div>

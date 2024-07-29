@@ -102,6 +102,39 @@ export class UserService {
         }
     }
 
+    static async unfollowUser(userId: ObjectId, followId: ObjectId, type: string): Promise<void> {
+        try {
+            // Fetch both users from the database
+            const user = await User.findById(userId).exec();
+            const follow = await User.findById(followId).exec();
+
+            // Check if both users exist
+            if (!user || !follow) {
+                throw new Error('User not found');
+            }
+
+            // Create update operations based on current follow status
+            if(type === 'unfollow') {
+                // Remove followId from user’s following list
+                user.following = user.following.filter(followingId => followingId.toString() !== followId.toString());
+                // Remove userId from follow’s followers list
+                follow.followers = follow.followers.filter(followerId => followerId.toString() !== userId.toString());
+            } else if (type === 'remove') {
+                // Remove userId from follow’s followers list
+                follow.following = follow.following.filter(followingId => followingId.toString() !== userId.toString());
+                // Remove followId from user’s following list
+                user.followers = user.followers.filter(followerId => followerId.toString() !== followId.toString());
+            }
+
+            // Apply updates to both users
+            await user.save();
+            await follow.save();
+        } catch (error) {
+            console.error('Error unfollowing user:', { error, userId, followId });
+            throw error;
+        }
+    }
+
     static async getPeopleYouKnow(userId: ObjectId): Promise<IUserSimpleInfo[]> {
         try {
             const user = await User.findById(userId).exec();

@@ -56,6 +56,7 @@ export class SocketIoWorker {
 
             // Handle follow event
             socket.on('follow_b', async (data: { userId: string; followId: string }) => {
+                if(!data.userId || !data.followId) throw new Error('Invalid data');
                 if(debug) console.log('User attempting to follow/unfollow:', data.userId, '->', data.followId);
                 try {
                     const userId = new ObjectId(data.userId);
@@ -147,6 +148,19 @@ export class SocketIoWorker {
                     } });
                 } catch (error) {
                     if(debug) console.error('Error commenting on post:', error);
+                }
+            });
+
+            socket.on('unfollow_b', async (data: { userId: string, followId: string, type: "unfollow" | "remove" }) => {
+                if(debug) console.log('User attempting to unfollow:', data.userId, '->', data.followId);
+                try {
+                    const userId = new ObjectId(data.userId);
+                    const followId = new ObjectId(data.followId);
+                    const result = await UserService.unfollowUser(userId, followId, data.type);
+                    if(debug) console.log(`User ${data.userId} unfollowed user ${data.followId}`);
+                    this.emitToUser(io, userId.toString(), 'unfollow_f', {});
+                } catch (error) {
+                    if(debug) console.error('Error unfollowing user:', error);
                 }
             });
 
