@@ -12,6 +12,7 @@ import CommentComponent from './Comment';
 import { Comment, Post } from '../../helper/interfaces';
 import { useSocketIoHelper } from '../../hooks/useSocket';
 import { formatDate, formatNumber } from '../../helper/functions';
+import { useModal } from '../../contexts/ModalContext';
 
 const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () => void, onComment: (postId: string, comment: string) => void }) => {
     const { user } = useContext(AuthContext);
@@ -23,6 +24,7 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
     const [comments, setComments] = useState<Comment[]>([]);
     
     const { socket } = useSocketIoHelper();
+    const { showModal } = useModal();
 
     useEffect(() => {
         const fetchComments = async () => {
@@ -38,6 +40,7 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
     }, [postData._id]);
     
     const handleNewComment = (data: Comment) => {
+        if(data.post !== postData._id) return;
         setComments(prevComments => {
             if (prevComments.some(comment => comment._id === data._id)) return prevComments;
 
@@ -85,7 +88,21 @@ const PostCard = ({ postData, onLike, onComment }: { postData: Post, onLike: () 
                         <span className='text-xs text-gray-500'>{formatDate(postData.createdAt)}</span>
                     </div>
                 </div>
-                {postData.image && <img className="aspect-video object-cover w-full" src={postData.image} alt="Post" />}
+                {   
+                    postData.image && 
+                    <img 
+                        className="aspect-video object-cover w-full" 
+                        src={postData.image} 
+                        alt="Post"
+                        onClick={() => {
+                            showModal({
+                                title: postData.author.username,
+                                isImagePreview: true,
+                                content: postData.image
+                            })
+                        }} 
+                    />
+                }
                 <div className="px-4 py-3">
                     <div className="font-semibold text-sm">{postData.content}</div>
                 </div>
