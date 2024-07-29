@@ -64,7 +64,7 @@ const PostPage = () => {
 
     return (
         <>
-            <div className="flex flex-col items-center justify-center mobile:h-screen laptop:w-96 mobile:w-[100%] gap-5 mobile:p-16">
+            <div className="flex flex-col items-center justify-center mobile:h-screen tablet:h-screen laptop:h-auto tablet:w-96 mobile:w-[100%] gap-5 mobile:p-16">
                 <div className="w-[100%] flex flex-col items-center">
                     <div className="mb-4 w-full">
                         <img id="imagePreview" ref={imagePreview} onClick={() => { imageUpload && imageUpload.current?.click(); }} className="w-full object-cover rounded-lg cursor-pointer" src="https://via.placeholder.com/150" alt="Image Preview" />
