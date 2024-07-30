@@ -50,7 +50,7 @@ const ChatContent = ({ messages, onMessage }: {
                             <div className={`flex flex-col w-fit max-w-[50%] p-2 rounded-lg`}>
                                 <div className='flex flex-row items-end gap-2'>
                                     {
-                                        !isMine(message) && <img src={message.sender.profilePicture || profile_picture} alt="" className='h-6' />
+                                        !isMine(message) && <img src={message.sender.profilePicture || profile_picture} alt="" className='h-6 rounded-full' />
                                     }
                                     <span className={`font-semibold text-white p-2 rounded-lg ${(isMine(message) ? "bg-gray-500" : "bg-blue-500")}`}>{message.content}</span>
                                 </div>
