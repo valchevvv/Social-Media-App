@@ -85,7 +85,6 @@ export class UserController {
         try {
             if(!req.user) throw new Error('Unauthorized');
             const users = await UserService.getContacts(req.user._id);
-            console.log(users);
             res.status(200).json(users);
         } catch (error) {
             res.status(401).json({ error: error instanceof Error ? error.message : error });

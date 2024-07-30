@@ -21,7 +21,7 @@ export interface ISimpleUser {
 export interface IConversation {
     _id: string;
     participants: ISimpleUser[];
-    lastMessage: string;
+    lastMessage: IMessage;
     createdAt: Date;
 }
 
@@ -56,6 +56,16 @@ const ChatPage = () => {
     }, []);
 
     const handleNewMessage = (newMessage: IMessage) => {
+        setConversations(conversations => {
+            const conversationIndex = conversations.findIndex(conversation => conversation._id === newMessage.conversation);
+            if (conversationIndex === -1) return conversations;
+
+            const updatedConversation = { ...conversations[conversationIndex], lastMessage: newMessage };
+            const updatedConversations = [...conversations];
+            updatedConversations[conversationIndex] = updatedConversation;
+            return updatedConversations;
+        });
+
         setMessages(messages => {
             if (messages.some(message => message._id === newMessage._id)) {
                 return messages;
@@ -92,8 +102,8 @@ const ChatPage = () => {
     }, [activeConversation]);
 
     const getConversationName = (conversation: IConversation) => {
-        if (!user) return;
-
+        if (!user) return '';
+    
         const otherParticipants = conversation.participants.filter(participant => participant._id !== user._id);
         if (otherParticipants.length > 1) return `${otherParticipants[0].name} and ${otherParticipants.length - 1} others`;
         return otherParticipants[0].name;

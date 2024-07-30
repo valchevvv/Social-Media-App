@@ -18,6 +18,19 @@ const ChatWrapper = ({ conversations, activeChat, setActiveChat, getConversation
     const { user } = useContext(AuthContext);
     const { showModal } = useModal();
 
+
+    const getLastAction = (conversation: IConversation) => {
+        if(conversation.lastMessage) {
+            if(conversation.lastMessage.sender._id === user?._id) {
+                return `You: ${conversation.lastMessage.content}`
+            } else {
+                return `${conversation.lastMessage.sender.name}: ${conversation.lastMessage.content}`
+            }
+        } else {
+            return "No messages yet"
+        }
+    }
+
     return (
         <div className='w-[20%] bg-gray-600 h-screen overflow-y-auto'>
             <div className="w-full h-20 bg-gray-600 cursor-pointer border-b-2 flex flex-row justify-between items-center p-5 text-white">
@@ -36,7 +49,7 @@ const ChatWrapper = ({ conversations, activeChat, setActiveChat, getConversation
                         <img src={conversation.participants[1].profilePicture || profile_picture} alt={"username"} className='h-12 aspect-square rounded-full' />
                         <div className='flex flex-col'>
                             <span className='font-semibold text-white'>{getConversationName(conversation)}</span>
-                            <span className='font-semibold text-sm text-gray-300'>{conversation.lastMessage || "No messages yet"}</span>
+                            <span className='font-semibold text-sm text-gray-300'>{getLastAction(conversation)}</span>
                         </div>
                     </div>
                 })

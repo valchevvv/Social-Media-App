@@ -1,9 +1,20 @@
 import { Conversation, IConversation } from '../models/Conversation';
 import { IMessage, Message } from '../models/Message';
 import { ObjectId } from 'mongodb';
+import { Document } from 'mongoose';
+
+export interface IConversationWithLastMessage {
+    _id: ObjectId;
+    participants: Array<{
+        _id: ObjectId;
+        name: string;
+        profilePicture: string;
+    }>;
+    lastMessage?: IMessage;
+}
 
 export class ConversationService {
-    static async getAllConversations(userId: ObjectId): Promise<IConversation[]> {
+    static async getAllConversations(userId: ObjectId): Promise<IConversationWithLastMessage[]> {
         try {
             const conversations = await Conversation.find({
                 participants: { $in: [userId] }
@@ -12,17 +23,37 @@ export class ConversationService {
                 path: 'participants',
                 select: '_id name profilePicture'
             })
-            .populate({
-                path: 'lastMessage',
-                select: 'content sender',
-                populate: {
-                    path: 'sender',
-                    select: '_id name profilePicture'
-                }
-            })
             .exec();
 
-            return conversations;
+            const conversationsWithLastMessage: IConversationWithLastMessage[] = [];
+
+            for (const conversation of conversations) {
+                const populatedParticipants = (conversation.participants as any[]).map(p => ({
+                    _id: p._id,
+                    name: p.name,
+                    profilePicture: p.profilePicture
+                }));
+
+                const lastMessage = await Message.findOne({
+                    conversation: conversation._id
+                })
+                .sort({ date: -1 })
+                .populate({
+                    path: 'sender',
+                    select: '_id name profilePicture'
+                })
+                .exec();
+
+                const conversationWithLastMessage: IConversationWithLastMessage = {
+                    _id: conversation._id as ObjectId,
+                    participants: populatedParticipants,
+                    lastMessage: lastMessage || undefined
+                };
+
+                conversationsWithLastMessage.push(conversationWithLastMessage);
+            }
+
+            return conversationsWithLastMessage;
         } catch (error) {
             console.error('Error fetching conversations:', error);
             throw error;
@@ -31,15 +62,22 @@ export class ConversationService {
 
     static async createConversation(participants: ObjectId[]): Promise<IConversation> {
         try {
-            const conversation = new Conversation({
-            participants
-            });
-    
+            const conversation = new Conversation({ participants });
             await conversation.save();
-            return conversation.populate({
-                path: 'participants',
-                select: '_id name profilePicture'
-            });
+
+            // Fetch the created conversation with populated participants
+            const populatedConversation = await Conversation.findById(conversation._id)
+                .populate({
+                    path: 'participants',
+                    select: '_id name profilePicture'
+                })
+                .exec();
+
+            if (!populatedConversation) {
+                throw new Error('Created conversation not found');
+            }
+
+            return populatedConversation as IConversation;
         } catch (error) {
             console.error('Error creating conversation:', error);
             throw error;
@@ -53,38 +91,35 @@ export class ConversationService {
             })
             .populate({
                 path: 'sender',
-                select: '_id username name profilePicture'
+                select: '_id name profilePicture'
             })
-            .sort({ createdAt: -1 }) // Sort by creation date in descending order
+            .sort({ date: -1 })
             .exec();
-    
+
             return messages;
-    
         } catch (error) {
             console.error('Error fetching messages:', error);
             throw error;
         }
     }
 
-    static async createMessage(conversationId: string, senderId: string, content: string): Promise<IMessage | null> {
+    static async createMessage(conversationId: string, senderId: string, content: string, image?: string): Promise<IMessage | null> {
         try {
             const message = new Message({
                 conversation: conversationId,
                 sender: senderId,
-                content
+                content,
+                image
             });
 
             await message.save();
 
-            const savedMessage = await Message.findById(message._id)
+            return await Message.findById(message._id)
                 .populate({
                     path: 'sender',
-                    select: '_id username name profilePicture'
+                    select: '_id name profilePicture'
                 })
                 .exec();
-
-            return savedMessage;
-
         } catch (error) {
             console.error('Error creating message:', error);
             throw error;
@@ -96,11 +131,11 @@ export class ConversationService {
             const conversation = await Conversation.findById(conversationId)
                 .populate({
                     path: 'participants',
-                    select: '_id username email name profilePicture' // Select the fields you need
+                    select: '_id'
                 })
                 .exec();
-    
-            return conversation?.participants || [];
+
+            return conversation?.participants.map(p => p._id) || [];
         } catch (error) {
             console.error('Error fetching participants:', error);
             throw error;
