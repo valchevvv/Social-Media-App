@@ -14,7 +14,7 @@ const ChatHeader = (data: IChatHeaderProps) => {
                 <img src={data.profilePicture || profile_picture} alt="" className='h-[60%]' />
                 <span className='text-lg font-semibold'>{data.name}</span>
             </div>
-            <IoInformationCircleOutline size={32} />
+            {/* <IoInformationCircleOutline size={32} /> */}
         </div>
     )
 }
