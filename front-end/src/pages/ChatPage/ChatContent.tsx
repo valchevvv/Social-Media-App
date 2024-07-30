@@ -30,7 +30,7 @@ const ChatContent = ({ messages, onMessage }: {
     const [message, setMessage] = useState<string>('');
 
     const sendMessage = () => {
-        if(message.trim() === '') return;
+        if (message.trim() === '') return;
         setMessage('');
         onMessage(message);
     }
@@ -46,19 +46,22 @@ const ChatContent = ({ messages, onMessage }: {
             <div className='p-5 overflow-y-auto h-[93%]'>
                 {
                     messages.map((message, index) => {
-                        return <div key={index} className={`flex flex-row gap-2 ${isMine(message) ? "justify-end" : "justify-start"}`}>
-                            <div className={`flex flex-col w-fit max-w-[50%] p-2 rounded-lg`}>
-                                <div className='flex flex-row items-end gap-2'>
+                        const isLastFromUser = index === messages.length - 1 || messages[index + 1].sender._id !== message.sender._id;
+                        return (
+                            <div key={index} className={`flex flex-row gap-2 ${isMine(message) ? "justify-end" : "justify-start"}`}>
+                                <div className={`flex flex-col w-fit max-w-[50%] p-2 rounded-lg`}>
+                                    <div className='flex flex-row items-end gap-2'>
+                                        {
+                                            !isMine(message) && <img src={message.sender.profilePicture || profile_picture} alt="" className='h-6 rounded-full' />
+                                        }
+                                        <span className={`font-semibold text-white p-2 rounded-lg ${(isMine(message) ? "bg-gray-500" : "bg-blue-500")}`}>{message.content}</span>
+                                    </div>
                                     {
-                                        !isMine(message) && <img src={message.sender.profilePicture || profile_picture} alt="" className='h-6 rounded-full' />
+                                        !isMine(message) && isLastFromUser && <span className='w-full flex justify-end pt-1 text-gray-300 font-semibold text-xs'>{formatDate(message.date.toString(), true)}</span>
                                     }
-                                    <span className={`font-semibold text-white p-2 rounded-lg ${(isMine(message) ? "bg-gray-500" : "bg-blue-500")}`}>{message.content}</span>
                                 </div>
-                                {
-                                    !isMine(message) && <span className='w-full flex justify-end pt-1 text-gray-300 font-semibold text-xs'>{formatDate(message.date.toString())}</span>
-                                }
                             </div>
-                        </div>
+                        )
                     })
                 }
                 <div ref={messagesEndRef} />
