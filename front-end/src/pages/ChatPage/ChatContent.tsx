@@ -1,26 +1,43 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { VscSend } from 'react-icons/vsc';
+import { AuthContext } from '../../contexts/AuthContext';
+import profile_picture from '../../assets/profile_picture.png'
 
 export interface IMessage {
-    profilePicture: string,
-    message: string,
-    isMine: boolean
+    _id: string;
+    conversation: string;
+    sender: {
+        _id: string;
+        username: string;
+        name: string;
+        profilePicture: string;
+    };
+    content: string;
+    date: Date;
 }
 
 const ChatContent = ({ messages }: {
     messages: IMessage[]
 }) => {
+    console.log("messages", messages)
+
+    const { user } = useContext(AuthContext);
+
+    const isMine = (message: IMessage) => {
+        return message.sender._id === user?._id;
+    }
+
     return (
         <>
             <div className='p-5 overflow-y-auto h-[93%]'>
                 {
                     messages.map((message, index) => {
-                        return <div key={index} className={`flex flex-row gap-2 ${message.isMine ? "justify-end" : "justify-start"}`}>
+                        return <div key={index} className={`flex flex-row gap-2 ${isMine(message) ? "justify-end" : "justify-start"}`}>
                             <div className={`flex flex-row items-end gap-2 w-fit max-w-[50%] p-2 rounded-lg`}>
                                 {
-                                    !message.isMine && <img src={message.profilePicture} alt="" className='h-6' />
+                                    !isMine(message) && <img src={message.sender.profilePicture || profile_picture} alt="" className='h-6' />
                                 }
-                                <span className={`font-semibold text-white p-2 rounded-lg ${(message.isMine ? "bg-gray-500" : "bg-blue-500")}`}>{message.message}</span>
+                                <span className={`font-semibold text-white p-2 rounded-lg ${(isMine(message) ? "bg-gray-500" : "bg-blue-500")}`}>{message.content}</span>
                             </div>
                         </div>
                     })
