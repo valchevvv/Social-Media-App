@@ -20,7 +20,7 @@ export class ConversationController {
             if(!conversationId) {
                 throw new Error('Conversation ID is required');
             }
-            const response = await ConversationService.getMessages(new ObjectId(conversationId));
+            const response = await ConversationService.getMessages(conversationId);
             res.status(200).json(response);
         } catch (error) {
             res.status(400).json({ error: error instanceof Error ? error.message : error });

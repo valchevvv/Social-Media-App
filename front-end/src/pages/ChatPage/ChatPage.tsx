@@ -7,6 +7,7 @@ import ChatContent, { IMessage } from './ChatContent';
 import { get } from '../../helper/axiosHelper';
 import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
 import { AuthContext } from '../../contexts/AuthContext';
+import { useSocketIoHelper } from '../../hooks/useSocket';
 
 
 interface ISimpleUser {
@@ -26,6 +27,7 @@ const ChatPage = () => {
     const { isCollapsed, toggleSidebar } = useSidebarContext();
     const { startLoading, stopLoading } = useLoadingSpinner();
     const { user } = useContext(AuthContext);
+    const { socket } = useSocketIoHelper();
 
     useEffect(() => {
         if(!isCollapsed) toggleSidebar();
@@ -44,6 +46,21 @@ const ChatPage = () => {
         .finally(() => stopLoading());
     }, [])
 
+    
+    const handleNewMessage = (newMessage: IMessage) => {
+        setMessages(messages => [...messages, newMessage]);
+    }
+
+    useEffect(() => {
+        if (!socket || !user?._id) return;
+        
+        socket.on('new_message_f', handleNewMessage);
+
+        return () => {
+            socket.off('new_message_f', handleNewMessage);
+        };
+    }, [socket, user?._id]);
+
     useEffect(() => {
         if(!activeConversation?._id) return;
 
@@ -59,6 +76,16 @@ const ChatPage = () => {
         return otherParticipants[0].name
     }
 
+    const newMessage = (message: string) => {
+        if(!activeConversation || !socket || !user) return;
+        console.log(message);
+        socket.emit('new_message_b', {
+            userId: user._id,
+            conversationId: activeConversation._id,
+            content: message
+        })
+    }
+
   return (
     <div className='w-[100%] h-screen bg-black flex flex-row'>
         <ChatWrapper conversations={conversations} activeChat={activeConversation} setActiveChat={(conversation) => setActiveConversation(conversation)} getConversationName={getConversationName} />
@@ -66,7 +93,7 @@ const ChatPage = () => {
             activeConversation && 
             <div className='w-[80%] bg-gray-700 h-screen flex flex-col'>
                 <ChatHeader name={getConversationName(activeConversation) || ""} profilePicture={activeConversation.participants[1].profilePicture || profile_picture} />
-                <ChatContent messages={messages} />
+                <ChatContent onMessage={newMessage} messages={messages} />
             </div>
         }
         

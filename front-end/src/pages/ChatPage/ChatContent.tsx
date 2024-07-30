@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState, useEffect, useRef } from 'react'
 import { VscSend } from 'react-icons/vsc';
 import { AuthContext } from '../../contexts/AuthContext';
 import profile_picture from '../../assets/profile_picture.png'
@@ -17,14 +17,29 @@ export interface IMessage {
     date: Date;
 }
 
-const ChatContent = ({ messages }: {
+const ChatContent = ({ messages, onMessage }: {
     messages: IMessage[]
+    onMessage: (message: string) => void
 }) => {
     const { user } = useContext(AuthContext);
 
     const isMine = (message: IMessage) => {
         return message.sender._id === user?._id;
     }
+
+    const [message, setMessage] = useState<string>('');
+
+    const sendMessage = () => {
+        if(message.trim() === '') return;
+        setMessage('');
+        onMessage(message);
+    }
+
+    const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
 
     return (
         <>
@@ -46,22 +61,23 @@ const ChatContent = ({ messages }: {
                         </div>
                     })
                 }
+                <div ref={messagesEndRef} />
             </div>
             <div className="bg-gray-700 border-t-2 border-white border-opacity-10 z-50 shadow-2xl w-full h-[60px] text-white flex flex-row justify-center">
-                <input
-                    type="text"
-                    value={"asd"}
-                    onChange={(e) => {}}
+                <input 
+                    type="text" 
+                    className='w-full bg-transparent outline-none px-5 border-r-2' 
+                    placeholder='Enter message...' 
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                             e.preventDefault();
-                            
+                            sendMessage();
                         }
                     }}
-                    placeholder='Enter message...'
-                    className="w-full border-r-2 border-gray-300 focus:outline-none"
                 />
-                <button className='px-3'>
+                <button className='px-3' onClick={sendMessage}>
                     <VscSend size={24} />
                 </button>
             </div>

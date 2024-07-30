@@ -8,6 +8,7 @@ import { IUser, User } from './models/User'; // Adjust path as per your project 
 import { UserService } from './services/userService'; // Adjust path as per your project structure
 import { PostService } from './services/postService';
 import { CommentService } from './services/commentService';
+import { ConversationService } from './services/conversationService';
 
 const JWT_SECRET = process.env.JWT_SECRET; // Replace with your actual secret key
 
@@ -163,6 +164,22 @@ export class SocketIoWorker {
                     this.emitToUser(io, userId.toString(), 'unfollow_f', {});
                 } catch (error) {
                     if(debug) console.error('Error unfollowing user:', error);
+                }
+            });
+
+            socket.on('new_message_b', async (data: { userId: string, conversationId: string, content: string }) => {
+                if(!data.userId || !data.conversationId || !data.content) throw new Error('Invalid data');
+                if(debug) console.log('User attempting to send message:', data.userId, '->', data.conversationId);
+                try {
+                    const message = await ConversationService.createMessage(data.conversationId , data.userId, data.content);
+                    if(debug) console.log(`User ${data.userId} sent message in conversation ${data.conversationId}`);
+                    this.emitToUser(io, data.userId, 'new_message_f', message);
+                    const participants = await ConversationService.getParticipants(new ObjectId(data.conversationId));
+                    participants.forEach(participant => {
+                        if(participant.toString() !== data.userId) this.emitToUser(io, participant._id.toString(), 'new_message_f', message);
+                    });
+                } catch (error) {
+                    if(debug) console.error('Error sending message:', error);
                 }
             });
 
