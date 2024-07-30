@@ -183,6 +183,22 @@ export class SocketIoWorker {
                 }
             });
 
+            socket.on('new_conversation_b', async (data: { userId: string, contactId: string }) => {
+                if(!data.userId || !data.contactId) throw new Error('Invalid data');
+                if(debug) console.log('User attempting to start new conversation:', data.userId, '->', data.contactId);
+                try {
+                    const conversation = await ConversationService.createConversation(
+                        [new ObjectId(data.userId),
+                        new ObjectId(data.contactId)]
+                    );
+                    if(debug) console.log(`User ${data.userId} started new conversation with user ${data.contactId}`);
+                    this.emitToUser(io, data.userId, 'new_conversation_f', conversation);
+                    //this.emitToUser(io, data.contactId, 'new_conversation_f', conversation);
+                } catch (error) {
+                    if(debug) console.error('Error starting new conversation:', error);
+                }
+            });
+
             // Add more event handlers as needed
         });
     }

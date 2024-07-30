@@ -8,9 +8,11 @@ import { get } from '../../helper/axiosHelper';
 import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useSocketIoHelper } from '../../hooks/useSocket';
+import { useModal } from '../../contexts/ModalContext';
+import NewConversationModal from './NewConversationModal';
 
 
-interface ISimpleUser {
+export interface ISimpleUser {
     _id: string;
     name: string;
     profilePicture: string;
@@ -28,6 +30,7 @@ const ChatPage = () => {
     const { startLoading, stopLoading } = useLoadingSpinner();
     const { user } = useContext(AuthContext);
     const { socket } = useSocketIoHelper();
+    const { showModal } = useModal();
 
     useEffect(() => {
         if (!isCollapsed) toggleSidebar();
@@ -39,27 +42,46 @@ const ChatPage = () => {
 
     useEffect(() => {
         startLoading();
-        get("/conversations").then((res) => setConversations(res))
-        .finally(() => stopLoading());
+        get("/conversations").then((res) => {
+            setConversations(res)
+            if (res.length === 0) {
+                showModal({
+                    title: "New Conversation",
+                    size: "small",
+                    content: <NewConversationModal />,
+                })
+            }
+        })
+            .finally(() => stopLoading());
     }, []);
 
     const handleNewMessage = (newMessage: IMessage) => {
         setMessages(messages => {
-            // Check if the new message already exists in the messages array
             if (messages.some(message => message._id === newMessage._id)) {
-                return messages; // If it already exists, return the current messages array
+                return messages;
             }
             return [...messages, newMessage];
         });
     };
 
+    const handleNewConversation = (newConversation: IConversation) => {
+        setConversations(conversations => {
+            if (conversations.some(conversation => conversation._id === newConversation._id)) {
+                return conversations;
+            }
+            return [...conversations, newConversation];
+        });
+    }
+
     useEffect(() => {
         if (!socket || !user?._id) return;
 
         socket.on('new_message_f', handleNewMessage);
+        socket.on('new_conversation_f', handleNewConversation);
 
         return () => {
             socket.off('new_message_f', handleNewMessage);
+            socket.off('new_conversation_f', handleNewConversation);
         };
     }, [socket, user?._id]);
 
@@ -88,16 +110,29 @@ const ChatPage = () => {
     };
 
     return (
-        <div className='w-[100%] h-screen bg-black flex flex-row'>
-            <ChatWrapper conversations={conversations} activeChat={activeConversation} setActiveChat={(conversation) => setActiveConversation(conversation)} getConversationName={getConversationName} />
+        <>
             {
-                activeConversation &&
-                <div className='w-[80%] bg-gray-700 h-screen flex flex-col'>
-                    <ChatHeader name={getConversationName(activeConversation) || ""} profilePicture={activeConversation.participants[1].profilePicture || profile_picture} />
-                    <ChatContent onMessage={newMessage} messages={messages} />
+                (conversations && conversations.length > 0) ?
+                <div className='w-[100%] h-screen bg-gray-700 flex flex-row'>
+                    <ChatWrapper conversations={conversations} activeChat={activeConversation} setActiveChat={(conversation) => setActiveConversation(conversation)} getConversationName={getConversationName} />
+                    {
+                        activeConversation ?
+                            <div className='w-[80%] bg-gray-700 h-screen flex flex-col'>
+                                <ChatHeader name={getConversationName(activeConversation) || ""} profilePicture={activeConversation.participants[1].profilePicture || profile_picture} />
+                                <ChatContent onMessage={newMessage} messages={messages} />
+                            </div>
+                            :
+                            <div className='w-[80%] bg-gray-700 h-screen flex flex-col items-center justify-center text-white font-semibold text-2xl'>
+                                Select a conversation to start chatting
+                            </div>
+                    }
+                </div>
+                :
+                <div className='w-[100%] h-screen bg-gray-700 flex flex-row text-white justify-center items-center font-bold'>
+                    <span>Create a new conversation to start chatting</span>
                 </div>
             }
-        </div>
+        </>
     )
 }
 

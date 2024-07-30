@@ -4,8 +4,6 @@ import { ObjectId } from 'mongodb';
 
 export class ConversationService {
     static async getAllConversations(userId: ObjectId): Promise<IConversation[]> {
-        console.log('Fetching conversations for user:', userId);
-
         try {
             const conversations = await Conversation.find({
                 participants: { $in: [userId] }
@@ -31,9 +29,24 @@ export class ConversationService {
         }
     }
 
-    static async getMessages(conversationId: string): Promise<IMessage[]> {
-        console.log('Fetching messages for conversation:', conversationId);
+    static async createConversation(participants: ObjectId[]): Promise<IConversation> {
+        try {
+            const conversation = new Conversation({
+            participants
+            });
     
+            await conversation.save();
+            return conversation.populate({
+                path: 'participants',
+                select: '_id name profilePicture'
+            });
+        } catch (error) {
+            console.error('Error creating conversation:', error);
+            throw error;
+        }
+    }
+
+    static async getMessages(conversationId: string): Promise<IMessage[]> {
         try {
             const messages = await Message.find({
                 conversation: conversationId
@@ -44,8 +57,6 @@ export class ConversationService {
             })
             .sort({ createdAt: -1 }) // Sort by creation date in descending order
             .exec();
-
-            console.log('Fetched messages:', messages);
     
             return messages;
     
@@ -56,10 +67,7 @@ export class ConversationService {
     }
 
     static async createMessage(conversationId: string, senderId: string, content: string): Promise<IMessage | null> {
-        console.log('Creating message:', content);
-
         try {
-            console.log(conversationId, senderId, content);
             const message = new Message({
                 conversation: conversationId,
                 sender: senderId,
@@ -67,17 +75,13 @@ export class ConversationService {
             });
 
             await message.save();
-            console.log('Message created:', message);
 
-            // Fetch the message to ensure it's saved properly
             const savedMessage = await Message.findById(message._id)
                 .populate({
                     path: 'sender',
                     select: '_id username name profilePicture'
                 })
                 .exec();
-
-            console.log('Saved message:', savedMessage);
 
             return savedMessage;
 
@@ -88,8 +92,6 @@ export class ConversationService {
     }
 
     static async getParticipants(conversationId: ObjectId): Promise<ObjectId[]> {
-        console.log('Fetching participants for conversation:', conversationId);
-    
         try {
             const conversation = await Conversation.findById(conversationId)
                 .populate({

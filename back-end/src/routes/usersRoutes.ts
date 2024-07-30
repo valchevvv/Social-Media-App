@@ -10,6 +10,7 @@ router.get('/login', UserController.loginUser);
 router.get('/people-you-know', verifyToken, UserController.getPeopleYouKnow);
 router.get('/followers', verifyToken, UserController.getFollowers);
 router.get('/following', verifyToken, UserController.getFollowing);
+router.get('/contacts', verifyToken, UserController.getContacts);
 // router.post('/follow', verifyToken, UserController.followUser);
 router.get('/:username', verifyToken, UserController.getUser);
 

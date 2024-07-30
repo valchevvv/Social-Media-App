@@ -49,8 +49,7 @@ const UserInfo = (userData: UserInfoProps) => {
     updateFollows();
   }, []);
 
-  const handleUnfollowCallback = (data: unknown) => {
-    console.log("update")
+  const handleUnfollowCallback = () => {
     updateFollows();
   }
 

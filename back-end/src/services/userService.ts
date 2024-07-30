@@ -85,6 +85,38 @@ export class UserService {
         }
     }
 
+    static async getContacts(userId: ObjectId): Promise<IUserSimpleInfo[]> {
+        try {
+            const user = await User.findById(userId).exec();
+    
+            if (!user) {
+                throw new Error('User not found');
+            }
+    
+            const following = user.following;
+            const followers = user.followers;
+    
+            // Find mutual followers
+            const mutualContacts = following.filter((value) => followers.includes(value));
+    
+            // Fetch details of mutual contacts
+            const contactsUsers = await User.find({ _id: { $in: mutualContacts } }).exec();
+    
+            // Map to IUserSimpleInfo
+            const contactsInfo: IUserSimpleInfo[] = contactsUsers.map(user => ({
+                _id: user._id as ObjectId,
+                profilePicture: user.profilePicture,
+                username: user.username,
+                name: user.name,
+            }));
+    
+            return contactsInfo;
+        } catch (error) {
+            console.error('Error fetching contacts:', { error, userId });
+            throw error;
+        }
+    }
+
     static async loginUser(username: string, password: string): Promise<IUser | null> {
         try {
             // console.log('Attempting to log in user:', { username });
