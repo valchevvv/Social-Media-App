@@ -128,18 +128,32 @@ const ChatPage = () => {
             {
                 (conversations && conversations.length > 0) ?
                 <div className='w-[100%] h-screen bg-gray-700 flex flex-row'>
-                    <ChatWrapper conversations={conversations} activeChat={activeConversation} setActiveChat={(conversation) => setActiveConversation(conversation)} getConversationName={getConversationName} />
-                    {
-                        activeConversation ?
-                            <div className='w-[80%] bg-gray-700 h-screen flex flex-col'>
-                                <ChatHeader name={getConversationName(activeConversation) || ""} profilePicture={activeConversation.participants[1].profilePicture || profile_picture} />
+                    <div className='hidden laptop:flex flex-row w-[100%]'>
+                        <ChatWrapper conversations={conversations} activeChat={activeConversation} setActiveChat={(conversation) => setActiveConversation(conversation)} getConversationName={getConversationName} />
+                        {
+                            activeConversation ?
+                                <div className='w-[80%] bg-gray-700 h-screen flex flex-col'>
+                                    <ChatHeader name={getConversationName(activeConversation) || ""} profilePicture={activeConversation.participants[1].profilePicture || profile_picture} />
+                                    <ChatContent onMessage={newMessage} messages={messages} />
+                                </div>
+                                :
+                                <div className='w-[80%] bg-gray-700 h-screen flex flex-col items-center justify-center text-white font-semibold text-2xl'>
+                                    Select a conversation to start chatting
+                                </div>
+                        }
+                    </div>
+                    <div className='laptop:hidden w-[100%]'>
+                        {
+                            activeConversation ? 
+                            <div className='w-[100%] bg-gray-700 h-screen flex flex-col'>
+                                <ChatHeader name={getConversationName(activeConversation) || ""} onBackClick={() => setActiveConversation(null)} profilePicture={activeConversation.participants[1].profilePicture || profile_picture} />
                                 <ChatContent onMessage={newMessage} messages={messages} />
                             </div>
                             :
-                            <div className='w-[80%] bg-gray-700 h-screen flex flex-col items-center justify-center text-white font-semibold text-2xl'>
-                                Select a conversation to start chatting
-                            </div>
-                    }
+                            <ChatWrapper conversations={conversations} activeChat={activeConversation} setActiveChat={(conversation) => setActiveConversation(conversation)} getConversationName={getConversationName} />
+                        }
+                        
+                    </div>
                 </div>
                 :
                 <div className='w-[100%] h-screen bg-gray-700 flex flex-row text-white justify-center items-center font-bold'>
