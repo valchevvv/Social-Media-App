@@ -40,9 +40,12 @@ const UserInfo = (userData: UserInfoProps) => {
   const [following, setFollowing] = useState<IUserSimpleInfo[]>([]);
 
   const updateFollows = async () => {
-    get(`/users/followers`)
+    get(`/users/followers/${userData.username}`)
       .then((res) => setFollowers(res))
-      .then(() => get(`/users/following`).then((res) => setFollowing(res)))
+      .then(() => get(`/users/following/${userData.username}`).then((res) => setFollowing(res)))
+
+    userData.stats.followers = followers.length;
+    userData.stats.following = following.length;
   }
 
   useEffect(() => {
@@ -64,7 +67,7 @@ const UserInfo = (userData: UserInfoProps) => {
   }, [socket, user?._id]);
 
   const onUnfollow = (id: string, type: string) => {
-    if (!socket || !user) return;
+    if (!socket || !user || !userData.self) return;
     socket.emit('unfollow_b', {
       userId: user._id,
       followId: id,
@@ -123,12 +126,12 @@ const UserInfo = (userData: UserInfoProps) => {
                   title: 'Followers',
                   size: 'small',
                   content: <div className='flex flex-col gap-2'>{
-                    followers.map((follower) => <FollowerCard key={follower._id} data={follower} follower={true} onUnfollow={() => onUnfollow(follower._id, 'remove')} />)
+                    followers.map((follower) => <FollowerCard key={follower._id} permission={userData.self} data={follower} follower={true} onUnfollow={() => onUnfollow(follower._id, 'remove')} />)
                   }</div>,
                   isRequired: false
                 });
               }}>
-                <span className="font-semibold">{followers.length || userData.stats.followers}</span> followers
+                <span className="font-semibold">{userData.stats.followers}</span> followers
               </span>
               <span className="hover:underline cursor-pointer" onClick={() => {
                 if(following.length === 0) return;
@@ -136,12 +139,12 @@ const UserInfo = (userData: UserInfoProps) => {
                   title: 'Following',
                   size: 'small',
                   content: <div className='flex flex-col gap-2 max-h-96 overflow-y-auto p-2'>{
-                    following.map((follower) => <FollowerCard key={follower._id} data={follower} follower={false} onUnfollow={() => onUnfollow(follower._id, 'unfollow')} />)
+                    following.map((follower) => <FollowerCard key={follower._id} permission={userData.self} data={follower} follower={false} onUnfollow={() => onUnfollow(follower._id, 'unfollow')} />)
                   }</div>,
                   isRequired: false
                 });
               }}>
-                <span className="font-semibold">{following.length || userData.stats.following}</span> following
+                <span className="font-semibold">{userData.stats.following}</span> following
               </span>
             </div>
             <div>

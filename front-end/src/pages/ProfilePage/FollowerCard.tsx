@@ -3,9 +3,10 @@ import { IUserSimpleInfo } from './UserInfo'
 import profile_picture from '../../assets/profile_picture.png'
 
 
-const FollowerCard = ({ data, follower, onUnfollow }: {
+const FollowerCard = ({ data, follower, permission, onUnfollow }: {
     data: IUserSimpleInfo,
     follower: boolean,
+    permission: boolean,
     onUnfollow: () => void
 }) => {
     const [isUnfollow, setIsUnfollow] = useState(false);
@@ -24,7 +25,7 @@ const FollowerCard = ({ data, follower, onUnfollow }: {
                 </div>
             </div>
             {
-                !isUnfollow && 
+                (!isUnfollow && permission) && 
                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold p-2 rounded-lg text-sm" onClick={() => {
                     setIsUnfollow(true);
                     onUnfollow();

@@ -209,6 +209,7 @@ export class UserService {
 
     static async getFollowers(username: string): Promise<IUserSimpleInfo[]> {
         try {
+            console.log(username)
             const user = await User.findOne({ username: username })
                 .populate({
                     path: 'followers',
