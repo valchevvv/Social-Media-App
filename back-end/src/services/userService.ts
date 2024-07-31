@@ -207,9 +207,9 @@ export class UserService {
     }
 
 
-    static async getFollowers(userId: ObjectId): Promise<IUserSimpleInfo[]> {
+    static async getFollowers(username: string): Promise<IUserSimpleInfo[]> {
         try {
-            const user = await User.findById(userId)
+            const user = await User.findOne({ username: username })
                 .populate({
                     path: 'followers',
                     select: 'username _id profilePicture name'
@@ -229,14 +229,14 @@ export class UserService {
     
             return followers;
         } catch (error) {
-            console.error('Error fetching followers:', { error, userId });
+            console.error('Error fetching followers:', { error, username });
             throw error;
         }
     }
 
-    static async getFollowing(userId: ObjectId): Promise<IUserSimpleInfo[]> {
+    static async getFollowing(username: string): Promise<IUserSimpleInfo[]> {
         try {
-            const user = await User.findById(userId)
+            const user = await User.findOne({ username: username })
                 .populate({
                     path: 'following',
                     select: 'username _id profilePicture name'
@@ -256,7 +256,7 @@ export class UserService {
     
             return following;
         } catch (error) {
-            console.error('Error fetching following users:', { error, userId });
+            console.error('Error fetching following users:', { error, username });
             throw error;
         }
     }

@@ -64,7 +64,9 @@ export class UserController {
     static async getFollowers(req: Request, res: Response) {
         try {
             if(!req.user) throw new Error('Unauthorized');
-            const users = await UserService.getFollowers(req.user._id);
+            const username = req.body.username;
+            if(!username) throw new Error('Missing required fields');
+            const users = await UserService.getFollowers(username);
             res.status(200).json(users);
         } catch (error) {
             res.status(401).json({ error: error instanceof Error ? error.message : error });
@@ -74,7 +76,9 @@ export class UserController {
     static async getFollowing(req: Request, res: Response) {
         try {
             if(!req.user) throw new Error('Unauthorized');
-            const users = await UserService.getFollowing(req.user._id);
+            const username = req.body.username;
+            if(!username) throw new Error('Missing required fields');
+            const users = await UserService.getFollowing(username);
             res.status(200).json(users);
         } catch (error) {
             res.status(401).json({ error: error instanceof Error ? error.message : error });

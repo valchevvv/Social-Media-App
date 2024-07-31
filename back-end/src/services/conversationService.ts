@@ -91,7 +91,7 @@ export class ConversationService {
             })
             .populate({
                 path: 'sender',
-                select: '_id name profilePicture'
+                select: '_id name profilePicture username'
             })
             .sort({ date: -1 })
             .exec();

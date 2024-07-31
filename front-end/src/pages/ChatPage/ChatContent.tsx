@@ -3,6 +3,7 @@ import { VscSend } from 'react-icons/vsc';
 import { AuthContext } from '../../contexts/AuthContext';
 import profile_picture from '../../assets/profile_picture.png'
 import { formatDate } from '../../helper/functions';
+import { Link } from 'react-router-dom';
 
 export interface IMessage {
     _id: string;
@@ -47,12 +48,16 @@ const ChatContent = ({ messages, onMessage }: {
                 {
                     messages.map((message, index) => {
                         const isLastFromUser = index === messages.length - 1 || messages[index + 1].sender._id !== message.sender._id;
+                        console.log(message.sender)
                         return (
                             <div key={index} className={`flex flex-row gap-2 ${isMine(message) ? "justify-end" : "justify-start"}`}>
                                 <div className={`flex flex-col w-fit max-w-[50%] p-2 rounded-lg`}>
                                     <div className='flex flex-row items-end gap-2'>
                                         {
-                                            !isMine(message) && <img src={message.sender.profilePicture || profile_picture} alt="" className='h-6 rounded-full' />
+                                            !isMine(message) && 
+                                            <Link to={`/profile/${message.sender.username}`}>
+                                                <img src={message.sender.profilePicture || profile_picture} alt="" className='h-6 rounded-full' />
+                                            </Link>
                                         }
                                         <span className={`font-semibold text-white p-2 rounded-lg ${(isMine(message) ? "bg-gray-500" : "bg-blue-500")}`}>{message.content}</span>
                                     </div>

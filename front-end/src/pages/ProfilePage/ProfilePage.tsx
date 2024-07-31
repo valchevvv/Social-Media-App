@@ -9,6 +9,7 @@ import { Post } from '../../helper/interfaces';
 import { SocketIoHelper, getSocketIoHelperInstance } from '../../helper/socketIoHelper';
 
 import profile_picture from '../../assets/profile_picture.png';
+import { useSocketIoHelper } from '../../hooks/useSocket';
 
 
 
@@ -47,17 +48,7 @@ const ProfilePage = () => {
   const { startLoading, stopLoading } = useLoadingSpinner();
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const { user } = useContext(AuthContext);
-
-  const [socketIoHelper, setSocketIoHelper] = useState<SocketIoHelper | null>(null);
-
-  useEffect(() => {
-    if (!user?._id) {
-      setSocketIoHelper(null);
-    } else {
-      const socketHelper = getSocketIoHelperInstance();
-      setSocketIoHelper(socketHelper);
-    }
-  }, [user?._id]);
+  const { socket } = useSocketIoHelper();
 
   useEffect(() => {
     startLoading();
@@ -106,23 +97,29 @@ const ProfilePage = () => {
         updatedUserInfo.stats.followers += data.followStatus === 'followed' ? 1 : -1;
       }
 
+      console.log(updatedUserInfo);
+
       setUserInfo(updatedUserInfo);
     }
   };
 
   useEffect(() => {
-    if (!user || !userInfo || !socketIoHelper) return;
+    if (!user || !userInfo || !socket) return;
 
-    socketIoHelper.on('followed_f', handleFollowed);
+    socket.on('followed_f', handleFollowed);
 
     return () => {
-      socketIoHelper.off('followed_f', handleFollowed);
+      socket.off('followed_f', handleFollowed);
     };
-  }, [socketIoHelper, user, userInfo]);
+  }, [socket, user, userInfo]);
 
   const handleFollowClick = () => {
-    if (!user || !userInfo || location.pathname === '/profile/me' || !socketIoHelper) return;
-    socketIoHelper.follow(userInfo._id); // Emit follow event using SocketIoHelper
+    if (!user || !userInfo || location.pathname === '/profile/me' || !socket) return;
+    socket.emit('follow_b', {
+      userId: user._id,
+      followId: userInfo._id
+    })  
+    
     setFollowing(!following); // Update following state locally
   };
 

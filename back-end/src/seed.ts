@@ -17,10 +17,10 @@ const seedDatabase = async () => {
             Notification.deleteMany({}),
             Conversation.deleteMany({})
         ]);
-
+        
         // Create dummy users
         const usersData: Partial<IUser>[] = [];
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 5; i++) {
             if(i === 0) {
                 usersData.push({
                     username: `valchevvv`,
