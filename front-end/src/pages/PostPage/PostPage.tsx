@@ -39,8 +39,8 @@ const PostPage = () => {
 
                 reader.onload = (event) => {
                     if (!event.target) return;
-                    const content = event.target.result; // This is an ArrayBuffer
-                    const arrayBufferToBase64 = (arrayBuffer) => {
+                    const content = event.target.result as ArrayBuffer; // Type assertion to ensure content is of type ArrayBuffer
+                    const arrayBufferToBase64 = (arrayBuffer: ArrayBuffer) => {
                         const binary = [];
                         const bytes = new Uint8Array(arrayBuffer);
                         for (let i = 0; i < bytes.byteLength; i++) {

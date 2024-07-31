@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { IConversation, ISimpleUser } from './ChatPage';
 import { get } from '../../helper/axiosHelper';
 

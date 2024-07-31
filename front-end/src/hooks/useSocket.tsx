@@ -79,6 +79,7 @@ export const useSocketIoHelper = (): {
                 });
 
                 helper.on('unauthorized', (message: string) => {
+                    console.error('Authorization failed:', message);
                     notifyError('Authorization failed. Please log in again.');
                 });
 

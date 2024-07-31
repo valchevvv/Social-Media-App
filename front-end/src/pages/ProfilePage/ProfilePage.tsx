@@ -6,8 +6,6 @@ import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
 import { get } from '../../helper/axiosHelper';
 import { AuthContext } from '../../contexts/AuthContext';
 import { Post } from '../../helper/interfaces';
-import { SocketIoHelper, getSocketIoHelperInstance } from '../../helper/socketIoHelper';
-
 import profile_picture from '../../assets/profile_picture.png';
 import { useSocketIoHelper } from '../../hooks/useSocket';
 

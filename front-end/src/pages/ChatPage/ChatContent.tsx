@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useRef } from 'react'
+import { useContext, useState, useEffect, useRef } from 'react'
 import { VscSend } from 'react-icons/vsc';
 import { AuthContext } from '../../contexts/AuthContext';
 import profile_picture from '../../assets/profile_picture.png'

@@ -56,7 +56,7 @@ const AuthPage = () => {
       navigate('/');
     } catch (error) {
       stopLoading();
-      notifyError(error.message);
+      notifyError((error as Error).message);
     }
   };
 
