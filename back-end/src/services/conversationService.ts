@@ -93,8 +93,9 @@ export class ConversationService {
                 path: 'sender',
                 select: '_id name profilePicture username'
             })
-            .sort({ date: -1 })
             .exec();
+
+            console.log(messages)
 
             return messages;
         } catch (error) {

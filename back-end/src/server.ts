@@ -20,7 +20,7 @@ const io = new Server(server, {
     },
 });
 
-const socketIoWorker = SocketIoWorker.getInstance();
+const socketIoWorker = SocketIoWorker.getInstance(io);
 socketIoWorker.setupConnection(server, io); // Pass server and io instance to setup connection
 
 connectDB();
