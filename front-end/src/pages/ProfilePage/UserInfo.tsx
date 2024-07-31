@@ -8,6 +8,8 @@ import { get } from "../../helper/axiosHelper";
 import FollowerCard from "./FollowerCard";
 import { useSocketIoHelper } from "../../hooks/useSocket";
 import { AuthContext } from "../../contexts/AuthContext";
+import { MdLogout } from "react-icons/md";
+
 
 interface UserInfoProps {
   username: string;
@@ -33,7 +35,7 @@ const UserInfo = (userData: UserInfoProps) => {
   const { showModal } = useModal();
 
   const { socket } = useSocketIoHelper();
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
 
 
   const [followers, setFollowers] = useState<IUserSimpleInfo[]>([]);
@@ -116,12 +118,22 @@ const UserInfo = (userData: UserInfoProps) => {
                   }
                 </button>
             }
+            {
+              userData.self &&
+              <button
+                onClick={logout}
+                className="px-4 py-1 bg-gray-800 text-white text-sm rounded-full hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-600 flex items-center gap-2"
+              >
+                <MdLogout />
+                Logout
+              </button>
+            }
           </div>
           <div className='flex laptop:flex-col mobile:flex-col-reverse justify-between mobile:items-center my-4 gap-4'>
             <div className="flex flex-row justify-between space-x-10">
               <span><span className="font-semibold">{userData.stats.posts}</span> posts</span>
               <span className="hover:underline cursor-pointer" onClick={() => {
-                if(followers.length === 0) return;
+                if (followers.length === 0) return;
                 showModal({
                   title: 'Followers',
                   size: 'small',
@@ -134,7 +146,7 @@ const UserInfo = (userData: UserInfoProps) => {
                 <span className="font-semibold">{userData.stats.followers}</span> followers
               </span>
               <span className="hover:underline cursor-pointer" onClick={() => {
-                if(following.length === 0) return;
+                if (following.length === 0) return;
                 showModal({
                   title: 'Following',
                   size: 'small',
