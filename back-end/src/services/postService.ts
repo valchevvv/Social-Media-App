@@ -95,18 +95,52 @@ export class PostService {
         if (limit > count) {
             limit = count;
         }
-        const random = Math.floor(Math.random() * count);
-        const posts = await Post.find()
-            //.skip(random)  // If you want to implement random selection, you can use aggregation with $sample
-            .limit(limit)
-            .populate({
-                path: 'author',
-                select: 'username profilePicture _id'
-            })
-            .select('content image likes createdAt')
-            .lean()
-            .exec();
 
+        const posts = await Post.aggregate([
+            {
+                $sample: { size: count }
+            },
+            {
+                $group: {
+                    _id: "$author",
+                    posts: { $push: "$$ROOT" }
+                }
+            },
+            {
+                $project: {
+                    post: { $arrayElemAt: ["$posts", 0] }
+                }
+            },
+            {
+                $replaceRoot: { newRoot: "$post" }
+            },
+            {
+                $limit: limit // Limit the number of posts
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'author',
+                    foreignField: '_id',
+                    as: 'author'
+                }
+            },
+            {
+                $unwind: "$author"
+            },
+            {
+                $project: {
+                    content: 1,
+                    image: 1,
+                    likes: 1,
+                    createdAt: 1,
+                    "author.username": 1,
+                    "author.profilePicture": 1,
+                    "author._id": 1
+                }
+            }
+        ]).exec();
+        
         const postsWithLikesCount: IPostWithLikesCount[] = await Promise.all(
             posts.map(async (post) => {
                 const commentsCount = await Comment.countDocuments({ post: post._id }).exec();
@@ -117,9 +151,10 @@ export class PostService {
                 };
             })
         );
-
+    
         return postsWithLikesCount;
     }
+    
     
     static async getPaginatedPosts(page: number, limit: number): Promise<IPostWithLikesCount[]> {
         const skip = (page - 1) * limit;
