@@ -53,15 +53,15 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const getModalSizeClass = (size: string | undefined) => {
     switch (size) {
       case 'small':
-        return 'w-1/4 max-w-sm';
+        return 'laptop:w-1/4 laptop:max-w-sm w-3/4 max-w-4xl';
       case 'medium':
-        return 'w-1/2 max-w-2xl';
+        return 'laptop:w-1/2 laptop:max-w-2xl w-11/12 max-w-5xl';
       case 'large':
-        return 'w-3/4 max-w-4xl';
+        return 'laptop:w-3/4 laptop:max-w-4xl w-full max-w-6xl';
       case 'xlarge':
-        return 'w-full max-w-6xl';
+        return 'laptop:w-full laptop:max-w-6xl w-full max-w-7xl';
       default:
-        return 'w-3/4 max-w-4xl';
+        return 'laptop:w-3/4 laptop:max-w-4xl';
     }
   };
 

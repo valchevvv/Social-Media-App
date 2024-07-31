@@ -50,7 +50,7 @@ const ChatPage = () => {
             if (res.length === 0) {
                 showModal({
                     title: "New Conversation",
-                    size: "small",
+                    size: "medium",
                     content: <NewConversationModal conversations={conversations} setActiveConversation={updateConversation} />,
                 })
             }
