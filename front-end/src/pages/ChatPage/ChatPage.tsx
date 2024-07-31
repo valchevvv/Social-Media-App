@@ -40,15 +40,18 @@ const ChatPage = () => {
     const [messages, setMessages] = useState<IMessage[]>([]);
     const [conversations, setConversations] = useState<IConversation[]>([]);
 
+    const updateConversation = (conversation: IConversation) => setActiveConversation(conversation);
+
     useEffect(() => {
         startLoading();
         get("/conversations").then((res) => {
             setConversations(res)
+            const conversations: IConversation[] = res;
             if (res.length === 0) {
                 showModal({
                     title: "New Conversation",
                     size: "small",
-                    content: <NewConversationModal />,
+                    content: <NewConversationModal conversations={conversations} setActiveConversation={updateConversation} />,
                 })
             }
         })

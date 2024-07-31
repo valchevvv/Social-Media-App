@@ -39,7 +39,7 @@ const ChatWrapper = ({ conversations, activeChat, setActiveChat, getConversation
                     showModal({
                         title: "New Conversation",
                         size: "small",
-                        content: <NewConversationModal />,
+                        content: <NewConversationModal conversations={conversations} setActiveConversation={setActiveChat} />,
                     })
                 }} />
             </div>
