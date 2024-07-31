@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { SocketIoHelper, getSocketIoHelperInstance } from '../helper/socketIoHelper';
-import { notifyInfo } from '../helper/notificationHelper';
+import { notifyError, notifyInfo } from '../helper/notificationHelper';
 
 export const useSocketIoHelper = (): {
     socket: SocketIoHelper | null;
@@ -70,16 +70,16 @@ export const useSocketIoHelper = (): {
                 });
 
                 // Event listeners
-                helper.on('notification', (data) => {
-                    console.log('notification received:', data);
+                helper.on('notification_f', (data) => {
+                    notifyInfo(data.message);
                 });
 
                 helper.on('authorized', () => {
-                    console.log('Authorization successful');
+                    
                 });
 
                 helper.on('unauthorized', (message: string) => {
-                    console.log('Authorization failed:', message);
+                    notifyError('Authorization failed. Please log in again.');
                 });
 
                 helper.on('followed_f', (data: { sender: string; receiver: string; followStatus: string; notifyDetails: { follow: boolean; followed: boolean; sender: { id: string; username: string }; receiver: { id: string; username: string } } }) => {

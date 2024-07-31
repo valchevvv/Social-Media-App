@@ -95,8 +95,6 @@ export class ConversationService {
             })
             .exec();
 
-            console.log(messages)
-
             return messages;
         } catch (error) {
             console.error('Error fetching messages:', error);
