@@ -7,34 +7,31 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'robots.txt', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.svg', 'robots.txt', 'assets/pwa-192x192.png', 'assets/pwa-512x512.png'],
       manifest: {
-        name: 'Social Media App',
-        short_name: 'SocialApp',
-        description: 'A social media application',
-        theme_color: '#ffffff',
+        name: 'DMedia',
+        short_name: 'DMedia',
+        description: 'Social media APP',
+        theme_color: '#1f2937',
         icons: [
           {
-            src: 'pwa-192x192.png',
+            src: 'assets/pwa-192x192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          },
-          {
-            src: 'pwa-512x512.png',
+            src: 'assets/pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
-          }
-        ]
-      }
-    })
+          },
+          {
+            src: 'assets/pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable',
+          },
+        ],
+      },
+    }),
   ],
-  server: {
-    port: import.meta.env.VITE_PORT || 80
-  }
 });
