@@ -84,6 +84,7 @@ const ChatPage = () => {
             }
             return [...conversations, newConversation];
         });
+        setActiveConversation(newConversation);
     }
 
     useEffect(() => {

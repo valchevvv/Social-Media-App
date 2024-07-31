@@ -26,31 +26,27 @@ const NewConversationModal = ({conversations, setActiveConversation}: INewConver
         });
     }, [])
 
-
     const hasConversationWith = (contact: ISimpleUser) => {
         const userId = user?._id;
         const contactId = contact._id;
 
-        if(!userId || !contactId || !conversations) return false;
+        if (!userId || !contactId || !conversations) return false;
 
-        console.log(conversations)
-
-        const conversation = conversations.find((conversation) => {
-            return conversation.participants.some((participant) => {
-                return participant._id === userId || participant._id === contactId;
-            })
-        });
-
-        return conversation;
+        return conversations.find(conversation => 
+            conversation.participants.some(participant => participant._id === userId) &&
+            conversation.participants.some(participant => participant._id === contactId)
+        );
     }
 
     const startNewConversation = (contact: ISimpleUser) => {
-        if(!user || !contact || !socket || !conversations) return;
-        const hasConversation = hasConversationWith(contact);
-        console.log(hasConversation);
+        if (!user || !contact || !socket || !conversations) return;
+        const existingConversation = hasConversationWith(contact);
+        console.log("Has conversation:", existingConversation);
+        console.log("Conversations:", conversations);
+        console.log("Contact:", contact);
         hideAllModals();
-        if(hasConversation) {
-            setActiveConversation(hasConversation);
+        if (existingConversation) {
+            setActiveConversation(existingConversation);
             return;
         }
         socket.emit('new_conversation_b', {
@@ -60,10 +56,10 @@ const NewConversationModal = ({conversations, setActiveConversation}: INewConver
     }
 
     return (
-        <div className='flex flex-col max-h-96 overflow-y-auto'>
+        <div className='flex flex-col gap-3 max-h-96 overflow-y-auto'>
         {
             contacts.map((contact) => (
-                <div key={contact._id} className='flex flex-row justify-between items-center'>
+                <div key={contact._id} className='flex flex-row justify-between items-center bg-gray-50 shadow p-2 rounded-lg'>
                     <div className='flex flex-row gap-3 items-center'>
                         <img src={contact.profilePicture || profile_picture} alt="" className='h-12 aspect-square rounded-full' />
                         <span className='font-semibold'>{contact.name}</span>
