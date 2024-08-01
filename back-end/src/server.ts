@@ -26,7 +26,7 @@ socketIoWorker.setupConnection(server, io); // Pass server and io instance to se
 connectDB();
 
 const corsOptions = {
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(' ') : '*',
     optionsSuccessStatus: 200
 };
 
