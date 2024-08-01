@@ -17,9 +17,15 @@ axiosInstance.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
-const get = async (url: string, params = {}) => {
+const get = async (url: string, params: Record<string, any> = {}) => {
   try {
-    const response = await axiosInstance.get(url, { params });
+    // Encode each parameter
+    const encodedParams = Object.keys(params).reduce((acc, key) => {
+      acc[key] = encodeURIComponent(params[key]);
+      return acc;
+    }, {} as Record<string, string>);
+
+    const response = await axiosInstance.get(url, { params: encodedParams });
     return response.data;
   } catch (error: unknown) {
     if (error instanceof Error && axios.isAxiosError(error)) {

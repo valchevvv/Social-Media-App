@@ -32,6 +32,14 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+app.use((req, res, next) => {
+    req.query = Object.keys(req.query).reduce((acc, key) => {
+        acc[key] = decodeURIComponent(req.query[key] as string);
+        return acc;
+    }, {} as Record<string, string>);
+    next();
+});
+
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
