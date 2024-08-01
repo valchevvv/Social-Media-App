@@ -1,4 +1,3 @@
-import React from 'react'
 import { IMessage } from './ChatContent';
 import profile_picture from '../../assets/profile_picture.png'
 import { formatDate } from '../../helper/functions';

@@ -1,4 +1,3 @@
-import React from 'react'
 import { VscSend } from 'react-icons/vsc';
 
 const ChatFooter = ({
