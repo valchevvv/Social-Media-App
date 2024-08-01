@@ -25,7 +25,12 @@ socketIoWorker.setupConnection(server, io); // Pass server and io instance to se
 
 connectDB();
 
-app.use(cors());
+const corsOptions = {
+    origin: process.env.CORS_ORIGIN || '*',
+    optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
