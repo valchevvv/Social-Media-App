@@ -73,7 +73,7 @@ const AuthPage = () => {
               <h1 className="lg:text-2xl lg:inline flex justify-center  text-4xl  font-semibold">{isLogin ? "Login" : "Register"}</h1>
             </div>
             <div className="divide-y divide-gray-200">
-              <form onSubmit={handleSubmit} className="px-10 laptop:px-0 py-8 text-base leading-6 space-y-4 text-gray-700 laptop:text-lg laptop:leading-7">
+              <form onSubmit={handleSubmit} className="px-10 laptop:px-0 py-8 text-base leading-6 space-y-5 text-gray-700 laptop:text-lg laptop:leading-7">
                 <TextInput name="username" value={username} onChange={(e) => setUsername(e.target.value)} placeHolder="Username" />
                 {
                   !isLogin &&
