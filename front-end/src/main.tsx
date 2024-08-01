@@ -9,9 +9,16 @@ import { ModalProvider } from './contexts/ModalContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { registerSW } from 'virtual:pwa-register';
 
-registerSW({
-  onNeedRefresh() {},
-  onOfflineReady() {},
+const updateSW = registerSW({
+  onNeedRefresh() {
+    const userConfirmed = window.confirm('New content is available, click OK to refresh.');
+    if (userConfirmed) {
+      updateSW(true);
+    }
+  },
+  onOfflineReady() {
+    console.log('The app is ready to work offline.');
+  },
 });
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
