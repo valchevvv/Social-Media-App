@@ -143,7 +143,7 @@ const UserInfo = (userData: UserInfoProps) => {
                   isRequired: false
                 });
               }}>
-                <span className="font-semibold">{userData.stats.followers}</span> followers
+                <span className="font-semibold">{followers.length}</span> followers
               </span>
               <span className="hover:underline cursor-pointer" onClick={() => {
                 if (following.length === 0) return;
@@ -156,7 +156,7 @@ const UserInfo = (userData: UserInfoProps) => {
                   isRequired: false
                 });
               }}>
-                <span className="font-semibold">{userData.stats.following}</span> following
+                <span className="font-semibold">{following.length}</span> following
               </span>
             </div>
             <div>
