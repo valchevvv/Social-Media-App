@@ -47,33 +47,31 @@ const ChatWrapper = ({ conversations, activeChat, setActiveChat, getConversation
                 }} />
             </div>
             
-            <div className='laptop:hidden h-[7%] w-full bg-gray-700 text-white shadow-2xl flex flex-row items-center h-[100%]'>
-                <div className='laptop:hidden h-full aspect-square flex items-center justify-center' onClick={() => navigate("/")} >
-                    <IoMdArrowBack size={24} />
-                </div>
-                <div className='flex flex-row justify-between items-center w-full pr-5'>
-                    <span className='font-semibold text-lg'>{user?.username.toLocaleUpperCase() || "Messages"}</span>
-                    <BsPencilSquare size={24} onClick={() => {
-                        showModal({
-                            title: "New Conversation",
-                            size: "small",
-                            content: <NewConversationModal conversations={conversations} setActiveConversation={setActiveChat} />,
-                        })
-                    }} />
-                </div>
+            <div className="bg-gray-800 z-50 shadow laptop:hidden fixed top-5 left-[50%] p-2 translate-x-[-50%] w-[90%] h-[60px] text-white flex flex-row justify-between items-center p-5 rounded-full backdrop-blur bg-opacity-60">
+                
+                <IoMdArrowBack size={24} onClick={() => navigate("/")} />
+                <span className='font-semibold text-lg'>{user?.username.toLocaleUpperCase() || "Messages"}</span>
+                <BsPencilSquare size={24} className='mr-1' onClick={() => {
+                    showModal({
+                        title: "New Conversation",
+                        size: "small",
+                        content: <NewConversationModal conversations={conversations} setActiveConversation={setActiveChat} />,
+                    })
+                }} />
             </div>
-
-            {
-                conversations.map((conversation, index) => {
-                    return <div key={index} className={`w-full h-20 ${(activeChat?._id === conversation._id ? " bg-gray-700" : "bg-gray-600")} hover:bg-gray-700 cursor-pointer flex flex-row gap-3 items-center p-5 laptop:p-2`} onClick={() => setActiveChat(conversation)}>
-                        <img src={conversation.participants[1].profilePicture || profile_picture} alt={"username"} className='h-12 aspect-square rounded-full' />
-                        <div className='flex flex-col'>
-                            <span className='font-semibold text-white'>{getConversationName(conversation)}</span>
-                            <span className='font-semibold text-sm text-gray-300'>{getLastAction(conversation)}</span>
+            <div className='pt-[20%] laptop:pt-0'>
+                {
+                    conversations.map((conversation, index) => {
+                        return <div key={index} className={`w-full h-20 ${(activeChat?._id === conversation._id ? " bg-gray-700" : "bg-gray-600")} hover:bg-gray-700 cursor-pointer flex flex-row gap-3 items-center p-5 laptop:p-2`} onClick={() => setActiveChat(conversation)}>
+                            <img src={conversation.participants[1].profilePicture || profile_picture} alt={"username"} className='h-12 aspect-square rounded-full' />
+                            <div className='flex flex-col'>
+                                <span className='font-semibold text-white'>{getConversationName(conversation)}</span>
+                                <span className='font-semibold text-sm text-gray-300'>{getLastAction(conversation)}</span>
+                            </div>
                         </div>
-                    </div>
-                })
-            }
+                    })
+                }
+            </div>
         </div>
     )
 }

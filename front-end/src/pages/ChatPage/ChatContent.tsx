@@ -1,9 +1,7 @@
 import { useContext, useState, useEffect, useRef } from 'react'
-import { VscSend } from 'react-icons/vsc';
 import { AuthContext } from '../../contexts/AuthContext';
-import profile_picture from '../../assets/profile_picture.png'
-import { formatDate } from '../../helper/functions';
-import { Link } from 'react-router-dom';
+import MessageComponent from './MessageComponent';
+import ChatFooter from './ChatFooter';
 
 export interface IMessage {
     _id: string;
@@ -44,51 +42,17 @@ const ChatContent = ({ messages, onMessage }: {
 
     return (
         <>
-            <div className='p-5 overflow-y-auto h-[93%]'>
+            <div className='p-5 overflow-y-auto h-[93%] mobile:mt-[15%] mobile:pb-[20%] tablet:mt-[15%] tablet:pb-[20%] laptop:mt-0 laptop:pb-0'>
                 {
                     messages.map((message, index) => {
                         const isLastFromUser = index === messages.length - 1 || messages[index + 1].sender._id !== message.sender._id;
                         console.log(message.sender)
-                        return (
-                            <div key={index} className={`flex flex-row gap-2 ${isMine(message) ? "justify-end" : "justify-start"}`}>
-                                <div className={`flex flex-col w-fit max-w-[50%] p-2 rounded-lg`}>
-                                    <div className='flex flex-row items-end gap-2'>
-                                        {
-                                            !isMine(message) && 
-                                            <Link to={`/profile/${message.sender.username}`}>
-                                                <img src={message.sender.profilePicture || profile_picture} alt="" className='h-6 rounded-full' />
-                                            </Link>
-                                        }
-                                        <span className={`font-semibold text-white p-2 rounded-lg ${(isMine(message) ? "bg-gray-500" : "bg-blue-500")}`}>{message.content}</span>
-                                    </div>
-                                    {
-                                        !isMine(message) && isLastFromUser && <span className='w-full flex justify-end pt-1 text-gray-300 font-semibold text-xs'>{formatDate(message.date.toString(), true)}</span>
-                                    }
-                                </div>
-                            </div>
-                        )
+                        return <MessageComponent key={message._id} message={message} isMine={isMine} isLastFromUser={isLastFromUser} />
                     })
                 }
                 <div ref={messagesEndRef} />
             </div>
-            <div className="bg-gray-700 border-t-2 border-white border-opacity-10 z-50 shadow-2xl w-full h-[60px] text-white flex flex-row justify-center">
-                <input 
-                    type="text" 
-                    className='w-full bg-transparent outline-none px-5 border-r-2' 
-                    placeholder='Enter message...' 
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            sendMessage();
-                        }
-                    }}
-                />
-                <button className='px-3' onClick={sendMessage}>
-                    <VscSend size={24} />
-                </button>
-            </div>
+            <ChatFooter message={message} setMessage={setMessage} sendMessage={sendMessage} />
         </>
     )
 }
