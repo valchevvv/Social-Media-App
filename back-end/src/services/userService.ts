@@ -360,4 +360,18 @@ export class UserService {
             throw error;
         }
     }
+
+
+    static async getUserById(userId: string) {
+        try {
+            const user = await User.findById(userId).exec();
+
+            if (!user) return null;
+            
+            return user;
+        } catch (error) {
+            console.error('Error getting user by id:', { error, userId });
+            throw error;
+        }
+    }
 }

@@ -211,13 +211,14 @@ export class SocketIoWorker {
         try {
             const result = await CommentService.createComment(new ObjectId(data.userId), new ObjectId(data.postId), data.content);
             if (debug) console.log(`User ${data.userId} commented on post ${data.postId}`);
+            const commentAuthor = await UserService.getUserById(result.comment.author._id.toString());
             const comment = {
                 _id: result.comment._id,
                 post: result.comment.post,
                 author: {
-                    id: result.comment.author.toString(),
-                    username: result.postAuthor.username,
-                    profilePicture: result.postAuthor.profilePicture,
+                    id: commentAuthor?._id,
+                    username: commentAuthor?.username,
+                    profilePicture: commentAuthor?.profilePicture,
                 },
                 content: result.comment.content,
                 createdAt: result.comment.createdAt,
@@ -226,8 +227,8 @@ export class SocketIoWorker {
             this.emitToUser(result!.postAuthor!._id!.toString(), 'commented_f', {
                 sender: {
                     id: data.userId,
-                    username: result.postAuthor.username,
-                    profilePicture: result.postAuthor.profilePicture,
+                    username: commentAuthor?.username,
+                    profilePicture: commentAuthor?.profilePicture,
                 },
             });
         } catch (error) {
