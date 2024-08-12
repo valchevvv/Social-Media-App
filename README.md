@@ -104,7 +104,7 @@ VITE_SOCKET_URL=http://your-ip:your-back-end-SOCKET-IO-PORT/
 </ul>
 
 <h2>License</h2>
-<p>This project is licensed under the MIT License - see the <a href="LICENSE">LICENSE</a> file for details.</p>
+<p>This project is licensed under the MIT License - see the <a href="LICENSE.md">LICENSE.md</a> file for details.</p>
 
 <h2>Contributing</h2>
 <p>Contributions are welcome! Please feel free to submit a Pull Request.</p>
