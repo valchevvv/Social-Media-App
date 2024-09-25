@@ -63,7 +63,7 @@ const PostPage = () => {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center h-screen tablet:w-96 mobile:w-[100%] gap-5 mobile:p-16">
+      <div className="flex flex-col items-center justify-center h-screen tablet:w-96 mobile:w-[100%] laptop:w-96 gap-5 mobile:p-16">
         <div className="w-[100%] flex flex-col items-center">
           <div className="mb-4 w-full">
             <img
