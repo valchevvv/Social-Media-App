@@ -1,15 +1,14 @@
 import { useContext, useEffect, useState } from 'react';
-import UserInfo from './UserInfo';
-import Posts from './Posts';
-import { useLocation } from 'react-router-dom';
+
+import profile_picture from '../../assets/profile_picture.png';
+import { AuthContext } from '../../contexts/AuthContext';
 import { useLoadingSpinner } from '../../contexts/LoadingSpinnerContext';
 import { get } from '../../helper/axiosHelper';
-import { AuthContext } from '../../contexts/AuthContext';
 import { Post } from '../../helper/interfaces';
-import profile_picture from '../../assets/profile_picture.png';
 import { useSocketIoHelper } from '../../hooks/useSocket';
-
-
+import Posts from './Posts';
+import UserInfo from './UserInfo';
+import { useLocation } from 'react-router-dom';
 
 interface FollowData {
   sender: string;
@@ -26,7 +25,7 @@ interface FollowData {
       id: string;
       username: string;
     };
-  }
+  };
 }
 
 interface UserInfo {
@@ -51,7 +50,7 @@ const ProfilePage = () => {
   useEffect(() => {
     startLoading();
     get(`users/${profileId}`)
-      .then((response) => {
+      .then(response => {
         if (!response) {
           console.error('Failed to fetch user info');
           return;
@@ -73,25 +72,23 @@ const ProfilePage = () => {
         setFollowing(response.followers.includes(user?._id));
         setFollowed(response.following.includes(user?._id));
       })
-      .catch((error) => console.log(error))
+      .catch(error => console.log(error))
       .finally(() => stopLoading());
   }, [profileId, user?._id]);
 
   const [following, setFollowing] = useState<boolean>(false);
   const [followed, setFollowed] = useState<boolean>(false);
 
-  
-
   const handleFollowed = (data: FollowData) => {
-    if(!user) return;
-    if(data.sender === user._id) setFollowing(data.followStatus === 'followed');
-    else if(data.receiver === user._id) setFollowed(data.followStatus === 'followed');
+    if (!user) return;
+    if (data.sender === user._id) setFollowing(data.followStatus === 'followed');
+    else if (data.receiver === user._id) setFollowed(data.followStatus === 'followed');
 
-    if(userInfo) {
-      const updatedUserInfo = {...userInfo};
-      if(data.sender === userInfo._id) {
+    if (userInfo) {
+      const updatedUserInfo = { ...userInfo };
+      if (data.sender === userInfo._id) {
         updatedUserInfo.stats.following += data.followStatus === 'followed' ? 1 : -1;
-      } else if(data.receiver === userInfo._id) {
+      } else if (data.receiver === userInfo._id) {
         updatedUserInfo.stats.followers += data.followStatus === 'followed' ? 1 : -1;
       }
 
@@ -115,9 +112,9 @@ const ProfilePage = () => {
     if (!user || !userInfo || location.pathname === '/profile/me' || !socket) return;
     socket.emit('follow_b', {
       userId: user._id,
-      followId: userInfo._id
-    })  
-    
+      followId: userInfo._id,
+    });
+
     setFollowing(!following); // Update following state locally
   };
 
@@ -126,7 +123,7 @@ const ProfilePage = () => {
       {userInfo && userInfo?.username && (
         <>
           <UserInfo
-            self={(profileId === user?.username || profileId === 'me')}
+            self={profileId === user?.username || profileId === 'me'}
             following={following}
             followed={followed}
             onFollow={handleFollowClick}

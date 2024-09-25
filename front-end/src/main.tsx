@@ -1,12 +1,13 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+
 import App from './App';
 import { AuthProvider } from './contexts/AuthContext';
-import './index.css';
-import { SidebarProvider } from './contexts/SidebarContext';
 import { LoadingSpinnerProvider } from './contexts/LoadingSpinnerContext';
 import { ModalProvider } from './contexts/ModalContext';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { SidebarProvider } from './contexts/SidebarContext';
+import './index.css';
+import ReactDOM from 'react-dom/client';
 import { registerSW } from 'virtual:pwa-register';
 
 const updateSW = registerSW({
@@ -23,11 +24,14 @@ const updateSW = registerSW({
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/service-worker.js').then((registration) => {
-          console.log('ServiceWorker registration successful with scope: ', registration.scope);
-      }, (error) => {
-          console.log('ServiceWorker registration failed: ', error);
-      });
+    navigator.serviceWorker.register('/service-worker.js').then(
+      registration => {
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      },
+      error => {
+        console.log('ServiceWorker registration failed: ', error);
+      },
+    );
   });
 }
 
@@ -44,5 +48,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         </NotificationProvider>
       </LoadingSpinnerProvider>
     </AuthProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { MdClose } from "react-icons/md";
+import React, { ReactNode, createContext, useContext, useEffect, useState } from 'react';
+
+import { MdClose } from 'react-icons/md';
 
 interface ModalProps {
   title?: string;
@@ -40,7 +41,7 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && modals.length > 0 && !modals[modals.length - 1].isRequired) {
-        setModals((prevModals) => prevModals.slice(0, -1));
+        setModals(prevModals => prevModals.slice(0, -1));
       }
     };
 
@@ -66,7 +67,10 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   };
 
   const closeModalOnClickOutside = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if ((event.target as Element).classList.contains('modal-overlay') && !modals[modals.length - 1]?.isRequired) {
+    if (
+      (event.target as Element).classList.contains('modal-overlay') &&
+      !modals[modals.length - 1]?.isRequired
+    ) {
       hideAllModals();
     }
   };
@@ -80,7 +84,9 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300 ease-in-out modal-overlay`}
           onClick={closeModalOnClickOutside}
         >
-          <div className={`bg-white ${modal.isImagePreview ? 'border-none p-0' : 'p-6'} rounded-xl shadow-lg transform transition-transform duration-300 ease-in-out scale-95 ${modal.fullscreen ? 'w-full h-full' : modal.isImagePreview ? '' : getModalSizeClass(modal.size)}`}>
+          <div
+            className={`bg-white ${modal.isImagePreview ? 'border-none p-0' : 'p-6'} rounded-xl shadow-lg transform transition-transform duration-300 ease-in-out scale-95 ${modal.fullscreen ? 'w-full h-full' : modal.isImagePreview ? '' : getModalSizeClass(modal.size)}`}
+          >
             {modal.isImagePreview ? (
               <div className="relative flex items-center justify-center w-full h-full rounded-xl">
                 <button
@@ -99,7 +105,9 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
               </div>
             ) : (
               <>
-                <div className={`flex justify-between items-center ${modal.isImagePreview ? 'bg-transparent' : 'border-b pb-2 mb-4'}`}>
+                <div
+                  className={`flex justify-between items-center ${modal.isImagePreview ? 'bg-transparent' : 'border-b pb-2 mb-4'}`}
+                >
                   {!modal.isImagePreview && <h2 className="text-xl font-bold">{modal.title}</h2>}
                   <button
                     onClick={() => setModals([])}

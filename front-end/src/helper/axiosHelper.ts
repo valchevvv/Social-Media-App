@@ -7,33 +7,41 @@ const axiosInstance = axios.create({
   },
 });
 
-axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('userToken');
-  if (token) {
-    config.headers.Authorization = token;
-  }
-  return config;
-}, (error) => {
-  return Promise.reject(error);
-});
+axiosInstance.interceptors.request.use(
+  config => {
+    const token = localStorage.getItem('userToken');
+    if (token) {
+      config.headers.Authorization = token;
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  },
+);
 
 const get = async (url: string, params: Record<string, any> = {}) => {
   try {
     // Encode each parameter
-    const encodedParams = Object.keys(params).reduce((acc, key) => {
-      acc[key] = encodeURIComponent(params[key]);
-      return acc;
-    }, {} as Record<string, string>);
+    const encodedParams = Object.keys(params).reduce(
+      (acc, key) => {
+        acc[key] = encodeURIComponent(params[key]);
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
 
     const response = await axiosInstance.get(url, { params: encodedParams });
     return response.data;
   } catch (error: unknown) {
     if (error instanceof Error && axios.isAxiosError(error)) {
-      if (!error.response) throw { message: 'Unable to connect to server. Please try again later.' };
-      if (error.response.data.error) throw {
-        message: error.response.data.error,
-        status: error.response.status
-      };
+      if (!error.response)
+        throw { message: 'Unable to connect to server. Please try again later.' };
+      if (error.response.data.error)
+        throw {
+          message: error.response.data.error,
+          status: error.response.status,
+        };
     } else {
       throw { message: 'An unexpected error occurred' };
     }
@@ -46,11 +54,13 @@ const post = async (url: string, data: object) => {
     return response.data;
   } catch (error: unknown) {
     if (error instanceof Error && axios.isAxiosError(error)) {
-      if (!error.response) throw { message: 'Unable to connect to server. Please try again later.' };
-      if (error.response.data.error) throw {
-        message: error.response.data.error,
-        status: error.response.status
-      };
+      if (!error.response)
+        throw { message: 'Unable to connect to server. Please try again later.' };
+      if (error.response.data.error)
+        throw {
+          message: error.response.data.error,
+          status: error.response.status,
+        };
     } else {
       throw { message: 'An unexpected error occurred' };
     }
@@ -63,11 +73,13 @@ const patch = async (url: string, data: object) => {
     return response.data;
   } catch (error: unknown) {
     if (error instanceof Error && axios.isAxiosError(error)) {
-      if (!error.response) throw { message: 'Unable to connect to server. Please try again later.' };
-      if (error.response.data.error) throw {
-        message: error.response.data.error,
-        status: error.response.status
-      };
+      if (!error.response)
+        throw { message: 'Unable to connect to server. Please try again later.' };
+      if (error.response.data.error)
+        throw {
+          message: error.response.data.error,
+          status: error.response.status,
+        };
     } else {
       throw { message: 'An unexpected error occurred' };
     }

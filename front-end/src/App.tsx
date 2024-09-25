@@ -1,20 +1,28 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useContext, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, useNavigate, useLocation, Navigate } from 'react-router-dom';
-import { AuthContext } from './contexts/AuthContext';
-import { useSocketIoHelper } from './hooks/useSocket';
-import { useLoadingSpinner } from './contexts/LoadingSpinnerContext';
-import Feed from './pages/Feed';
-import Auth from './pages/AuthPage';
-import Sidebar from './components/Sidebar';
-import Navigation from './components/Navigation';
-import PostPage from './pages/PostPage';
+
 import LoadingSpinner from './components/LoadingSpinner';
-import ProfilePage from './pages/ProfilePage';
-import NotFoundPage from './pages/NotFound';
-import PostPreview from './pages/ProfilePage/PostPreview';
-import ExplorePage from './pages/ExplorePage';
+import Navigation from './components/Navigation';
+import Sidebar from './components/Sidebar';
+import { AuthContext } from './contexts/AuthContext';
+import { useLoadingSpinner } from './contexts/LoadingSpinnerContext';
+import { useSocketIoHelper } from './hooks/useSocket';
+import Auth from './pages/AuthPage';
 import ChatPage from './pages/ChatPage';
+import ExplorePage from './pages/ExplorePage';
+import Feed from './pages/Feed';
+import NotFoundPage from './pages/NotFound';
+import PostPage from './pages/PostPage';
+import ProfilePage from './pages/ProfilePage';
+import PostPreview from './pages/ProfilePage/PostPreview';
+import {
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 
 const AuthChecker = () => {
   const navigate = useNavigate();
@@ -29,8 +37,7 @@ const AuthChecker = () => {
     if (!isAuthLoading) {
       if (!user && !location.pathname.startsWith('/auth')) {
         navigate('/auth/login');
-      }
-      else if(user && location.pathname.startsWith('/auth')) {
+      } else if (user && location.pathname.startsWith('/auth')) {
         navigate('/');
       }
     }
@@ -43,7 +50,7 @@ const AppContent = () => {
   const { user } = useContext(AuthContext);
 
   return (
-    <div className={`App ${(user ? "laptop:flex" : "hidden")}`}>
+    <div className={`App ${user ? 'laptop:flex' : 'hidden'}`}>
       {user && <Sidebar />}
       {user && <Navigation />}
       <div className="content flex flex-col justify-center items-center p-0 w-full h-full">

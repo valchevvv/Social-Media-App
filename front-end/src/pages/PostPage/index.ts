@@ -1,3 +1,3 @@
-import PostPage from "./PostPage";
+import PostPage from './PostPage';
 
 export default PostPage;

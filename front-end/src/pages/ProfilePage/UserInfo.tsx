@@ -1,15 +1,15 @@
-import { FaUserEdit } from "react-icons/fa";
-import { SlUserFollow, SlUserUnfollow } from "react-icons/sl";
-import profile_picture from '../../assets/profile_picture.png';
-import EditProfile from './Edit';
-import { useModal } from "../../contexts/ModalContext";
-import { useContext, useEffect, useState } from "react";
-import { get } from "../../helper/axiosHelper";
-import FollowerCard from "./FollowerCard";
-import { useSocketIoHelper } from "../../hooks/useSocket";
-import { AuthContext } from "../../contexts/AuthContext";
-import { MdLogout } from "react-icons/md";
+import { useContext, useEffect, useState } from 'react';
 
+import profile_picture from '../../assets/profile_picture.png';
+import { AuthContext } from '../../contexts/AuthContext';
+import { useModal } from '../../contexts/ModalContext';
+import { get } from '../../helper/axiosHelper';
+import { useSocketIoHelper } from '../../hooks/useSocket';
+import EditProfile from './Edit';
+import FollowerCard from './FollowerCard';
+import { FaUserEdit } from 'react-icons/fa';
+import { MdLogout } from 'react-icons/md';
+import { SlUserFollow, SlUserUnfollow } from 'react-icons/sl';
 
 interface UserInfoProps {
   username: string;
@@ -37,18 +37,17 @@ const UserInfo = (userData: UserInfoProps) => {
   const { socket } = useSocketIoHelper();
   const { user, logout } = useContext(AuthContext);
 
-
   const [followers, setFollowers] = useState<IUserSimpleInfo[]>([]);
   const [following, setFollowing] = useState<IUserSimpleInfo[]>([]);
 
   const updateFollows = async () => {
     get(`/users/followers/${userData.username}`)
-      .then((res) => setFollowers(res))
-      .then(() => get(`/users/following/${userData.username}`).then((res) => setFollowing(res)))
+      .then(res => setFollowers(res))
+      .then(() => get(`/users/following/${userData.username}`).then(res => setFollowing(res)));
 
     userData.stats.followers = followers.length;
     userData.stats.following = following.length;
-  }
+  };
 
   useEffect(() => {
     updateFollows();
@@ -56,7 +55,7 @@ const UserInfo = (userData: UserInfoProps) => {
 
   const handleUnfollowCallback = () => {
     updateFollows();
-  }
+  };
 
   useEffect(() => {
     if (!socket || !user?._id) return;
@@ -73,9 +72,9 @@ const UserInfo = (userData: UserInfoProps) => {
     socket.emit('unfollow_b', {
       userId: user._id,
       followId: id,
-      type
+      type,
     });
-  }
+  };
 
   return (
     <div className="p-4">
@@ -88,38 +87,53 @@ const UserInfo = (userData: UserInfoProps) => {
         <div className="flex flex-col items-center laptop:items-start mt-4 laptop:mt-0 laptop:ml-4">
           <div className="flex laptop:flex-row mobile:flex-col-reverse items-center gap-2 text-left">
             <span className="text-xl font-semibold">{userData.username}</span>
-            {
-              userData.self ?
-                <button
-                  onClick={() => {
-                    showModal({
-                      title: 'Edit Profile',
-                      size: 'large',
-                      content: <EditProfile username={userData.username} email={userData.email} bio={userData.bio} name={userData.name} profilePicture={userData.profilePicture} />,
-                      isRequired: true
-                    });
-                  }}
-                  className="px-4 py-1 bg-gray-800 text-white text-sm rounded-full hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-600 flex items-center gap-2"
-                >
-                  <FaUserEdit />
-                  Edit
-                </button>
-                :
-                <button
-                  onClick={userData.onFollow}
-                  className="px-4 py-1 bg-gray-800 text-white text-sm rounded-full hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-600 flex items-center gap-2"
-                >
-                  {
-                    userData.following ?
-                      <><SlUserUnfollow />Unfollow</>
-                      : userData.followed ?
-                        <><SlUserFollow />Follow back</>
-                        : <><SlUserFollow />Follow</>
-                  }
-                </button>
-            }
-            {
-              userData.self &&
+            {userData.self ? (
+              <button
+                onClick={() => {
+                  showModal({
+                    title: 'Edit Profile',
+                    size: 'large',
+                    content: (
+                      <EditProfile
+                        username={userData.username}
+                        email={userData.email}
+                        bio={userData.bio}
+                        name={userData.name}
+                        profilePicture={userData.profilePicture}
+                      />
+                    ),
+                    isRequired: true,
+                  });
+                }}
+                className="px-4 py-1 bg-gray-800 text-white text-sm rounded-full hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-600 flex items-center gap-2"
+              >
+                <FaUserEdit />
+                Edit
+              </button>
+            ) : (
+              <button
+                onClick={userData.onFollow}
+                className="px-4 py-1 bg-gray-800 text-white text-sm rounded-full hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-600 flex items-center gap-2"
+              >
+                {userData.following ? (
+                  <>
+                    <SlUserUnfollow />
+                    Unfollow
+                  </>
+                ) : userData.followed ? (
+                  <>
+                    <SlUserFollow />
+                    Follow back
+                  </>
+                ) : (
+                  <>
+                    <SlUserFollow />
+                    Follow
+                  </>
+                )}
+              </button>
+            )}
+            {userData.self && (
               <button
                 onClick={logout}
                 className="px-4 py-1 bg-gray-800 text-white text-sm rounded-full hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-600 flex items-center gap-2"
@@ -127,35 +141,63 @@ const UserInfo = (userData: UserInfoProps) => {
                 <MdLogout />
                 Logout
               </button>
-            }
+            )}
           </div>
-          <div className='flex laptop:flex-col mobile:flex-col-reverse justify-between mobile:items-center my-4 gap-4'>
+          <div className="flex laptop:flex-col mobile:flex-col-reverse justify-between mobile:items-center my-4 gap-4">
             <div className="flex flex-row justify-between space-x-10">
-              <span><span className="font-semibold">{userData.stats.posts}</span> posts</span>
-              <span className="hover:underline cursor-pointer" onClick={() => {
-                if (followers.length === 0) return;
-                showModal({
-                  title: 'Followers',
-                  size: 'small',
-                  content: <div className='flex flex-col gap-2'>{
-                    followers.map((follower) => <FollowerCard key={follower._id} permission={userData.self} data={follower} follower={true} onUnfollow={() => onUnfollow(follower._id, 'remove')} />)
-                  }</div>,
-                  isRequired: false
-                });
-              }}>
+              <span>
+                <span className="font-semibold">{userData.stats.posts}</span> posts
+              </span>
+              <span
+                className="hover:underline cursor-pointer"
+                onClick={() => {
+                  if (followers.length === 0) return;
+                  showModal({
+                    title: 'Followers',
+                    size: 'small',
+                    content: (
+                      <div className="flex flex-col gap-2">
+                        {followers.map(follower => (
+                          <FollowerCard
+                            key={follower._id}
+                            permission={userData.self}
+                            data={follower}
+                            follower={true}
+                            onUnfollow={() => onUnfollow(follower._id, 'remove')}
+                          />
+                        ))}
+                      </div>
+                    ),
+                    isRequired: false,
+                  });
+                }}
+              >
                 <span className="font-semibold">{followers.length}</span> followers
               </span>
-              <span className="hover:underline cursor-pointer" onClick={() => {
-                if (following.length === 0) return;
-                showModal({
-                  title: 'Following',
-                  size: 'small',
-                  content: <div className='flex flex-col gap-2 max-h-96 overflow-y-auto p-2'>{
-                    following.map((follower) => <FollowerCard key={follower._id} permission={userData.self} data={follower} follower={false} onUnfollow={() => onUnfollow(follower._id, 'unfollow')} />)
-                  }</div>,
-                  isRequired: false
-                });
-              }}>
+              <span
+                className="hover:underline cursor-pointer"
+                onClick={() => {
+                  if (following.length === 0) return;
+                  showModal({
+                    title: 'Following',
+                    size: 'small',
+                    content: (
+                      <div className="flex flex-col gap-2 max-h-96 overflow-y-auto p-2">
+                        {following.map(follower => (
+                          <FollowerCard
+                            key={follower._id}
+                            permission={userData.self}
+                            data={follower}
+                            follower={false}
+                            onUnfollow={() => onUnfollow(follower._id, 'unfollow')}
+                          />
+                        ))}
+                      </div>
+                    ),
+                    isRequired: false,
+                  });
+                }}
+              >
                 <span className="font-semibold">{following.length}</span> following
               </span>
             </div>

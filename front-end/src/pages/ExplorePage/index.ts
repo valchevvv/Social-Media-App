@@ -1,3 +1,3 @@
-import ExplorePage from "./ExplorePage";
+import ExplorePage from './ExplorePage';
 
 export default ExplorePage;

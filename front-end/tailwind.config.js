@@ -1,7 +1,5 @@
 module.exports = {
-  content: [
-    './src/**/*.{js,jsx,ts,tsx}',
-  ],
+  content: ['./src/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {
       keyframes: {
@@ -30,11 +28,15 @@ module.exports = {
       },
     },
     screens: {
-      'mobile': { 'max': '639px', 'min': '320px' },
-      'tablet': '640px',
-      'laptop': '1024px',
-      'desktop': '1280px',
+      mobile: { max: '639px' },
+      tablet: {
+        max: '1023px',
+      },
+      laptop: {
+        min: '1024px',
+      },
+      desktop: '1280px',
     },
   },
   plugins: [],
-}
+};

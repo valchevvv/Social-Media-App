@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
@@ -7,7 +7,12 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'robots.txt', 'assets/pwa-192x192.png', 'assets/pwa-512x512.png'],
+      includeAssets: [
+        'favicon.svg',
+        'robots.txt',
+        'assets/pwa-192x192.png',
+        'assets/pwa-512x512.png',
+      ],
       manifest: {
         name: 'DMedia',
         short_name: 'DMedia',
